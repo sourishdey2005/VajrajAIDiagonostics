@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { X, Calendar, Zap, Gauge, AlertTriangle, Shield, TrendingUp, History } from "lucide-react"
+import { X, Calendar, Zap, Gauge, AlertTriangle, Shield, TrendingUp, History, ChevronDown } from "lucide-react"
 import { transformers, healthHistory, faultHistory, type Transformer } from "@/lib/data"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
