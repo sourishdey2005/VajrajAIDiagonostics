@@ -11,6 +11,7 @@ import {
   Map,
   Settings,
   ShieldCheck,
+  GitCompareArrows
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
@@ -48,8 +49,14 @@ export default function DashboardLayout({
     { href: "/dashboard/map-view", icon: Map, label: "Map View" },
     { href: "/dashboard/transformers", icon: CircuitBoard, label: "Transformers" },
     { href: "/dashboard/analysis", icon: FileUp, label: "Analysis" },
-    { href: "/dashboard/settings", icon: Settings, label: "Settings" },
   ]
+
+  const managerMenuItems = [
+    { href: "/dashboard/comparison", icon: GitCompareArrows, label: "Comparison" },
+  ]
+
+  const settingsItem = { href: "/dashboard/settings", icon: Settings, label: "Settings" };
+
 
   return (
     <SidebarProvider>
@@ -86,9 +93,39 @@ export default function DashboardLayout({
                     <ShieldCheck className="mr-2"/>
                     Manager Tools
                 </SidebarGroupLabel>
-                {/* Manager-specific menu items can go here */}
+                 <SidebarMenu>
+                    {managerMenuItems.map((item) => (
+                    <SidebarMenuItem key={item.href}>
+                        <SidebarMenuButton
+                        asChild
+                        isActive={pathname === item.href}
+                        className="w-full justify-start"
+                        >
+                        <Link href={item.href}>
+                            <item.icon className="mr-2 h-4 w-4" />
+                            <span>{item.label}</span>
+                        </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    ))}
+                </SidebarMenu>
             </SidebarGroup>
           )}
+
+           <SidebarMenu className="mt-auto">
+             <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === settingsItem.href}
+                  className="w-full justify-start"
+                >
+                  <Link href={settingsItem.href}>
+                    <settingsItem.icon className="mr-2 h-4 w-4" />
+                    <span>{settingsItem.label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+           </SidebarMenu>
 
         </SidebarContent>
         <SidebarFooter>

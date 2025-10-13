@@ -269,3 +269,30 @@ export const faultProgressionData = [
     { date: '2024-05-10', deviation: 4.8, status: 'Significant Deviation' },
     { date: '2024-06-20', deviation: 7.2, status: 'Critical Fault Detected' },
 ];
+
+export const healthHistory = [
+    { transformerId: 'TR-001', date: '2023-07-01', healthScore: 98 },
+    { transformerId: 'TR-001', date: '2023-10-01', healthScore: 97 },
+    { transformerId: 'TR-001', date: '2024-01-01', healthScore: 95 },
+    { transformerId: 'TR-001', date: '2024-04-01', healthScore: 96 },
+    { transformerId: 'TR-002', date: '2023-07-01', healthScore: 85 },
+    { transformerId: 'TR-002', date: '2023-10-01', healthScore: 82 },
+    { transformerId: 'TR-002', date: '2024-01-01', healthScore: 78 },
+    { transformerId: 'TR-002', date: '2024-04-01', healthScore: 70 },
+    { transformerId: 'TR-003', date: '2023-07-01', healthScore: 99 },
+    { transformerId: 'TR-003', date: '2023-10-01', healthScore: 98 },
+    { transformerId: 'TR-003', date: '2024-01-01', healthScore: 97 },
+    { transformerId: 'TR-003', date: '2024-04-01', healthScore: 95 },
+    { transformerId: 'TR-006', date: '2023-07-01', healthScore: 92 },
+    { transformerId: 'TR-006', date: '2023-10-01', healthScore: 90 },
+    { transformerId: 'TR-006', date: '2024-01-01', healthScore: 88 },
+    { transformerId: 'TR-006', date: '2024-04-01', healthScore: 89 },
+];
+
+export const faultHistory = [
+    { transformerId: 'TR-002', date: '2024-05-20', faultType: 'Winding Deformation', severity: 'High' },
+    { transformerId: 'TR-002', date: '2023-09-12', faultType: 'Bushing Fault', severity: 'Medium' },
+    { transformerId: 'TR-009', date: '2023-09-01', faultType: 'Core Fault', severity: 'Medium' },
+    { transformerId: 'TR-014', date: '2024-04-05', faultType: 'Axial Displacement', severity: 'Low' },
+    { transformerId: 'TR-004', date: '2024-06-01', faultType: 'Inter-turn Short', severity: 'High (Simulated)' },
+];
