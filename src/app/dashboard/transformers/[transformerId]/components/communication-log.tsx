@@ -24,7 +24,7 @@ const userAvatars: Record<string, string | undefined> = {
     'Rohan Sharma': PlaceHolderImages.find(p => p.id === 'user-avatar-1')?.imageUrl,
     'Priya Sharma': PlaceHolderImages.find(p => p.id === 'user-avatar-2')?.imageUrl,
     'Anil Singh': PlaceHolderImages.find(p => p.id === 'user-avatar-3')?.imageUrl,
-    'Meena Iyer': PlaceHolderImages.find(p => p_id === 'user-avatar-4')?.imageUrl,
+    'Meena Iyer': PlaceHolderImages.find(p => p.id === 'user-avatar-4')?.imageUrl,
     'Sanjay Das': PlaceHolderImages.find(p => p.id === 'user-avatar-5')?.imageUrl,
 };
 
