@@ -15,16 +15,26 @@ import {
 } from "@/components/ui/table"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell } from 'recharts';
-import { Trophy, ClipboardCheck, Timer, Award, Zap } from 'lucide-react';
-import { engineerPerformanceData } from '@/lib/data';
+import { Trophy, ClipboardCheck, Timer, Award, Zap, PlusCircle, MoreHorizontal, Trash2 } from 'lucide-react';
+import { engineerPerformanceData as initialEngineerData, type EngineerPerformance } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { AddEngineerDialog } from './components/add-engineer-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+
 
 export default function PerformancePage() {
     const { role } = useUserRole();
     const router = useRouter();
+    const { toast } = useToast();
     const [isClient, setIsClient] = useState(false);
+    const [engineerData, setEngineerData] = useState<EngineerPerformance[]>(initialEngineerData);
+    const [isAddDialogOpen, setAddDialogOpen] = useState(false);
+
 
     useEffect(() => {
         setIsClient(true);
@@ -34,34 +44,57 @@ export default function PerformancePage() {
     }, [role, router]);
 
     const topPerformers = useMemo(() => {
-        const faults = [...engineerPerformanceData].sort((a, b) => b.faultsDetected - a.faultsDetected)[0];
-        const reports = [...engineerPerformanceData].sort((a, b) => b.reportsSubmitted - a.reportsSubmitted)[0];
-        const onTime = [...engineerPerformanceData].sort((a, b) => b.onTimeCompletion - a.onTimeCompletion)[0];
-        const resolution = [...engineerPerformanceData].sort((a, b) => a.avgResolutionHours - b.avgResolutionHours)[0];
+        if (engineerData.length === 0) return { faults: null, reports: null, onTime: null, resolution: null };
+        const faults = [...engineerData].sort((a, b) => b.faultsDetected - a.faultsDetected)[0];
+        const reports = [...engineerData].sort((a, b) => b.reportsSubmitted - a.reportsSubmitted)[0];
+        const onTime = [...engineerData].sort((a, b) => b.onTimeCompletion - a.onTimeCompletion)[0];
+        const resolution = [...engineerData].sort((a, b) => a.avgResolutionHours - b.avgResolutionHours)[0];
         return { faults, reports, onTime, resolution };
-    }, []);
+    }, [engineerData]);
     
     const chartData = useMemo(() => {
-        return engineerPerformanceData.map((e, i) => ({
+        return engineerData.map((e, i) => ({
             name: e.name,
             value: e.onTimeCompletion,
             fill: `hsl(var(--chart-${(i%5)+1}))`
         })).sort((a, b) => b.value - a.value);
-    }, []);
+    }, [engineerData]);
+
+    const handleAddEngineer = (data: Omit<EngineerPerformance, 'engineerId' | 'avatar'>) => {
+        const newEngineer: EngineerPerformance = {
+            ...data,
+            engineerId: `E-${String(engineerData.length + 1).padStart(3, '0')}`,
+            avatar: 'user-avatar-placeholder', // This could be improved to select an avatar
+        };
+        setEngineerData(prev => [...prev, newEngineer]);
+        toast({ title: "Engineer Added", description: `${data.name} has been added to the team.` });
+    };
+
+    const handleRemoveEngineer = (engineerId: string) => {
+        setEngineerData(prev => prev.filter(e => e.engineerId !== engineerId));
+        toast({ title: "Engineer Removed", description: `The engineer has been removed from the team.`, variant: "destructive" });
+    }
 
     if (!isClient || role !== 'manager') {
         return null; // or a loading spinner
     }
 
     return (
+        <>
         <div className="flex flex-col gap-8">
-            <div>
-                <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">
-                    Engineer Performance
-                </h1>
-                <p className="text-muted-foreground">
-                    Track and compare key performance indicators for your field engineering team.
-                </p>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">
+                        Engineer Performance
+                    </h1>
+                    <p className="text-muted-foreground">
+                        Track and compare key performance indicators for your field engineering team.
+                    </p>
+                </div>
+                <Button onClick={() => setAddDialogOpen(true)}>
+                    <PlusCircle className="mr-2 h-4 w-4"/>
+                    Add Engineer
+                </Button>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -70,8 +103,8 @@ export default function PerformancePage() {
                         <CardTitle className="flex items-center gap-2 text-sm text-yellow-600 dark:text-yellow-400"><Trophy /> Top Fault Detector</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-2xl font-bold">{topPerformers.faults.name}</p>
-                        <p className="text-sm text-muted-foreground">{topPerformers.faults.faultsDetected} faults identified</p>
+                        <p className="text-2xl font-bold">{topPerformers.faults?.name || 'N/A'}</p>
+                        <p className="text-sm text-muted-foreground">{topPerformers.faults?.faultsDetected || 0} faults identified</p>
                     </CardContent>
                 </Card>
                  <Card>
@@ -79,8 +112,8 @@ export default function PerformancePage() {
                         <CardTitle className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400"><ClipboardCheck /> Most Reports Submitted</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-2xl font-bold">{topPerformers.reports.name}</p>
-                        <p className="text-sm text-muted-foreground">{topPerformers.reports.reportsSubmitted} reports submitted</p>
+                        <p className="text-2xl font-bold">{topPerformers.reports?.name || 'N/A'}</p>
+                        <p className="text-sm text-muted-foreground">{topPerformers.reports?.reportsSubmitted || 0} reports submitted</p>
                     </CardContent>
                 </Card>
                  <Card>
@@ -88,8 +121,8 @@ export default function PerformancePage() {
                         <CardTitle className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400"><Timer /> Highest On-Time Rate</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-2xl font-bold">{topPerformers.onTime.name}</p>
-                        <p className="text-sm text-muted-foreground">{topPerformers.onTime.onTimeCompletion}% completion</p>
+                        <p className="text-2xl font-bold">{topPerformers.onTime?.name || 'N/A'}</p>
+                        <p className="text-sm text-muted-foreground">{topPerformers.onTime?.onTimeCompletion || 0}% completion</p>
                     </CardContent>
                 </Card>
                  <Card>
@@ -97,8 +130,8 @@ export default function PerformancePage() {
                         <CardTitle className="flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400"><Zap /> Fastest Resolution</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-2xl font-bold">{topPerformers.resolution.name}</p>
-                        <p className="text-sm text-muted-foreground">{topPerformers.resolution.avgResolutionHours} hours avg. time</p>
+                        <p className="text-2xl font-bold">{topPerformers.resolution?.name || 'N/A'}</p>
+                        <p className="text-sm text-muted-foreground">{topPerformers.resolution?.avgResolutionHours || 0} hours avg. time</p>
                     </CardContent>
                 </Card>
             </div>
@@ -118,17 +151,18 @@ export default function PerformancePage() {
                                     <TableHead className="text-center">Reports Submitted</TableHead>
                                     <TableHead className="text-center">Avg. Resolution (Hrs)</TableHead>
                                     <TableHead className="w-[200px]">On-Time Completion</TableHead>
+                                    <TableHead className="w-px"></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {engineerPerformanceData.map(engineer => {
+                                {engineerData.map(engineer => {
                                     const avatar = PlaceHolderImages.find(p => p.id === engineer.avatar);
                                     return (
                                         <TableRow key={engineer.engineerId}>
                                             <TableCell>
                                                 <div className="flex items-center gap-3">
                                                     <Avatar>
-                                                        {avatar && <AvatarImage src={avatar.imageUrl} alt={engineer.name} data-ai-hint={avatar.imageHint} />}
+                                                        {avatar ? <AvatarImage src={avatar.imageUrl} alt={engineer.name} data-ai-hint={avatar.imageHint} /> : <AvatarImage src="https://picsum.photos/seed/placeholder/100/100" alt={engineer.name} data-ai-hint="person face"/> }
                                                         <AvatarFallback>{engineer.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                                                     </Avatar>
                                                     <div>
@@ -147,6 +181,36 @@ export default function PerformancePage() {
                                                     }/>
                                                     <span className="font-semibold text-muted-foreground">{engineer.onTimeCompletion}%</span>
                                                 </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <AlertDialog>
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal /></Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent>
+                                                            <AlertDialogTrigger asChild>
+                                                                <DropdownMenuItem className="text-destructive focus:text-destructive">
+                                                                    <Trash2 className="mr-2"/> Remove Engineer
+                                                                </DropdownMenuItem>
+                                                            </AlertDialogTrigger>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                This will permanently remove {engineer.name} from the performance dashboard. This action cannot be undone.
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <AlertDialogAction onClick={() => handleRemoveEngineer(engineer.engineerId)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                                                Remove
+                                                            </AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
                                             </TableCell>
                                         </TableRow>
                                     )
@@ -177,5 +241,11 @@ export default function PerformancePage() {
                 </Card>
             </div>
         </div>
+        <AddEngineerDialog
+            isOpen={isAddDialogOpen}
+            onOpenChange={setAddDialogOpen}
+            onAddEngineer={handleAddEngineer}
+        />
+        </>
     );
 }

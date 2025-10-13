@@ -400,7 +400,17 @@ export const budgetEstimates = {
   }
 };
 
-export const engineerPerformanceData = [
+export type EngineerPerformance = {
+    engineerId: string;
+    name: string;
+    avatar: string;
+    faultsDetected: number;
+    reportsSubmitted: number;
+    onTimeCompletion: number;
+    avgResolutionHours: number;
+}
+
+export const engineerPerformanceData: EngineerPerformance[] = [
   {
     engineerId: 'E-001',
     name: 'Ravi Kumar',

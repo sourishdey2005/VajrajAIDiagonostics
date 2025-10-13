@@ -35,6 +35,12 @@
       "description": "Avatar of Sanjay Das",
       "imageUrl": "https://picsum.photos/seed/u5/100/100",
       "imageHint": "man face"
+    },
+    {
+      "id": "user-avatar-placeholder",
+      "description": "Placeholder for a new user avatar",
+      "imageUrl": "https://picsum.photos/seed/u-new/100/100",
+      "imageHint": "person face"
     }
   ]
 }

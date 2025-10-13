@@ -14,6 +14,7 @@ import {
   GitCompareArrows,
   CircleDollarSign,
   Users,
+  History,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -72,6 +73,11 @@ export default function DashboardLayout({
       href: '/dashboard/performance',
       icon: Users,
       label: 'Performance',
+    },
+    {
+        href: '/dashboard/audit-trail',
+        icon: History,
+        label: 'Audit Trail',
     },
   ];
 
