@@ -1,16 +1,16 @@
 'use client';
 
-import { useState, useTransition, useMemo } from 'react';
+import { useState, useTransition, useMemo, useEffect } from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { DollarSign, LineChart, Loader2, TrendingDown, TrendingUp } from 'lucide-react';
-import { estimateMaintenanceCosts } from '@/ai/flows/estimate-maintenance-costs';
 import { useToast } from '@/hooks/use-toast';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { Skeleton } from '@/components/ui/skeleton';
+import { budgetEstimates } from '@/lib/data';
 
 const faultTypes = [
   'Winding Deformation',
@@ -46,24 +46,38 @@ export default function BudgetingPage() {
   const { toast } = useToast();
 
   const handleEstimate = () => {
-    startTransition(async () => {
-      try {
+    startTransition(() => {
         setEstimation(null);
-        const result = await estimateMaintenanceCosts({
-          faultClassification: selectedFault,
-          criticality: selectedCriticality,
-        });
-        setEstimation(result);
-      } catch (error) {
-        console.error('Failed to get estimation', error);
-        toast({
-          title: 'Estimation Failed',
-          description: 'Could not retrieve cost estimates from the AI. Please try again.',
-          variant: 'destructive',
-        });
-      }
+        // Simulate a short delay to give user feedback
+        setTimeout(() => {
+            try {
+                const result = budgetEstimates[selectedFault as keyof typeof budgetEstimates]?.[selectedCriticality as keyof typeof budgetEstimates[keyof typeof budgetEstimates]];
+                if (result) {
+                    setEstimation(result);
+                } else {
+                     toast({
+                        title: 'Estimation Not Available',
+                        description: 'No cost estimate found for the selected scenario.',
+                        variant: 'destructive',
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to get estimation', error);
+                toast({
+                title: 'Estimation Failed',
+                description: 'Could not retrieve cost estimates. Please try again.',
+                variant: 'destructive',
+                });
+            }
+        }, 300);
     });
   };
+
+  // Pre-load initial estimation on component mount
+  useEffect(() => {
+    handleEstimate();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const chartData = useMemo(() => {
     if (!estimation) return [];
@@ -143,7 +157,7 @@ export default function BudgetingPage() {
         </CardContent>
       </Card>
 
-      {isEstimating && (
+      {isEstimating && !estimation && (
          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Skeleton className="h-40 w-full" />
             <Skeleton className="h-40 w-full" />

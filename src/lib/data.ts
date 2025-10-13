@@ -296,3 +296,106 @@ export const faultHistory = [
     { transformerId: 'TR-014', date: '2024-04-05', faultType: 'Axial Displacement', severity: 'Low' },
     { transformerId: 'TR-004', date: '2024-06-01', faultType: 'Inter-turn Short', severity: 'High (Simulated)' },
 ];
+
+export const budgetEstimates = {
+  'Winding Deformation': {
+    High: {
+      estimatedRepairCost: 550000,
+      preventativeMaintenanceCost: 80000,
+      potentialSavings: 470000,
+      costBreakdown: "Reactive repair includes costs for emergency crew deployment, replacement windings, and significant revenue loss from extended downtime."
+    },
+    Medium: {
+      estimatedRepairCost: 320000,
+      preventativeMaintenanceCost: 55000,
+      potentialSavings: 265000,
+      costBreakdown: "Primary costs include specialized crew, winding materials, and moderate downtime."
+    },
+    Low: {
+      estimatedRepairCost: 150000,
+      preventativeMaintenanceCost: 25000,
+      potentialSavings: 125000,
+      costBreakdown: "Costs driven by materials and labor for on-site repair."
+    }
+  },
+  'Inter-turn Short': {
+    High: {
+      estimatedRepairCost: 650000,
+      preventativeMaintenanceCost: 95000,
+      potentialSavings: 555000,
+      costBreakdown: "Extremely high costs due to near-certain catastrophic failure, requiring full transformer replacement and extensive site cleanup."
+    },
+    Medium: {
+      estimatedRepairCost: 400000,
+      preventativeMaintenanceCost: 65000,
+      potentialSavings: 335000,
+      costBreakdown: "Costs include complete rewind, oil replacement, and significant labor."
+    },
+    Low: {
+      estimatedRepairCost: 180000,
+      preventativeMaintenanceCost: 30000,
+      potentialSavings: 150000,
+      costBreakdown: "Includes cost for diagnostics, partial rewind and oil filtering."
+    }
+  },
+  'Core Fault': {
+    High: {
+      estimatedRepairCost: 450000,
+      preventativeMaintenanceCost: 60000,
+      potentialSavings: 390000,
+      costBreakdown: "Repair involves core re-stacking or replacement, a labor-intensive process requiring full disassembly."
+    },
+    Medium: {
+      estimatedRepairCost: 250000,
+      preventativeMaintenanceCost: 40000,
+      potentialSavings: 210000,
+      costBreakdown: "Costs driven by specialized equipment for core lamination repair and downtime."
+    },
+    Low: {
+      estimatedRepairCost: 120000,
+      preventativeMaintenanceCost: 20000,
+      potentialSavings: 100000,
+      costBreakdown: "Costs include inspection and minor lamination repairs."
+    }
+  },
+  'Axial Displacement': {
+    High: {
+      estimatedRepairCost: 380000,
+      preventativeMaintenanceCost: 50000,
+      potentialSavings: 330000,
+      costBreakdown: "Costs include re-clamping of windings and structural reinforcement, requiring a full outage."
+    },
+    Medium: {
+      estimatedRepairCost: 200000,
+      preventativeMaintenanceCost: 35000,
+      potentialSavings: 165000,
+      costBreakdown: "Costs from labor for internal inspection and mechanical adjustments."
+    },
+    Low: {
+      estimatedRepairCost: 90000,
+      preventativeMaintenanceCost: 15000,
+      potentialSavings: 75000,
+      costBreakdown: "Preventative action involves tightening and inspection."
+    }
+  },
+  'Bushing Fault': {
+    High: {
+      estimatedRepairCost: 250000,
+      preventativeMaintenanceCost: 25000,
+      potentialSavings: 225000,
+      costBreakdown: "Failure can cause cascading damage; cost includes replacement bushing, oil, and potential fire damage."
+    },
+    Medium: {
+      estimatedRepairCost: 100000,
+      preventativeMaintenanceCost: 15000,
+      potentialSavings: 85000,
+      costBreakdown: "Cost is for the replacement of the bushing unit and associated labor."
+    },
+    Low: {
+      estimatedRepairCost: 40000,
+      preventativeMaintenanceCost: 8000,
+      potentialSavings: 32000,
+      costBreakdown: "Preventative action is a simple bushing replacement or cleaning."
+    }
+  }
+};
