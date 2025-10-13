@@ -120,3 +120,10 @@ export const criticalityDistributionData = [
     { name: 'Medium', value: 3, fill: 'hsl(var(--chart-3))' },
     { name: 'Low', value: 1, fill: 'hsl(var(--chart-1))' },
 ]
+
+export const manufacturerDistributionData = [
+  { name: 'Bharat Heavy Electricals', value: 2, fill: 'hsl(var(--chart-1))' },
+  { name: 'Siemens India', value: 2, fill: 'hsl(var(--chart-2))' },
+  { name: 'ABB India', value: 2, fill: 'hsl(var(--chart-3))' },
+  { name: 'Crompton Greaves', value: 1, fill: 'hsl(var(--chart-4))' },
+]

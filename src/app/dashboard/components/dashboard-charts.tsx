@@ -3,7 +3,7 @@
 import { Bar, BarChart, CartesianGrid, Line, LineChart, Pie, PieChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
-import { analysisTrendData, faultDistributionData, transformerStatusData, criticalityDistributionData } from "@/lib/data"
+import { analysisTrendData, faultDistributionData, transformerStatusData, criticalityDistributionData, manufacturerDistributionData } from "@/lib/data"
 import { cn } from "@/lib/utils"
 
 const chartConfig = {
@@ -128,6 +128,40 @@ export function CriticalityDistributionChart({ className }: { className?: string
                 outerRadius={100}
               >
                 {criticalityDistributionData.map((entry) => (
+                  <Cell key={`cell-${entry.name}`} fill={entry.fill} />
+                ))}
+              </Pie>
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function ManufacturerDistributionChart({ className }: { className?: string }) {
+  return (
+    <Card className={cn(className)}>
+      <CardHeader>
+        <CardTitle>Manufacturer Distribution</CardTitle>
+        <CardDescription>Breakdown of transformer assets by manufacturer.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={{}} className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
+              <Pie
+                data={manufacturerDistributionData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                label={(entry) => `${entry.name} (${entry.value})`}
+              >
+                {manufacturerDistributionData.map((entry) => (
                   <Cell key={`cell-${entry.name}`} fill={entry.fill} />
                 ))}
               </Pie>
