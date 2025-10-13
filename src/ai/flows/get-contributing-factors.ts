@@ -10,7 +10,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const GetContributingFactorsInputSchema = z.object({
+const GetContributingFactorsInputSchema = z.object({
   faultClassification: z.string().describe('The classification of the fault detected.'),
   rawFraDataSummary: z.string().describe('Summary of the raw FRA data that led to the classification.'),
    criticality: z.string().describe("The criticality level of the transformer."),
@@ -22,7 +22,7 @@ const FactorSchema = z.object({
     influence: z.number().min(0).max(100).describe("The percentage of influence this factor has on the diagnosis (0-100). All influence scores must sum to 100.")
 });
 
-export const GetContributingFactorsOutputSchema = z.object({
+const GetContributingFactorsOutputSchema = z.object({
   factors: z.array(FactorSchema).describe("A list of contributing factors and their influence scores.")
 });
 export type GetContributingFactorsOutput = z.infer<typeof GetContributingFactorsOutputSchema>;
