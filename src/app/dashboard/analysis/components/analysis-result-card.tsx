@@ -22,8 +22,10 @@ import { augmentDashboardWithAIExplanations } from "@/ai/flows/augment-dashboard
 import { generateActionableInsights } from "@/ai/flows/generate-actionable-insights"
 import { suggestExpertSystemRules } from "@/ai/flows/suggest-expert-system-rules"
 import { getContributingFactors } from "@/ai/flows/get-contributing-factors"
+import { getHealthCompassReading } from "@/ai/flows/get-health-compass-reading"
 import { useUserRole } from "@/contexts/user-role-context"
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
+import { HealthCompass } from "./health-compass"
 
 type AnalysisResult = {
   faultClassification: string;
@@ -51,6 +53,7 @@ function RootCauseAnalysisChart({ result }: { result: AnalysisResult }) {
     const [isPending, startTransition] = useTransition();
 
     useEffect(() => {
+        if (!result) return;
         startTransition(async () => {
             const output = await getContributingFactors(result);
             setData(output);
@@ -75,7 +78,7 @@ function RootCauseAnalysisChart({ result }: { result: AnalysisResult }) {
                 <XAxis type="number" hide domain={[0, 100]} />
                 <YAxis type="category" dataKey="factor" tick={{ fontSize: 12 }} width={120} axisLine={false} tickLine={false} />
                 <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent formatter={(value) => `${value}%`} hideLabel />} />
-                <Bar dataKey="influence" name="Influence" radius={[0, 4, 4, 0]} barSize={30}>
+                <Bar dataKey="influence" name="Influence" radius={[0, 4, 4, 0]}>
                     {chartData.map((entry) => (
                         <Cell key={`cell-${entry.factor}`} />
                     ))}
@@ -91,6 +94,7 @@ const AIFetcher = ({ flow, input, icon, title }: { flow: (input: any) => Promise
   const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
+    if (!input) return;
     startTransition(async () => {
       const output = await flow(input)
       const key = Object.keys(output)[0];
@@ -146,6 +150,25 @@ const AIFetcher = ({ flow, input, icon, title }: { flow: (input: any) => Promise
   )
 }
 
+function HealthCompassAnalysis({ result }: { result: AnalysisResult }) {
+    const [angle, setAngle] = useState<number>(0);
+    const [isPending, startTransition] = useTransition();
+
+    useEffect(() => {
+        if (!result) return;
+        startTransition(async () => {
+            const output = await getHealthCompassReading(result);
+            setAngle(output.angle);
+        });
+    }, [result]);
+
+    if (isPending) {
+        return <Skeleton className="w-[300px] h-[300px] rounded-full" />;
+    }
+
+    return <HealthCompass angle={angle} faultClassification={result.faultClassification} />;
+}
+
 export function AnalysisResultCard({ result, isLoading }: AnalysisResultCardProps) {
   const { role } = useUserRole();
 
@@ -199,34 +222,45 @@ export function AnalysisResultCard({ result, isLoading }: AnalysisResultCardProp
           </TabsList>
           
           <TabsContent value="summary" className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card className="bg-destructive/5 border-destructive/20">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-destructive"><AlertCircle className="w-5 h-5" /> Detected Fault</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold text-destructive">{result.faultClassification}</p>
-                  <p className="text-sm text-destructive/80">Based on the provided FRA signature.</p>
-                </CardContent>
-              </Card>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <Card className="bg-destructive/5 border-destructive/20">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-destructive"><AlertCircle className="w-5 h-5" /> Detected Fault</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-2xl font-bold text-destructive">{result.faultClassification}</p>
+                    <p className="text-sm text-destructive/80">Based on the provided FRA signature.</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Confidence Score</CardTitle>
+                    <CardDescription>Probability of correctness.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[60px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={confidenceData} layout="vertical">
+                          <XAxis type="number" domain={[0, 100]} hide />
+                          <YAxis type="category" dataKey="name" hide />
+                          <Tooltip cursor={{fill: 'hsl(var(--muted))'}} content={<ChartTooltipContent hideLabel hideIndicator />} />
+                          <Bar dataKey="value" fill="var(--color-chart-1)" radius={4} barSize={20}>
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <p className="text-right text-2xl font-bold mt-2">{(result.confidenceScore * 100).toFixed(1)}%</p>
+                  </CardContent>
+                </Card>
+              </div>
               <Card>
                 <CardHeader>
-                  <CardTitle>Confidence Score</CardTitle>
-                   <CardDescription>Probability of the detected fault being correct.</CardDescription>
+                    <CardTitle>Health Compass</CardTitle>
+                    <CardDescription>AI-inferred fault category.</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="h-[60px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={confidenceData} layout="vertical">
-                        <XAxis type="number" domain={[0, 100]} hide />
-                        <YAxis type="category" dataKey="name" hide />
-                        <Tooltip cursor={{fill: 'hsl(var(--muted))'}} content={<ChartTooltipContent hideLabel hideIndicator />} />
-                        <Bar dataKey="value" fill="var(--color-chart-1)" radius={4} barSize={20}>
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                   <p className="text-right text-2xl font-bold mt-2">{(result.confidenceScore * 100).toFixed(1)}%</p>
+                <CardContent className="flex items-center justify-center">
+                    <HealthCompassAnalysis result={result} />
                 </CardContent>
               </Card>
             </div>
