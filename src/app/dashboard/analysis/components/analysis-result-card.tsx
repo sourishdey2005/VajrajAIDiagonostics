@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
-import { AlertCircle, Bot, BrainCircuit, Lightbulb, Loader2 } from "lucide-radix"
+import { AlertCircle, Bot, BrainCircuit, Lightbulb, Loader2 } from "lucide-react"
 import {
   Card,
   CardContent,
