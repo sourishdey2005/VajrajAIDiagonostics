@@ -144,7 +144,7 @@ export function MapControls({ filters, onFilterChange, allTransformers }: MapCon
                         <XAxis type="number" hide domain={[0, 'dataMax + 2']}/>
                         <YAxis type="category" dataKey="name" width={50} tickLine={false} axisLine={false}/>
                         <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent hideLabel />} />
-                        <Bar dataKey="value" radius={4}>
+                        <Bar dataKey="value" radius={4} fill="var(--color-fill)">
                             {zoneData.map((entry) => (
                                 <Cell
                                     key={`cell-${entry.name}`}
@@ -178,7 +178,7 @@ export function MapControls({ filters, onFilterChange, allTransformers }: MapCon
                             className={cn(
                                 "flex-1 p-2 rounded-lg text-left transition-all border-2",
                                 isSelected 
-                                    ? `border-[${maintenanceStatusColors[status]}] bg-[${maintenanceStatusColors[status]}]/20`
+                                    ? "border-primary bg-primary/20"
                                     : `border-transparent bg-muted/50 hover:bg-muted`,
                                 !isAnySelected || isSelected ? 'opacity-100' : 'opacity-40 hover:opacity-70'
                             )}
