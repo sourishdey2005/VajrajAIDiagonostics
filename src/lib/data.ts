@@ -408,6 +408,7 @@ export const engineerPerformanceData = [
     faultsDetected: 28,
     reportsSubmitted: 45,
     onTimeCompletion: 95,
+    avgResolutionHours: 24,
   },
   {
     engineerId: 'E-002',
@@ -416,6 +417,7 @@ export const engineerPerformanceData = [
     faultsDetected: 35,
     reportsSubmitted: 52,
     onTimeCompletion: 98,
+    avgResolutionHours: 18,
   },
   {
     engineerId: 'E-003',
@@ -424,6 +426,7 @@ export const engineerPerformanceData = [
     faultsDetected: 22,
     reportsSubmitted: 48,
     onTimeCompletion: 92,
+    avgResolutionHours: 36,
   },
   {
     engineerId: 'E-004',
@@ -432,6 +435,7 @@ export const engineerPerformanceData = [
     faultsDetected: 30,
     reportsSubmitted: 42,
     onTimeCompletion: 96,
+    avgResolutionHours: 22,
   },
   {
     engineerId: 'E-005',
@@ -440,5 +444,6 @@ export const engineerPerformanceData = [
     faultsDetected: 18,
     reportsSubmitted: 38,
     onTimeCompletion: 88,
+    avgResolutionHours: 48,
   },
 ];

@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { Activity, AlertTriangle, BadgePercent, CircuitBoard } from "lucide-react"
+import { Activity, AlertTriangle, BadgePercent, CircuitBoard, Siren, Clock } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { transformers as initialTransformers } from "@/lib/data"
+import { transformers as initialTransformers, Transformer } from "@/lib/data"
 import { 
   AnalysisTrendChart, 
   CriticalityDistributionChart, 
@@ -15,8 +15,10 @@ import {
   TransformerStatusChart,
   UpcomingServiceChart,
 } from "./components/dashboard-charts"
-
-type Transformer = typeof initialTransformers[0];
+import { differenceInDays, formatDistanceToNow, parseISO } from "date-fns"
+import { cn } from "@/lib/utils"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
 // Helper to generate chart colors
 const generateChartColors = (count: number) => {
@@ -26,6 +28,26 @@ const generateChartColors = (count: number) => {
   }
   return colors;
 };
+
+function Countdown({ date }: { date: string }) {
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const distance = differenceInDays(parseISO(date), new Date());
+      if (distance < 0) {
+        return `${formatDistanceToNow(parseISO(date))} overdue`;
+      }
+      return `in ${formatDistanceToNow(parseISO(date))}`;
+    };
+
+    setTimeLeft(calculateTimeLeft());
+    const interval = setInterval(() => setTimeLeft(calculateTimeLeft()), 60000);
+    return () => clearInterval(interval);
+  }, [date]);
+
+  return <span className="font-semibold">{timeLeft}</span>;
+}
 
 export default function DashboardPage() {
   const [transformers, setTransformers] = useState<Transformer[]>(initialTransformers);
@@ -52,6 +74,10 @@ export default function DashboardPage() {
       alerts: alerts,
       health: health
     }
+  }, [transformers]);
+
+  const criticalTransformers = useMemo(() => {
+      return transformers.filter(t => t.status === 'Needs Attention').sort((a,b) => new Date(a.nextServiceDate).getTime() - new Date(b.nextServiceDate).getTime());
   }, [transformers]);
 
   const transformerStatusData = useMemo(() => {
@@ -263,6 +289,46 @@ export default function DashboardPage() {
         </Card>
       </div>
 
+        {criticalTransformers.length > 0 && (
+            <Card className="border-destructive/80 bg-destructive/10">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-destructive"><Siren /> Critical Alert Center</CardTitle>
+                    <CardDescription className="text-destructive/80">
+                        The following transformers require immediate attention.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {criticalTransformers.map(t => (
+                        <Card key={t.id} className="bg-background/80 backdrop-blur-sm">
+                            <CardHeader>
+                                <CardTitle className="text-base flex justify-between items-center">
+                                    <span>{t.id} - {t.name}</span>
+                                     <span className={cn("px-2 py-0.5 text-xs rounded-full",
+                                        t.criticality === "High" ? "bg-destructive text-destructive-foreground" :
+                                        t.criticality === "Medium" ? "bg-yellow-500 text-black" :
+                                        "bg-blue-500 text-white"
+                                     )}>{t.criticality}</span>
+                                </CardTitle>
+                                <CardDescription>{t.location}</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-center justify-between text-sm text-destructive font-medium border-t pt-4">
+                                   <div className="flex items-center gap-2">
+                                     <Clock className="w-4 h-4"/>
+                                     <span>Service Due</span>
+                                   </div>
+                                   <Countdown date={t.nextServiceDate} />
+                                </div>
+                                <Button asChild size="sm" className="w-full mt-4">
+                                  <Link href={`/dashboard/transformers/${t.id}`}>View Details</Link>
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </CardContent>
+            </Card>
+        )}
+
       <div className="grid gap-4 md:gap-8 lg:grid-cols-5">
         <FaultDistributionChart className="lg:col-span-3" />
         <TransformerStatusChart data={transformerStatusData} className="lg:col-span-2" />
@@ -285,5 +351,3 @@ export default function DashboardPage() {
     </div>
   )
 }
-
-    

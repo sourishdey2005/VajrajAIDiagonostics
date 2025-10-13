@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/table"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell } from 'recharts';
-import { Trophy, ClipboardCheck, Timer, Award } from 'lucide-react';
+import { Trophy, ClipboardCheck, Timer, Award, Zap } from 'lucide-react';
 import { engineerPerformanceData } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
@@ -37,7 +37,8 @@ export default function PerformancePage() {
         const faults = [...engineerPerformanceData].sort((a, b) => b.faultsDetected - a.faultsDetected)[0];
         const reports = [...engineerPerformanceData].sort((a, b) => b.reportsSubmitted - a.reportsSubmitted)[0];
         const onTime = [...engineerPerformanceData].sort((a, b) => b.onTimeCompletion - a.onTimeCompletion)[0];
-        return { faults, reports, onTime };
+        const resolution = [...engineerPerformanceData].sort((a, b) => a.avgResolutionHours - b.avgResolutionHours)[0];
+        return { faults, reports, onTime, resolution };
     }, []);
     
     const chartData = useMemo(() => {
@@ -63,7 +64,7 @@ export default function PerformancePage() {
                 </p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-sm text-yellow-600 dark:text-yellow-400"><Trophy /> Top Fault Detector</CardTitle>
@@ -88,7 +89,16 @@ export default function PerformancePage() {
                     </CardHeader>
                     <CardContent>
                         <p className="text-2xl font-bold">{topPerformers.onTime.name}</p>
-                        <p className="text-sm text-muted-foreground">{topPerformers.onTime.onTimeCompletion}% completion rate</p>
+                        <p className="text-sm text-muted-foreground">{topPerformers.onTime.onTimeCompletion}% completion</p>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400"><Zap /> Fastest Resolution</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-2xl font-bold">{topPerformers.resolution.name}</p>
+                        <p className="text-sm text-muted-foreground">{topPerformers.resolution.avgResolutionHours} hours avg. time</p>
                     </CardContent>
                 </Card>
             </div>
@@ -106,6 +116,7 @@ export default function PerformancePage() {
                                     <TableHead>Engineer</TableHead>
                                     <TableHead className="text-center">Faults Detected</TableHead>
                                     <TableHead className="text-center">Reports Submitted</TableHead>
+                                    <TableHead className="text-center">Avg. Resolution (Hrs)</TableHead>
                                     <TableHead className="w-[200px]">On-Time Completion</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -128,6 +139,7 @@ export default function PerformancePage() {
                                             </TableCell>
                                             <TableCell className="text-center font-semibold text-lg">{engineer.faultsDetected}</TableCell>
                                             <TableCell className="text-center font-semibold text-lg">{engineer.reportsSubmitted}</TableCell>
+                                            <TableCell className="text-center font-semibold text-lg">{engineer.avgResolutionHours}</TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
                                                     <Progress value={engineer.onTimeCompletion} className="h-2" indicatorClassName={
