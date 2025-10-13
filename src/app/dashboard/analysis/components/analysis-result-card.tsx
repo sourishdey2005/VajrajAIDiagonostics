@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState, useTransition } from "react"
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts"
-import { AlertCircle, Bot, BrainCircuit, Lightbulb, Loader2 } from "lucide-react"
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Cell } from "recharts"
+import { AlertCircle, Bot, BrainCircuit, Lightbulb, Loader2, Share2 } from "lucide-react"
 import {
   Card,
   CardContent,
@@ -21,8 +21,9 @@ import { Badge } from "@/components/ui/badge"
 import { augmentDashboardWithAIExplanations } from "@/ai/flows/augment-dashboard-with-ai-explanations"
 import { generateActionableInsights } from "@/ai/flows/generate-actionable-insights"
 import { suggestExpertSystemRules } from "@/ai/flows/suggest-expert-system-rules"
+import { getContributingFactors } from "@/ai/flows/get-contributing-factors"
 import { useUserRole } from "@/contexts/user-role-context"
-import { ChartTooltipContent } from "@/components/ui/chart"
+import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
 
 type AnalysisResult = {
   faultClassification: string;
@@ -35,6 +36,54 @@ type AnalysisResult = {
 interface AnalysisResultCardProps {
   result: AnalysisResult | null
   isLoading: boolean
+}
+
+const generateChartColors = (count: number) => {
+  const colors = [];
+  for (let i = 0; i < count; i++) {
+    colors.push(`hsl(var(--chart-${(i % 5) + 1}))`);
+  }
+  return colors;
+};
+
+function RootCauseAnalysisChart({ result }: { result: AnalysisResult }) {
+    const [data, setData] = useState<{ factors: {factor: string, influence: number}[] } | null>(null);
+    const [isPending, startTransition] = useTransition();
+
+    useEffect(() => {
+        startTransition(async () => {
+            const output = await getContributingFactors(result);
+            setData(output);
+        });
+    }, [result]);
+
+    if (isPending || !data) {
+        return <div className="space-y-2 h-[250px]">
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-4/5" />
+            <Skeleton className="h-8 w-3/4" />
+        </div>
+    }
+    
+    const chartData = data.factors.map((f, i) => ({ ...f, fill: `hsl(var(--chart-${(i%5)+1}))` }));
+
+    return (
+       <div className="h-[250px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} layout="vertical" margin={{ left: 120 }}>
+                <XAxis type="number" hide domain={[0, 100]} />
+                <YAxis type="category" dataKey="factor" tick={{ fontSize: 12 }} width={120} axisLine={false} tickLine={false} />
+                <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent formatter={(value) => `${value}%`} hideLabel />} />
+                <Bar dataKey="influence" name="Influence" radius={[0, 4, 4, 0]} barSize={30}>
+                    {chartData.map((entry) => (
+                        <Cell key={`cell-${entry.factor}`} />
+                    ))}
+                </Bar>
+            </BarChart>
+        </ResponsiveContainer>
+       </div>
+    );
 }
 
 const AIFetcher = ({ flow, input, icon, title }: { flow: (input: any) => Promise<{ [key: string]: any }>, input: any, icon: React.ReactNode, title: string }) => {
@@ -141,8 +190,9 @@ export function AnalysisResultCard({ result, isLoading }: AnalysisResultCardProp
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="summary">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 mb-6">
             <TabsTrigger value="summary">Summary</TabsTrigger>
+            <TabsTrigger value="root-cause">Root Cause</TabsTrigger>
             <TabsTrigger value="ai-explanation">AI Explanation</TabsTrigger>
             <TabsTrigger value="actions">Maintenance Actions</TabsTrigger>
             {role === 'manager' && <TabsTrigger value="expert-system">Expert System Rules</TabsTrigger>}
@@ -183,6 +233,17 @@ export function AnalysisResultCard({ result, isLoading }: AnalysisResultCardProp
             <div>
               <h3 className="font-semibold text-lg mb-2">Raw Data Summary</h3>
               <p className="text-sm text-muted-foreground p-4 bg-muted/50 rounded-lg border font-mono">{result.rawFraDataSummary}</p>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="root-cause">
+             <div className="flex items-start gap-4 p-1">
+                <div className="text-primary pt-1"><Share2 className="w-6 h-6" /></div>
+                <div className="flex-1">
+                    <h3 className="font-bold text-lg">AI-Powered Root Cause Analysis</h3>
+                    <p className="text-sm text-muted-foreground mb-4">The most likely contributing factors to the detected fault.</p>
+                    <RootCauseAnalysisChart result={result} />
+                </div>
             </div>
           </TabsContent>
 
