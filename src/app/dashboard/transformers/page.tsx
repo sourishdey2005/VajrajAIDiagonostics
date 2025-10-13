@@ -1,15 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { format, parseISO } from "date-fns"
 import { Badge } from "@/components/ui/badge"
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
 import {
   Table,
@@ -29,8 +26,34 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 type Transformer = typeof initialTransformers[0];
 
 export default function TransformersPage() {
-  const [transformers, setTransformers] = useState(initialTransformers);
+  const [transformers, setTransformers] = useState<Transformer[]>([]);
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+    try {
+      const storedTransformers = localStorage.getItem("transformers");
+      if (storedTransformers) {
+        setTransformers(JSON.parse(storedTransformers));
+      } else {
+        setTransformers(initialTransformers);
+      }
+    } catch (error) {
+        // If we are on the server or localStorage is disabled, fall back to initial data
+        setTransformers(initialTransformers);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isClient) {
+        try {
+            localStorage.setItem("transformers", JSON.stringify(transformers));
+        } catch (error) {
+            console.error("Could not save transformers to localStorage", error);
+        }
+    }
+  }, [transformers, isClient]);
 
   const handleAddTransformer = (data: Omit<Transformer, 'id' | 'status'> & { last_inspection: Date, nextServiceDate: Date }) => {
     const newId = `TR-${String(transformers.length + 1).padStart(3, '0')}`;
@@ -42,6 +65,28 @@ export default function TransformersPage() {
       nextServiceDate: format(data.nextServiceDate, 'yyyy-MM-dd'),
     }
     setTransformers(prev => [newTransformer, ...prev]);
+  }
+
+  if (!isClient) {
+      // Render a skeleton or loading state on the server to avoid hydration mismatch
+      return (
+        <div className="flex flex-col gap-8">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">Transformer Fleet</h1>
+                    <p className="text-muted-foreground max-w-[700px]">
+                        A comprehensive list of all transformers under your supervision.
+                    </p>
+                </div>
+                <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Transformer</Button>
+            </div>
+            <Card>
+                <CardContent className="p-6">
+                    <div className="h-96 w-full animate-pulse rounded-md bg-muted"></div>
+                </CardContent>
+            </Card>
+        </div>
+      )
   }
 
   return (
