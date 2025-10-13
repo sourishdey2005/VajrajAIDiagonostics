@@ -30,6 +30,16 @@ import { CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 
+const manufacturers = [
+    "Bharat Heavy Electricals",
+    "Siemens India",
+    "ABB India",
+    "Crompton Greaves",
+    "Schneider Electric",
+    "GE T&D India",
+    "Kirloskar Electric",
+];
+
 const transformerSchema = z.object({
   name: z.string().min(3, "Substation name must be at least 3 characters long."),
   location: z.string().min(2, "Location is required."),
@@ -148,9 +158,16 @@ export function AddTransformerDialog({ isOpen, onOpenChange, onAddTransformer }:
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Manufacturer</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Siemens India" {...field} />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select manufacturer" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {manufacturers.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
