@@ -75,6 +75,17 @@ export default function BudgetingPage() {
       },
     ];
   }, [estimation]);
+  
+  const chartConfig = {
+      "Reactive Repair": {
+          label: "Reactive Repair",
+          color: "hsl(var(--destructive))",
+      },
+      "Preventative Action": {
+          label: "Preventative Action",
+          color: "hsl(var(--chart-2))",
+      }
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -188,20 +199,22 @@ export default function BudgetingPage() {
             </CardHeader>
             <CardContent>
                  <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={chartData} layout="vertical" margin={{ left: 100 }}>
-                            <CartesianGrid strokeDasharray="3 3" horizontal={false}/>
-                            <XAxis type="number" tickFormatter={(value) => formatCurrency(value as number)} />
-                            <YAxis type="category" dataKey="name" hide />
-                             <Tooltip
-                                cursor={{ fill: 'hsl(var(--muted))' }}
-                                content={<ChartTooltipContent formatter={(value) => formatCurrency(value as number)} />}
-                            />
-                            <Legend />
-                            <Bar dataKey="Reactive Repair" fill="hsl(var(--destructive))" radius={[0, 4, 4, 0]} barSize={30} />
-                            <Bar dataKey="Preventative Action" fill="hsl(var(--chart-2))" radius={[0, 4, 4, 0]} barSize={30} />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    <ChartContainer config={chartConfig}>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={chartData} layout="vertical" margin={{ left: 100 }}>
+                                <CartesianGrid strokeDasharray="3 3" horizontal={false}/>
+                                <XAxis type="number" tickFormatter={(value) => formatCurrency(value as number)} />
+                                <YAxis type="category" dataKey="name" hide />
+                                <Tooltip
+                                    cursor={{ fill: 'hsl(var(--muted))' }}
+                                    content={<ChartTooltipContent formatter={(value) => formatCurrency(value as number)} />}
+                                />
+                                <Legend />
+                                <Bar dataKey="Reactive Repair" fill="var(--color-Reactive Repair)" radius={[0, 4, 4, 0]} barSize={30} />
+                                <Bar dataKey="Preventative Action" fill="var(--color-Preventative Action)" radius={[0, 4, 4, 0]} barSize={30} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </ChartContainer>
                  </div>
             </CardContent>
           </Card>
