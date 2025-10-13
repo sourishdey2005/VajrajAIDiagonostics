@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { cn } from '@/lib/utils';
 import { Thermometer, Zap, Gauge } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const MAX_DATA_POINTS = 20;
 
@@ -31,9 +32,13 @@ const getStatusColor = (value: number, normal: number, warning: number, critical
 };
 
 export function LiveAnalysisChart({ isFaulty }: { isFaulty: boolean }) {
-  const [data, setData] = useState(() => generateInitialData(isFaulty));
+  const [data, setData] = useState<any[]>([]);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+    setData(generateInitialData(isFaulty));
+
     const interval = setInterval(() => {
       setData(prevData => {
         const newDataPoint = {
@@ -50,13 +55,31 @@ export function LiveAnalysisChart({ isFaulty }: { isFaulty: boolean }) {
     return () => clearInterval(interval);
   }, [isFaulty]);
 
-  const latestData = data[data.length - 1];
+  const latestData = data.length > 0 ? data[data.length - 1] : null;
 
   const chartConfig = useMemo(() => ({
     temperature: { label: "Temperature", color: "hsl(var(--chart-3))" },
     voltage: { label: "Voltage", color: "hsl(var(--chart-1))" },
     load: { label: "Load", color: "hsl(var(--chart-5))" },
   }), []);
+
+  if (!isClient || !latestData) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Live IoT Sensor Feed</CardTitle>
+                <CardDescription>Simulated real-time operational parameters.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="space-y-4">
+                    <Skeleton className="h-16 w-full" />
+                    <Skeleton className="h-[250px] w-full" />
+                    <Skeleton className="h-4 w-1/2 mx-auto" />
+                </div>
+            </CardContent>
+        </Card>
+    )
+  }
 
   return (
     <Card>
