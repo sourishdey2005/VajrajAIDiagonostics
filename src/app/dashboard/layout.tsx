@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   GitCompareArrows,
   CircleDollarSign,
+  Users,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -66,6 +67,11 @@ export default function DashboardLayout({
       href: '/dashboard/budgeting',
       icon: CircleDollarSign,
       label: 'Budgeting',
+    },
+     {
+      href: '/dashboard/performance',
+      icon: Users,
+      label: 'Performance',
     },
   ];
 

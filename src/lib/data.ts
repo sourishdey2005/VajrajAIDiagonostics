@@ -399,3 +399,46 @@ export const budgetEstimates = {
     }
   }
 };
+
+export const engineerPerformanceData = [
+  {
+    engineerId: 'E-001',
+    name: 'Ravi Kumar',
+    avatar: 'user-avatar-1',
+    faultsDetected: 28,
+    reportsSubmitted: 45,
+    onTimeCompletion: 95,
+  },
+  {
+    engineerId: 'E-002',
+    name: 'Priya Sharma',
+    avatar: 'user-avatar-2',
+    faultsDetected: 35,
+    reportsSubmitted: 52,
+    onTimeCompletion: 98,
+  },
+  {
+    engineerId: 'E-003',
+    name: 'Anil Singh',
+    avatar: 'user-avatar-3',
+    faultsDetected: 22,
+    reportsSubmitted: 48,
+    onTimeCompletion: 92,
+  },
+  {
+    engineerId: 'E-004',
+    name: 'Meena Iyer',
+    avatar: 'user-avatar-4',
+    faultsDetected: 30,
+    reportsSubmitted: 42,
+    onTimeCompletion: 96,
+  },
+  {
+    engineerId: 'E-005',
+    name: 'Sanjay Das',
+    avatar: 'user-avatar-5',
+    faultsDetected: 18,
+    reportsSubmitted: 38,
+    onTimeCompletion: 88,
+  },
+];
