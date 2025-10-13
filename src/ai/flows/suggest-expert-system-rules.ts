@@ -1,4 +1,3 @@
-// src/ai/flows/suggest-expert-system-rules.ts
 'use server';
 /**
  * @fileOverview An expert system rules suggestion AI agent.
@@ -18,8 +17,9 @@ const SuggestExpertSystemRulesInputSchema = z.object({
   confidenceScore: z
     .number()
     .describe(
-      'The confidence score associated with the fault classification (0-1).' ),
-  transformerCriticalityLevel: z
+      'The confidence score associated with the fault classification (0-1).'
+    ),
+  criticality: z
     .string()
     .describe(
       'The criticality level of the transformer (e.g., High, Medium, Low).'
@@ -56,7 +56,7 @@ const prompt = ai.definePrompt({
 
   Fault Classification: {{{faultClassification}}}
   Confidence Score: {{{confidenceScore}}}
-  Transformer Criticality Level: {{{transformerCriticalityLevel}}}
+  Transformer Criticality Level: {{{criticality}}}
 
   The suggested rules should include conditions based on the inputs and corresponding maintenance suggestions.
   Ensure the output is a valid JSON format. The top-level element of the JSON should be an array of rules.

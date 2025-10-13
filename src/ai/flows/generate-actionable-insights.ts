@@ -17,7 +17,7 @@ const GenerateActionableInsightsInputSchema = z.object({
   confidenceScore: z
     .number()
     .describe("The confidence score associated with the fault classification."),
-  transformerCriticalityLevel: z
+  criticality: z
     .string()
     .describe("The criticality level of the transformer (e.g., High, Medium, Low)."),
 });
@@ -48,7 +48,7 @@ const prompt = ai.definePrompt({
 
 Fault Classification: {{{faultClassification}}}
 Confidence Score: {{{confidenceScore}}}
-Transformer Criticality Level: {{{transformerCriticalityLevel}}}
+Transformer Criticality Level: {{{criticality}}}
 
 Actionable Maintenance Suggestions:`,
 });
