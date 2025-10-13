@@ -1,3 +1,4 @@
+
 export const transformers = [
   {
     id: 'TR-001',
@@ -114,4 +115,12 @@ export const analysisTrendData = [
   { date: 'Apr', Analyses: 50, Alerts: 7 },
   { date: 'May', Analyses: 70, Alerts: 10 },
   { date: 'Jun', Analyses: 85, Alerts: 15 },
+];
+
+export const faultProgressionData = [
+    { date: '2023-11-01', deviation: 0.5, status: 'Healthy' },
+    { date: '2024-01-15', deviation: 1.2, status: 'Minor Deviation' },
+    { date: '2024-03-22', deviation: 2.5, status: 'Moderate Deviation' },
+    { date: '2024-05-10', deviation: 4.8, status: 'Significant Deviation' },
+    { date: '2024-06-20', deviation: 7.2, status: 'Critical Fault Detected' },
 ];

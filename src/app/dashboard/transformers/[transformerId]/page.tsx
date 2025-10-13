@@ -1,9 +1,10 @@
+
 "use client"
 
 import { useParams, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { format, parseISO } from 'date-fns'
-import { ArrowLeft, Zap, MapPin, Shield, Gauge, Wrench, Calendar, User, Factory, Hash } from 'lucide-react'
+import { ArrowLeft, Zap, MapPin, Shield, Gauge, Calendar, User, Factory, Hash } from 'lucide-react'
 import { transformers } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/card"
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
+import { FaultProgressionChart } from './components/fault-progression-chart'
 
 export default function TransformerDetailPage() {
   const params = useParams()
@@ -118,27 +120,34 @@ export default function TransformerDetailPage() {
         </CardContent>
       </Card>
       
-      <div className="grid md:grid-cols-2 gap-8">
-        <Card>
-            <CardHeader>
-                <CardTitle>Maintenance History</CardTitle>
-                <CardDescription>Past service records and fault analyses.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p className="text-muted-foreground text-sm">No maintenance history available yet.</p>
-                {/* Future: Display a table or timeline of past events */}
-            </CardContent>
-        </Card>
-        <Card>
-            <CardHeader>
-                <CardTitle>Live Data</CardTitle>
-                <CardDescription>Real-time operational parameters.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p className="text-muted-foreground text-sm">Live data feed is not connected.</p>
-                 {/* Future: Display live charts for temperature, load, etc. */}
-            </CardContent>
-        </Card>
+      <div className="grid md:grid-cols-5 gap-8">
+        <div className="md:col-span-3">
+          {transformer.id === 'TR-002' ? (
+            <FaultProgressionChart />
+          ) : (
+             <Card>
+              <CardHeader>
+                  <CardTitle>Fault Progression</CardTitle>
+                  <CardDescription>Historical fault analysis data for this asset.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                  <p className="text-muted-foreground text-sm text-center py-12">No historical fault progression data available for this transformer.</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+        <div className="md:col-span-2">
+          <Card>
+              <CardHeader>
+                  <CardTitle>Live Data</CardTitle>
+                  <CardDescription>Real-time operational parameters.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                  <p className="text-muted-foreground text-sm text-center py-12">Live data feed is not connected.</p>
+                  {/* Future: Display live charts for temperature, load, etc. */}
+              </CardContent>
+          </Card>
+        </div>
       </div>
 
     </div>
