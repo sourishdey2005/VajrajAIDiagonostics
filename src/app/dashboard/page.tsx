@@ -8,12 +8,12 @@ import {
   AnalysisTrendChart, 
   CriticalityDistributionChart, 
   FaultDistributionChart, 
-  ManufacturerDistributionChart, 
-  TransformerStatusChart,
-  LocationDistributionChart,
-  UpcomingServiceChart,
   LoadDistributionChart,
-  ServiceEngineerWorkloadChart
+  LocationDistributionChart,
+  ManufacturerDistributionChart, 
+  ServiceEngineerWorkloadChart,
+  TransformerStatusChart,
+  UpcomingServiceChart,
 } from "./components/dashboard-charts"
 
 type Transformer = typeof initialTransformers[0];
@@ -140,18 +140,18 @@ export default function DashboardPage() {
   }, [transformers]);
 
   const loadDistributionData = useMemo(() => {
-    const loadBins = {
+    const loadBins: Record<string, number> = {
       '0-50%': 0,
       '51-70%': 0,
       '71-90%': 0,
-      '91-100%': 0,
+      '>90%': 0,
     };
 
     transformers.forEach(t => {
       if (t.load <= 50) loadBins['0-50%']++;
       else if (t.load <= 70) loadBins['51-70%']++;
       else if (t.load <= 90) loadBins['71-90%']++;
-      else loadBins['91-100%']++;
+      else loadBins['>90%']++;
     });
 
     const colors = generateChartColors(Object.keys(loadBins).length);
@@ -175,6 +175,7 @@ export default function DashboardPage() {
       fill: colors[index]
     })).sort((a,b) => b.value - a.value);
   }, [transformers]);
+
 
   if (!isClient) {
     return (
@@ -284,3 +285,5 @@ export default function DashboardPage() {
     </div>
   )
 }
+
+    
