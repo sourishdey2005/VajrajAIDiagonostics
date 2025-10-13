@@ -1,9 +1,28 @@
 
-export const transformers = [
+
+export type Transformer = {
+    id: string;
+    name: string;
+    location: string;
+    zone: 'North' | 'South' | 'East' | 'West';
+    latitude: number;
+    longitude: number;
+    status: 'Operational' | 'Needs Attention' | 'Under Maintenance';
+    criticality: 'High' | 'Medium' | 'Low';
+    last_inspection: string;
+    manufacturer: string;
+    servicedBy: string;
+    load: number;
+    nextServiceDate: string;
+};
+
+
+export const transformers: Transformer[] = [
   {
     id: 'TR-001',
     name: 'Bandra Substation',
     location: 'Mumbai, MH',
+    zone: 'West',
     latitude: 50,
     longitude: 20,
     status: 'Operational',
@@ -18,6 +37,7 @@ export const transformers = [
     id: 'TR-002',
     name: 'Cyber City Substation',
     location: 'Gurgaon, HR',
+    zone: 'North',
     latitude: 28,
     longitude: 45,
     status: 'Needs Attention',
@@ -26,12 +46,13 @@ export const transformers = [
     manufacturer: 'Siemens India',
     servicedBy: 'Priya Sharma',
     load: 85,
-    nextServiceDate: '2024-11-20',
+    nextServiceDate: '2024-07-15', // Overdue
   },
   {
     id: 'TR-003',
     name: 'Koramangala Grid',
     location: 'Bengaluru, KA',
+    zone: 'South',
     latitude: 80,
     longitude: 75,
     status: 'Operational',
@@ -46,6 +67,7 @@ export const transformers = [
     id: 'TR-004',
     name: 'T. Nagar Power Hub',
     location: 'Chennai, TN',
+    zone: 'South',
     latitude: 90,
     longitude: 60,
     status: 'Under Maintenance',
@@ -54,12 +76,13 @@ export const transformers = [
     manufacturer: 'Crompton Greaves',
     servicedBy: 'Meena Iyer',
     load: 55,
-    nextServiceDate: '2024-12-10',
+    nextServiceDate: '2024-08-25', // Due Soon
   },
   {
     id: 'TR-005',
     name: 'Salt Lake Sector V',
     location: 'Kolkata, WB',
+    zone: 'East',
     latitude: 45,
     longitude: 90,
     status: 'Operational',
@@ -74,6 +97,7 @@ export const transformers = [
     id: 'TR-006',
     name: 'Hitec City Feeder',
     location: 'Hyderabad, TS',
+    zone: 'South',
     latitude: 70,
     longitude: 40,
     status: 'Operational',
@@ -88,6 +112,7 @@ export const transformers = [
     id: 'TR-007',
     name: 'Magarpatta IT Park',
     location: 'Pune, MH',
+    zone: 'West',
     latitude: 65,
     longitude: 25,
     status: 'Operational',
@@ -97,6 +122,51 @@ export const transformers = [
     servicedBy: 'Ravi Kumar',
     load: 65,
     nextServiceDate: '2025-01-30',
+  },
+  {
+    id: 'TR-008',
+    name: 'Connaught Place Ring',
+    location: 'New Delhi, DL',
+    zone: 'North',
+    latitude: 20,
+    longitude: 50,
+    status: 'Operational',
+    criticality: 'High',
+    last_inspection: '2024-03-11',
+    manufacturer: 'GE T&D India',
+    servicedBy: 'Priya Sharma',
+    load: 82,
+    nextServiceDate: '2025-03-11',
+  },
+    {
+    id: 'TR-009',
+    name: 'Guindy Industrial Estate',
+    location: 'Chennai, TN',
+    zone: 'South',
+    latitude: 85,
+    longitude: 65,
+    status: 'Needs Attention',
+    criticality: 'Medium',
+    last_inspection: '2023-09-01',
+    manufacturer: 'Crompton Greaves',
+    servicedBy: 'Meena Iyer',
+    load: 78,
+    nextServiceDate: '2024-07-01', // Overdue
+  },
+  {
+    id: 'TR-010',
+    name: 'New Town Financial Hub',
+    location: 'Kolkata, WB',
+    zone: 'East',
+    latitude: 40,
+    longitude: 85,
+    status: 'Under Maintenance',
+    criticality: 'High',
+    last_inspection: '2024-05-25',
+    manufacturer: 'Schneider Electric',
+    servicedBy: 'Sanjay Das',
+    load: 90,
+    nextServiceDate: '2024-09-10', // Due Soon
   },
 ];
 
