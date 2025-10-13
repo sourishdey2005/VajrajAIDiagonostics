@@ -447,3 +447,58 @@ export const engineerPerformanceData = [
     avgResolutionHours: 48,
   },
 ];
+
+export type Note = {
+    noteId: string;
+    transformerId: string;
+    author: string;
+    authorRole: 'field_engineer' | 'manager';
+    timestamp: string;
+    content: string;
+    replies: Note[];
+    escalationStatus: 'none' | 'escalated' | 'resolved';
+}
+
+export const transformerNotes: Note[] = [
+    {
+        noteId: 'NOTE-001',
+        transformerId: 'TR-002',
+        author: 'Priya Sharma',
+        authorRole: 'field_engineer',
+        timestamp: '2024-06-21T10:00:00Z',
+        content: 'Detected significant deviations in the FRA signature consistent with winding deformation. IoT sensors show a temperature spike. Recommend immediate attention.',
+        replies: [
+            {
+                noteId: 'REPLY-001',
+                transformerId: 'TR-002',
+                author: 'Rohan Sharma',
+                authorRole: 'manager',
+                timestamp: '2024-06-21T10:15:00Z',
+                content: 'Acknowledged, Priya. I\'m escalating this for an emergency maintenance check. Keep monitoring the live sensor data.',
+                replies: [],
+                escalationStatus: 'none',
+            }
+        ],
+        escalationStatus: 'escalated',
+    },
+    {
+        noteId: 'NOTE-002',
+        transformerId: 'TR-009',
+        author: 'Meena Iyer',
+        authorRole: 'field_engineer',
+        timestamp: '2024-06-20T14:30:00Z',
+        content: 'Minor core fault detected during routine diagnostics. Load is stable, but we should schedule a follow-up inspection within the next 30 days.',
+        replies: [],
+        escalationStatus: 'none',
+    },
+    {
+        noteId: 'NOTE-003',
+        transformerId: 'TR-002',
+        author: 'Priya Sharma',
+        authorRole: 'field_engineer',
+        timestamp: '2024-06-18T09:00:00Z',
+        content: 'Previous maintenance cycle completed. Bushing was cleaned and all readings were nominal at the time.',
+        replies: [],
+        escalationStatus: 'none',
+    },
+];

@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import { useParams, notFound } from 'next/navigation'
@@ -19,6 +20,7 @@ import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { FaultProgressionChart } from './components/fault-progression-chart'
 import { LiveAnalysisChart } from './components/live-analysis-chart'
+import { CommunicationLog } from './components/communication-log'
 
 export default function TransformerDetailPage() {
   const params = useParams()
@@ -121,6 +123,8 @@ export default function TransformerDetailPage() {
         </CardContent>
       </Card>
       
+      <CommunicationLog transformerId={transformer.id} />
+
       <div className="grid md:grid-cols-5 gap-8">
         <div className="md:col-span-3">
           {transformer.id === 'TR-002' ? (
