@@ -11,13 +11,13 @@ export type HealthStatus = 'All' | 'Healthy' | 'Warning' | 'Critical';
 export type Zone = 'All' | 'North' | 'South' | 'East' | 'West';
 export type MaintenanceStatus = 'All' | 'Overdue' | 'Due Soon' | 'OK';
 
-const getHealthStatus = (status: Transformer['status']): Exclude<HealthStatus, 'All'> => {
+export const getHealthStatus = (status: Transformer['status']): Exclude<HealthStatus, 'All'> => {
   if (status === 'Needs Attention') return 'Critical';
   if (status === 'Under Maintenance') return 'Warning';
   return 'Healthy';
 }
 
-const getMaintenanceStatus = (nextServiceDate: string): MaintenanceStatus => {
+export const getMaintenanceStatus = (nextServiceDate: string): Exclude<MaintenanceStatus, 'All'> => {
   const now = new Date();
   const serviceDate = new Date(nextServiceDate);
   const twoMonthsFromNow = addMonths(now, 2);
@@ -138,7 +138,11 @@ export default function MapViewPage() {
             </Card>
         </div>
         <div className="lg:col-span-1">
-            <MapControls filters={filters} onFilterChange={setFilters} />
+            <MapControls 
+                filters={filters} 
+                onFilterChange={setFilters} 
+                allTransformers={allTransformers}
+            />
         </div>
       </div>
     </div>
