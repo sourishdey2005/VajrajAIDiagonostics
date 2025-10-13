@@ -1,3 +1,16 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "login-hero",
+      "description": "Abstract technological background of transformer coils",
+      "imageUrl": "https://picsum.photos/seed/circuits/1200/1800",
+      "imageHint": "technology abstract"
+    },
+    {
+      "id": "user-avatar-1",
+      "description": "Avatar of a user",
+      "imageUrl": "https://picsum.photos/seed/u1/100/100",
+      "imageHint": "person face"
+    }
+  ]
 }
