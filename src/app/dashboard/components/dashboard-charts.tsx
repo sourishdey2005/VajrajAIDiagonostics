@@ -4,6 +4,7 @@ import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Too
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
 import { analysisTrendData, faultDistributionData } from "@/lib/data"
+import { cn } from "@/lib/utils"
 
 const chartConfig = {
   analyses: {
@@ -16,12 +17,12 @@ const chartConfig = {
   },
 }
 
-export function FaultDistributionChart() {
+export function FaultDistributionChart({ className }: { className?: string}) {
   return (
-    <Card>
+    <Card className={cn(className)}>
       <CardHeader>
         <CardTitle>Fault Distribution</CardTitle>
-        <CardDescription>Breakdown of fault types detected in the last quarter.</CardDescription>
+        <CardDescription>Breakdown of fault types detected in the last quarter across the fleet.</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={{}} className="h-[300px] w-full">
@@ -41,12 +42,12 @@ export function FaultDistributionChart() {
 }
 
 
-export function AnalysisTrendChart() {
+export function AnalysisTrendChart({ className }: { className?: string}) {
   return (
-    <Card>
+    <Card className={cn(className)}>
       <CardHeader>
         <CardTitle>Analysis & Alert Trend</CardTitle>
-        <CardDescription>Monthly trend of analyses performed and alerts generated.</CardDescription>
+        <CardDescription>Monthly trend of data analyses performed and critical alerts generated.</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[300px] w-full">

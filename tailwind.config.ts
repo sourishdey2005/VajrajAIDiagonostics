@@ -18,8 +18,8 @@ export default {
     extend: {
       fontFamily: {
         body: ['Inter', 'sans-serif'],
-        headline: ['Space Grotesk', 'sans-serif'],
-        code: ['Source Code Pro', 'monospace'],
+        headline: ['Inter', 'sans-serif'],
+        code: ['Roboto Mono', 'monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',

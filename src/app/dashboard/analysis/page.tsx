@@ -30,7 +30,7 @@ export default function AnalysisPage() {
       return
     }
 
-    const supportedFormats = ["csv", "xml", "bin"]
+    const supportedFormats = ["csv", "xml", "bin", "dat"]
     const fileExtension = file.name.split('.').pop()?.toLowerCase()
     
     if (!fileExtension || !supportedFormats.includes(fileExtension)) {
@@ -46,14 +46,36 @@ export default function AnalysisPage() {
     setAnalysisState("loading")
     // Simulate API call and analysis
     setTimeout(() => {
-      setAnalysisResult({
-        faultClassification: "Winding Deformation",
-        confidenceScore: 0.87,
-        transformerId: transformerId,
-        criticality: criticality,
-        rawFraDataSummary:
-          "Significant deviation detected in the high-frequency range (1-2 MHz) compared to baseline data, suggesting physical changes in winding geometry.",
-      })
+      // Simulate different results for variety
+      const randomResult = Math.random();
+      if (randomResult > 0.66) {
+        setAnalysisResult({
+            faultClassification: "Winding Deformation",
+            confidenceScore: 0.87,
+            transformerId: transformerId,
+            criticality: criticality,
+            rawFraDataSummary:
+            "Significant deviation detected in the high-frequency range (1-2 MHz) compared to baseline data, suggesting physical changes in winding geometry.",
+        });
+      } else if (randomResult > 0.33) {
+         setAnalysisResult({
+            faultClassification: "Axial Displacement",
+            confidenceScore: 0.92,
+            transformerId: transformerId,
+            criticality: criticality,
+            rawFraDataSummary:
+            "A notable impedance mismatch is observed in the mid-frequency (20kHz-200kHz) band, indicative of axial winding movement.",
+        });
+      } else {
+        setAnalysisResult({
+            faultClassification: "Core Fault",
+            confidenceScore: 0.78,
+            transformerId: transformerId,
+            criticality: criticality,
+            rawFraDataSummary:
+            "Low-frequency oscillations and an anomalous response below 2kHz point towards a potential issue with the transformer core's magnetic circuit.",
+        });
+      }
       setAnalysisState("results")
     }, 2000)
   }
@@ -67,11 +89,11 @@ export default function AnalysisPage() {
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-headline font-bold tracking-tight">
+          <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">
             FRA Data Analysis
           </h1>
           <p className="text-muted-foreground">
-            Upload FRA data to perform an AI-powered fault diagnosis.
+            Upload Frequency Response Analysis data to perform an AI-powered fault diagnosis.
           </p>
         </div>
         {analysisState !== "idle" && (

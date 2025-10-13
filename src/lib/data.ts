@@ -25,7 +25,7 @@ export const transformers = [
   },
   {
     id: 'TR-003',
-    name: 'Koramangala Substation',
+    name: 'Koramangala Grid',
     location: 'Bengaluru, KA',
     status: 'Operational',
     criticality: 'Medium',
@@ -37,7 +37,7 @@ export const transformers = [
   },
   {
     id: 'TR-004',
-    name: 'T. Nagar Power Grid',
+    name: 'T. Nagar Power Hub',
     location: 'Chennai, TN',
     status: 'Under Maintenance',
     criticality: 'Medium',
@@ -58,6 +58,30 @@ export const transformers = [
     servicedBy: 'Sanjay Das',
     load: 40,
     nextServiceDate: '2024-11-05',
+  },
+  {
+    id: 'TR-006',
+    name: 'Hitec City Feeder',
+    location: 'Hyderabad, TS',
+    status: 'Operational',
+    criticality: 'High',
+    last_inspection: '2024-04-18',
+    manufacturer: 'Siemens India',
+    servicedBy: 'Priya Sharma',
+    load: 88,
+    nextServiceDate: '2025-04-18',
+  },
+   {
+    id: 'TR-007',
+    name: 'Magarpatta IT Park',
+    location: 'Pune, MH',
+    status: 'Operational',
+    criticality: 'Medium',
+    last_inspection: '2024-01-30',
+    manufacturer: 'ABB India',
+    servicedBy: 'Ravi Kumar',
+    load: 65,
+    nextServiceDate: '2025-01-30',
   },
 ];
 

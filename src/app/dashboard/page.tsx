@@ -1,5 +1,5 @@
 import { Activity, AlertTriangle, BadgePercent, CircuitBoard } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { dashboardStats } from "@/lib/data"
 import { AnalysisTrendChart, FaultDistributionChart } from "./components/dashboard-charts"
 
@@ -7,11 +7,11 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-3xl font-headline font-bold tracking-tight">
-          Welcome, Field Engineer
+        <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">
+          Fleet Command Center
         </h1>
-        <p className="text-muted-foreground">
-          Here's a summary of your transformer fleet's health.
+        <p className="text-muted-foreground max-w-[700px]">
+          Here's a real-time overview of your transformer fleet's health and performance.
         </p>
       </div>
 
@@ -30,16 +30,16 @@ export default function DashboardPage() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-destructive/50 bg-destructive/5 text-destructive">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Active Alerts
             </CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+            <AlertTriangle className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-destructive">{dashboardStats.alerts}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold">{dashboardStats.alerts}</div>
+            <p className="text-xs text-destructive/80">
               Requiring immediate attention
             </p>
           </CardContent>
@@ -66,14 +66,14 @@ export default function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">99.2%</div>
             <p className="text-xs text-muted-foreground">
-              Based on historical data
+              AI model performance on historical data
             </p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
-        <FaultDistributionChart />
+      <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
+        <FaultDistributionChart className="xl:col-span-2" />
         <AnalysisTrendChart />
       </div>
     </div>
