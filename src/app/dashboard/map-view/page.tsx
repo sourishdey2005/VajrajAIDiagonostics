@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect } from "react"
 import { MapView } from "./components/map-view"
 import { transformers as initialTransformers, Transformer } from "@/lib/data"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { MapControls } from "./components/map-controls"
-import { subMonths, isBefore, isAfter, addMonths } from "date-fns"
+import { addMonths, isBefore, isAfter } from "date-fns"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export type HealthStatus = 'All' | 'Healthy' | 'Warning' | 'Critical';
 export type Zone = 'All' | 'North' | 'South' | 'East' | 'West';
@@ -44,7 +45,6 @@ export default function MapViewPage() {
       if (storedTransformers) {
         const parsed = JSON.parse(storedTransformers);
         setAllTransformers(parsed);
-        setFilteredTransformers(parsed);
       }
     } catch (error) {
       console.error("Could not load transformers from localStorage", error);
@@ -77,10 +77,10 @@ export default function MapViewPage() {
       <div className="flex flex-col gap-8">
         <div>
           <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">
-            Geo-AI Fault Map
+            India Grid Map
           </h1>
           <p className="text-muted-foreground max-w-[700px]">
-            Real-time asset health and predictive risk zones on a live map.
+            Real-time asset health, predictive risk zones, and powerful filtering.
           </p>
         </div>
         <div className="grid lg:grid-cols-4 gap-6">
@@ -91,22 +91,14 @@ export default function MapViewPage() {
                 <CardDescription>Hover over transformers for details. Red zones indicate AI-predicted areas of higher fault probability.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-[600px] w-full animate-pulse rounded-md bg-muted"></div>
+                <Skeleton className="h-[600px] w-full" />
               </CardContent>
             </Card>
           </div>
-          <div className="lg:col-span-1">
-             <Card>
-                <CardHeader>
-                  <CardTitle>Filters</CardTitle>
-                  <CardDescription>Refine the assets shown on the map.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="h-10 w-full animate-pulse rounded-md bg-muted"></div>
-                  <div className="h-10 w-full animate-pulse rounded-md bg-muted"></div>
-                  <div className="h-10 w-full animate-pulse rounded-md bg-muted"></div>
-                </CardContent>
-             </Card>
+          <div className="lg:col-span-1 space-y-6">
+             <Skeleton className="h-[200px] w-full" />
+             <Skeleton className="h-[250px] w-full" />
+             <Skeleton className="h-[150px] w-full" />
           </div>
         </div>
       </div>

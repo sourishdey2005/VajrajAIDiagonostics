@@ -145,7 +145,7 @@ export function MapControls({ filters, onFilterChange, allTransformers }: MapCon
                         <YAxis type="category" dataKey="name" width={50} tickLine={false} axisLine={false}/>
                         <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent hideLabel />} />
                         <Bar dataKey="value" radius={4}>
-                            {zoneData.map((entry, index) => (
+                            {zoneData.map((entry) => (
                                 <Cell
                                     key={`cell-${entry.name}`}
                                     fill={entry.fill}
@@ -168,14 +168,19 @@ export function MapControls({ filters, onFilterChange, allTransformers }: MapCon
             <div className="flex gap-2">
                 {(Object.keys(maintenanceStatusColors) as Exclude<MaintenanceStatus, 'All'>[]).map(status => {
                     const count = maintenanceData.find(d => d.name === status)?.value || 0;
+                    const isSelected = filters.maintenance === status;
+                    const isAnySelected = filters.maintenance !== 'All';
+                    
                     return (
-                        <button
+                         <button
                             key={status}
                             onClick={() => handleFilter('maintenance', status)}
                             className={cn(
-                                "flex-1 p-2 rounded-lg text-left transition-colors",
-                                filters.maintenance === status ? `bg-[${maintenanceStatusColors[status]}]/20 border-2 border-[${maintenanceStatusColors[status]}]` : 'bg-muted/50 hover:bg-muted',
-                                filters.maintenance === 'All' ? `border-2 border-transparent` : ''
+                                "flex-1 p-2 rounded-lg text-left transition-all border-2",
+                                isSelected 
+                                    ? `border-[${maintenanceStatusColors[status]}] bg-[${maintenanceStatusColors[status]}]/20`
+                                    : `border-transparent bg-muted/50 hover:bg-muted`,
+                                !isAnySelected || isSelected ? 'opacity-100' : 'opacity-40 hover:opacity-70'
                             )}
                         >
                            <p className="font-bold text-lg">{count}</p>
