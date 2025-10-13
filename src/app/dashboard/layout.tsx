@@ -32,6 +32,7 @@ import DashboardHeader from "./components/dashboard-header"
 import { VajraIcon } from "@/components/icons"
 import { useUserRole } from "@/contexts/user-role-context"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
+import { Chatbot } from "@/components/chatbot/chatbot"
 
 export default function DashboardLayout({
   children,
@@ -112,6 +113,7 @@ export default function DashboardLayout({
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           {children}
         </main>
+        <Chatbot />
       </SidebarInset>
     </SidebarProvider>
   )

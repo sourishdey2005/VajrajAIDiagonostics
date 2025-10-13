@@ -1,0 +1,149 @@
+"use client"
+
+import { useState, useRef, useEffect, useTransition } from "react"
+import { Bot, Loader2, Send, X, CornerDownLeft } from "lucide-react"
+import { BotMessageSquareIcon } from "@/components/icons"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { cn } from "@/lib/utils"
+import { chatWithVajra } from "@/ai/flows/chatWithVajra"
+import { useToast } from "@/hooks/use-toast"
+import { Avatar, AvatarFallback } from "../ui/avatar"
+
+type Message = {
+  role: "user" | "model"
+  content: string
+}
+
+export function Chatbot() {
+  const [isOpen, setIsOpen] = useState(false)
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: "model",
+      content: "Hello! I'm Vajra Assistant. How can I help you with your transformer diagnostics today?",
+    },
+  ])
+  const [input, setInput] = useState("")
+  const [isPending, startTransition] = useTransition()
+  const scrollAreaRef = useRef<HTMLDivElement>(null)
+  const { toast } = useToast()
+
+  const toggleChat = () => setIsOpen(!isOpen)
+
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight
+    }
+  }, [messages])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!input || isPending) return
+
+    const userMessage: Message = { role: "user", content: input }
+    setMessages(prev => [...prev, userMessage])
+    setInput("")
+
+    startTransition(async () => {
+      try {
+        const { response } = await chatWithVajra({
+          history: messages,
+          message: input,
+        })
+        const botMessage: Message = { role: "model", content: response }
+        setMessages(prev => [...prev, botMessage])
+      } catch (error) {
+        console.error("Chatbot error:", error)
+        toast({
+          title: "Chatbot Error",
+          description: "There was an issue communicating with the AI. Please try again.",
+          variant: "destructive",
+        })
+        // Remove the user's message if the API call fails
+        setMessages(prev => prev.slice(0, prev.length - 1))
+      }
+    })
+  }
+  
+  return (
+    <>
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button size="icon" className="rounded-full w-14 h-14 shadow-lg" onClick={toggleChat}>
+          {isOpen ? <X className="w-6 h-6" /> : <BotMessageSquareIcon className="w-6 h-6" />}
+          <span className="sr-only">Toggle Chatbot</span>
+        </Button>
+      </div>
+
+      {isOpen && (
+        <div className="fixed bottom-24 right-6 z-50">
+          <Card className="w-[380px] h-[550px] flex flex-col shadow-2xl">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                 <div className="p-2 bg-primary/10 rounded-full border border-primary/20">
+                    <BotMessageSquareIcon className="w-6 h-6 text-primary" />
+                 </div>
+                 <div>
+                    <CardTitle className="text-xl">Vajra Assistant</CardTitle>
+                    <CardDescription>AI-Powered Diagnostics Helper</CardDescription>
+                 </div>
+              </div>
+            </CardHeader>
+            <CardContent className="flex-1 overflow-hidden p-0">
+                <ScrollArea className="h-full" ref={scrollAreaRef}>
+                    <div className="p-6 space-y-6">
+                    {messages.map((message, index) => (
+                        <div key={index} className={cn("flex gap-3", message.role === "user" ? "justify-end" : "justify-start")}>
+                         {message.role === "model" && (
+                            <Avatar className="w-8 h-8 bg-primary text-primary-foreground">
+                                <AvatarFallback><Bot className="w-5 h-5"/></AvatarFallback>
+                            </Avatar>
+                         )}
+                        <div className={cn(
+                            "max-w-[80%] rounded-lg px-4 py-2 text-sm",
+                            message.role === "user"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted"
+                        )}>
+                            {message.content}
+                        </div>
+                        </div>
+                    ))}
+                    {isPending && (
+                        <div className="flex gap-3 justify-start">
+                             <Avatar className="w-8 h-8 bg-primary text-primary-foreground">
+                                <AvatarFallback><Bot className="w-5 h-5"/></AvatarFallback>
+                            </Avatar>
+                             <div className="bg-muted max-w-[80%] rounded-lg px-4 py-2 text-sm flex items-center gap-2">
+                                <Loader2 className="w-4 h-4 animate-spin"/>
+                               <span>Thinking...</span>
+                            </div>
+                        </div>
+                    )}
+                    </div>
+                </ScrollArea>
+            </CardContent>
+            <CardFooter>
+                 <form onSubmit={handleSubmit} className="flex w-full items-center space-x-2 relative">
+                    <Input
+                        id="message"
+                        placeholder="Ask about a fault type..."
+                        className="flex-1 pr-12"
+                        autoComplete="off"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        disabled={isPending}
+                    />
+                    <Button type="submit" size="icon" className="absolute right-1 w-8 h-8" disabled={isPending || !input}>
+                        <Send className="h-4 w-4" />
+                        <span className="sr-only">Send</span>
+                    </Button>
+                </form>
+            </CardFooter>
+          </Card>
+        </div>
+      )}
+    </>
+  )
+}
