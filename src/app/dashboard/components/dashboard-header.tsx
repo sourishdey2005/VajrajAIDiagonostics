@@ -1,27 +1,13 @@
 "use client"
 
+import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   Bell,
-  Home,
-  LineChart,
-  Package,
-  Package2,
-  Settings,
-  ShoppingCart,
-  Users,
   ChevronRight
 } from "lucide-react"
 
-import { Badge } from "@/components/ui/badge"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,11 +20,10 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
-import { useUserRole } from "@/contexts/user-role-context"
+import { cn } from "@/lib/utils"
 
 export default function DashboardHeader() {
   const pathname = usePathname()
-  const { role } = useUserRole()
   const userAvatarImage = PlaceHolderImages.find(p => p.id === 'user-avatar-1');
   
   const pathSegments = pathname.split('/').filter(Boolean);
