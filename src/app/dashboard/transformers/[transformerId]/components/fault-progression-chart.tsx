@@ -7,7 +7,7 @@ import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianG
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Slider } from "@/components/ui/slider"
 import { faultProgressionData } from "@/lib/data"
-import { ChartTooltipContent } from "@/components/ui/chart"
+import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
 import { cn } from "@/lib/utils"
 
 // Generate more detailed data for a smoother chart
@@ -64,17 +64,19 @@ export function FaultProgressionChart() {
       </CardHeader>
       <CardContent>
         <div className="h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="frequency" type="number" domain={[0, 1000]} tickFormatter={(val) => `${val}Hz`} />
-              <YAxis domain={[0.2, 1.2]} />
-              <Tooltip content={<ChartTooltipContent />} />
-              <Line type="monotone" dataKey="baseline" stroke="hsl(var(--chart-2))" dot={false} strokeWidth={2} name="Baseline"/>
-              <Line type="monotone" dataKey="current" stroke="hsl(var(--destructive))" dot={false} strokeWidth={2} name="Current Reading"/>
-              <ReferenceLine y={1} stroke="hsl(var(--foreground))" strokeDasharray="3 3" />
-            </LineChart>
-          </ResponsiveContainer>
+          <ChartContainer config={{}}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="frequency" type="number" domain={[0, 1000]} tickFormatter={(val) => `${val}Hz`} />
+                <YAxis domain={[0.2, 1.2]} />
+                <Tooltip content={<ChartTooltipContent />} />
+                <Line type="monotone" dataKey="baseline" stroke="hsl(var(--chart-2))" dot={false} strokeWidth={2} name="Baseline"/>
+                <Line type="monotone" dataKey="current" stroke="hsl(var(--destructive))" dot={false} strokeWidth={2} name="Current Reading"/>
+                <ReferenceLine y={1} stroke="hsl(var(--foreground))" strokeDasharray="3 3" />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartContainer>
         </div>
         <div className="mt-6">
            <div className="flex justify-between items-center mb-4">
