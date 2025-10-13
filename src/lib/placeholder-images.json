@@ -8,9 +8,9 @@
     },
     {
       "id": "user-avatar-1",
-      "description": "Avatar of a user",
+      "description": "Avatar of Rohan Sharma",
       "imageUrl": "https://picsum.photos/seed/u1/100/100",
-      "imageHint": "person face"
+      "imageHint": "man face"
     }
   ]
 }

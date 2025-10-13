@@ -62,7 +62,7 @@ export default function DashboardHeader() {
             <Button variant="secondary" size="icon" className="rounded-full">
               <Avatar className="h-8 w-8">
                 {userAvatarImage && <AvatarImage src={userAvatarImage.imageUrl} alt="User Avatar" data-ai-hint={userAvatarImage.imageHint} />}
-                <AvatarFallback>JD</AvatarFallback>
+                <AvatarFallback>RS</AvatarFallback>
               </Avatar>
               <span className="sr-only">Toggle user menu</span>
             </Button>

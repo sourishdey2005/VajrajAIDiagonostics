@@ -94,10 +94,10 @@ export default function DashboardLayout({
               {userAvatarImage && (
                 <AvatarImage src={userAvatarImage.imageUrl} alt="User Avatar" data-ai-hint={userAvatarImage.imageHint} />
               )}
-              <AvatarFallback>JD</AvatarFallback>
+              <AvatarFallback>RS</AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="font-semibold">John Doe</span>
+              <span className="font-semibold">Rohan Sharma</span>
               <span className="text-sm text-muted-foreground capitalize">
                 {role.replace('_', ' ')}
               </span>
