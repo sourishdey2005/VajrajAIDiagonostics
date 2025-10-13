@@ -8,7 +8,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {Message, z} from 'genkit';
 
 const MessageSchema = z.object({
   role: z.enum(['user', 'model']),
@@ -32,31 +32,31 @@ export async function chatWithVajra(
   return chatWithVajraFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'chatWithVajraPrompt',
-  input: {schema: ChatWithVajraInputSchema},
-  output: {schema: ChatWithVajraOutputSchema},
-  system: `You are Vajra Assistant, an expert AI specializing in transformer diagnostics and electrical engineering. Your purpose is to help users understand fault analysis data and manage their transformer fleet.
-
-  - Be concise, helpful, and professional.
-  - If you don't know the answer, say so.
-  - Your knowledge base is limited to the context of transformer maintenance, Frequency Response Analysis (FRA), and general electrical engineering principles.
-  - Do not answer questions outside of this scope. If a user asks about something unrelated, politely decline.
-  `,
-  prompt: `Answer the user's question based on the provided history and your expertise.
-
-  User's Question: {{{message}}}
-  `,
-});
-
 const chatWithVajraFlow = ai.defineFlow(
   {
     name: 'chatWithVajraFlow',
     inputSchema: ChatWithVajraInputSchema,
     outputSchema: ChatWithVajraOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
+  async ({history, message}) => {
+    const systemPrompt = `You are Vajra Assistant, an expert AI specializing in transformer diagnostics and electrical engineering. Your purpose is to help users understand fault analysis data and manage their transformer fleet.
+
+- Be concise, helpful, and professional.
+- If you don't know the answer, say so.
+- Your knowledge base is limited to the context of transformer maintenance, Frequency Response Analysis (FRA), and general electrical engineering principles.
+- Do not answer questions outside of this scope. If a user asks about something unrelated, politely decline.
+`;
+    const {text} = await ai.generate({
+      prompt: [
+        ...history,
+        {role: 'user', content: message},
+      ],
+      system: systemPrompt,
+      output: {
+        format: 'text',
+      }
+    });
+
+    return {response: text};
   }
 );
