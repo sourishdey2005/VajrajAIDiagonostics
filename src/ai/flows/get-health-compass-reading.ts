@@ -10,12 +10,12 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const GetHealthCompassReadingInputSchema = z.object({
+const GetHealthCompassReadingInputSchema = z.object({
   faultClassification: z.string().describe('The classification of the fault detected.'),
 });
 export type GetHealthCompassReadingInput = z.infer<typeof GetHealthCompassReadingInputSchema>;
 
-export const GetHealthCompassReadingOutputSchema = z.object({
+const GetHealthCompassReadingOutputSchema = z.object({
   angle: z.number().min(0).max(360).describe("The angle for the compass pointer, from 0 to 360 degrees."),
 });
 export type GetHealthCompassReadingOutput = z.infer<typeof GetHealthCompassReadingOutputSchema>;
