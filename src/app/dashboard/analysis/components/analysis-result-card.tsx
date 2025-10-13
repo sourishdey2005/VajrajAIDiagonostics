@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
+import { useEffect, useState, useTransition, useRef } from "react"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Cell } from "recharts"
-import { AlertCircle, Bot, BrainCircuit, Lightbulb, Loader2, Share2 } from "lucide-react"
+import { AlertCircle, Bot, BrainCircuit, Lightbulb, Loader2, Share2, Download } from "lucide-react"
 import {
   Card,
   CardContent,
@@ -16,6 +16,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import { augmentDashboardWithAIExplanations } from "@/ai/flows/augment-dashboard-with-ai-explanations"
@@ -26,6 +27,7 @@ import { getHealthCompassReading } from "@/ai/flows/get-health-compass-reading"
 import { useUserRole } from "@/contexts/user-role-context"
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
 import { HealthCompass } from "./health-compass"
+import { generateAnalysisReport } from "@/lib/report-generator"
 
 type AnalysisResult = {
   faultClassification: string;
@@ -39,6 +41,14 @@ interface AnalysisResultCardProps {
   result: AnalysisResult | null
   isLoading: boolean
 }
+
+type AIFetcherData = {
+  aiExplanation?: string;
+  actionableInsights?: string;
+  suggestedRules?: string;
+  factors?: { factor: string; influence: number }[];
+};
+
 
 const generateChartColors = (count: number) => {
   const colors = [];
@@ -89,7 +99,7 @@ function RootCauseAnalysisChart({ result }: { result: AnalysisResult }) {
     );
 }
 
-const AIFetcher = ({ flow, input, icon, title }: { flow: (input: any) => Promise<{ [key: string]: any }>, input: any, icon: React.ReactNode, title: string }) => {
+const AIFetcher = ({ flow, input, icon, title, onData }: { flow: (input: any) => Promise<{ [key: string]: any }>, input: any, icon: React.ReactNode, title: string, onData: (data: any) => void }) => {
   const [data, setData] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -97,10 +107,11 @@ const AIFetcher = ({ flow, input, icon, title }: { flow: (input: any) => Promise
     if (!input) return;
     startTransition(async () => {
       const output = await flow(input)
+      onData(output); // Pass data to parent
       const key = Object.keys(output)[0];
       setData(output[key] as string)
     })
-  }, [input, flow])
+  }, [input, flow, onData])
 
   const renderContent = () => {
     if (isPending) {
@@ -115,9 +126,8 @@ const AIFetcher = ({ flow, input, icon, title }: { flow: (input: any) => Promise
 
     if (!data) return <p>No insights generated.</p>
     
-    // Check if data is JSON for the rules
     try {
-      const jsonData = JSON.parse(data);
+      const jsonData = JSON.parse(data as string);
       if (Array.isArray(jsonData)) {
         return (
           <div className="space-y-4 font-code text-sm">
@@ -132,10 +142,10 @@ const AIFetcher = ({ flow, input, icon, title }: { flow: (input: any) => Promise
       }
     } catch (e) {
       // Not JSON, render as text
-      return <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed">{data}</p>
+      return <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed">{data as string}</p>
     }
 
-    return <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed">{data}</p>
+    return <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed">{data as string}</p>
   }
 
 
@@ -171,6 +181,19 @@ function HealthCompassAnalysis({ result }: { result: AnalysisResult }) {
 
 export function AnalysisResultCard({ result, isLoading }: AnalysisResultCardProps) {
   const { role } = useUserRole();
+  const aiDataRef = useRef<AIFetcherData>({});
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+
+  const handleAIData = (key: keyof AIFetcherData, data: any) => {
+    aiDataRef.current[key] = data;
+  };
+  
+  const onGenerateReport = async () => {
+      if (!result) return;
+      setIsGeneratingReport(true);
+      await generateAnalysisReport(result, aiDataRef.current);
+      setIsGeneratingReport(false);
+  }
 
   if (isLoading) {
     return (
@@ -212,9 +235,15 @@ export function AnalysisResultCard({ result, isLoading }: AnalysisResultCardProp
               AI-powered fault diagnosis for <span className="font-semibold text-primary">{result.transformerId}</span>
             </CardDescription>
           </div>
-          <Badge variant={result.criticality === "High" ? "destructive" : result.criticality === "Medium" ? "default" : "secondary"}>
-              {result.criticality} Criticality
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Button onClick={onGenerateReport} disabled={isGeneratingReport}>
+              {isGeneratingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4"/>}
+              <span className="ml-2">{isGeneratingReport ? "Generating..." : "Download Report"}</span>
+            </Button>
+            <Badge variant={result.criticality === "High" ? "destructive" : result.criticality === "Medium" ? "default" : "secondary"}>
+                {result.criticality} Criticality
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -292,16 +321,17 @@ export function AnalysisResultCard({ result, isLoading }: AnalysisResultCardProp
           </TabsContent>
 
           <TabsContent value="ai-explanation">
-            <AIFetcher flow={augmentDashboardWithAIExplanations} input={result} icon={<Bot className="w-6 h-6" />} title="AI-Generated Explanation" />
+            <AIFetcher flow={augmentDashboardWithAIExplanations} input={result} icon={<Bot className="w-6 h-6" />} title="AI-Generated Explanation" onData={(d) => handleAIData('aiExplanation', d.aiExplanation)} />
           </TabsContent>
 
           <TabsContent value="actions">
-            <AIFetcher flow={generateActionableInsights} input={result} icon={<Lightbulb className="w-6 h-6" />} title="Recommended Actions" />
+            <AIFetcher flow={generateActionableInsights} input={result} icon={<Lightbulb className="w-6 h-6" />} title="Recommended Actions" onData={(d) => handleAIData('actionableInsights', d.actionableInsights)} />
+
           </TabsContent>
           
           {role === 'manager' && (
             <TabsContent value="expert-system">
-              <AIFetcher flow={suggestExpertSystemRules} input={result} icon={<BrainCircuit className="w-6 h-6" />} title="Suggested Expert System Rules" />
+              <AIFetcher flow={suggestExpertSystemRules} input={result} icon={<BrainCircuit className="w-6 h-6" />} title="Suggested Expert System Rules" onData={(d) => handleAIData('suggestedRules', d.suggestedRules)} />
             </TabsContent>
           )}
 
@@ -310,5 +340,3 @@ export function AnalysisResultCard({ result, isLoading }: AnalysisResultCardProp
     </Card>
   )
 }
-
-    
