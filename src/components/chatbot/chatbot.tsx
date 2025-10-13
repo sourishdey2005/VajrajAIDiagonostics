@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useTransition } from "react"
-import { Bot, Loader2, Send, X, CornerDownLeft } from "lucide-react"
+import { Bot, Loader2, Send, X, CornerDownLeft, Sparkles } from "lucide-react"
 import { BotMessageSquareIcon } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,6 +16,14 @@ type Message = {
   role: "user" | "model"
   content: string
 }
+
+const suggestedQueries = [
+    "What is Winding Deformation?",
+    "Explain Axial Displacement.",
+    "Compare Core Fault and Bushing Fault.",
+    "How do you identify an Inter-turn Short?",
+];
+
 
 export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false)
@@ -49,37 +57,42 @@ export function Chatbot() {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        handleSubmit(e);
+        handleSubmit();
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input || isPending) return
-
-    const userMessage: Message = { role: "user", content: input }
-    setMessages(prev => [...prev, userMessage])
-    setInput("")
+  const sendQuery = (query: string) => {
+    const userMessage: Message = { role: "user", content: query };
+    setMessages(prev => [...prev, userMessage]);
 
     startTransition(async () => {
       try {
         const { response } = await chatWithVajra({
-          history: messages,
-          message: input,
-        })
-        const botMessage: Message = { role: "model", content: response }
-        setMessages(prev => [...prev, botMessage])
+          history: [...messages, userMessage], // Send the most up-to-date history
+          message: query,
+        });
+        const botMessage: Message = { role: "model", content: response };
+        setMessages(prev => [...prev, botMessage]);
       } catch (error) {
-        console.error("Chatbot error:", error)
+        console.error("Chatbot error:", error);
         toast({
           title: "Chatbot Error",
           description: "There was an issue communicating with the AI. Please try again.",
           variant: "destructive",
-        })
-        // Remove the user's message if the API call fails
-        setMessages(prev => prev.slice(0, prev.length - 1))
+        });
+        // Revert to the state before the user's message was added
+        setMessages(prev => prev.slice(0, -1));
       }
-    })
+    });
+  };
+
+  const handleSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault()
+    if (!input || isPending) return
+
+    const currentInput = input;
+    setInput("")
+    sendQuery(currentInput);
   }
   
   return (
@@ -144,6 +157,28 @@ export function Chatbot() {
                             </div>
                         </div>
                     )}
+                     {messages.length <= 1 && (
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                                <Sparkles className="w-4 h-4 text-primary" />
+                                <p className="text-sm font-medium text-muted-foreground">Suggested Queries</p>
+                            </div>
+                            <div className="grid grid-cols-1 gap-2">
+                                {suggestedQueries.map((query) => (
+                                    <Button
+                                        key={query}
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-auto whitespace-normal justify-start text-left"
+                                        onClick={() => sendQuery(query)}
+                                        disabled={isPending}
+                                    >
+                                        {query}
+                                    </Button>
+                                ))}
+                            </div>
+                        </div>
+                     )}
                     </div>
                 </ScrollArea>
             </CardContent>
