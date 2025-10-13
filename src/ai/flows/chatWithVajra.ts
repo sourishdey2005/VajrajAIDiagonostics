@@ -53,9 +53,18 @@ Your Knowledge Base on Transformer Faults:
 - **Bushing Fault:** A failure in the insulating bushing, which connects the high-voltage winding to the external circuit. This often involves a partial or complete breakdown of the insulation. It primarily affects the high-frequency response of the FRA measurement due to changes in capacitance.
 - **Inter-turn Short:** A short circuit between adjacent turns of the same winding. This creates a closed loop, drastically changing the winding's inductance. It's a severe fault that can lead to rapid overheating. It typically manifests as a significant downward shift (a "null" or sharp dip) in the FRA response at a specific resonant frequency, often in the mid-frequency range.
 `;
+
+    const chatHistory = history.filter(
+      (msg) => msg.content.trim() !== '' && (msg.role === 'user' || msg.role === 'model')
+    );
+
     const {text} = await ai.generate({
-      prompt: [...history, {role: 'user', content: message}],
-      system: systemPrompt,
+      prompt: message,
+      history: [
+        {role: 'user', content: systemPrompt},
+        {role: 'model', content: "Understood. I am Vajra Assistant, ready to help."},
+        ...chatHistory,
+      ],
       output: {
         format: 'text',
       },
