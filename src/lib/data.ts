@@ -127,3 +127,36 @@ export const manufacturerDistributionData = [
   { name: 'ABB India', value: 2, fill: 'hsl(var(--chart-3))' },
   { name: 'Crompton Greaves', value: 1, fill: 'hsl(var(--chart-4))' },
 ]
+
+export const locationDistributionData = [
+  { name: 'Mumbai', value: 2, fill: 'hsl(var(--chart-1))' },
+  { name: 'Gurgaon', value: 1, fill: 'hsl(var(--chart-2))' },
+  { name: 'Bengaluru', value: 1, fill: 'hsl(var(--chart-3))' },
+  { name: 'Chennai', value: 1, fill: 'hsl(var(--chart-4))' },
+  { name: 'Kolkata', value: 1, fill: 'hsl(var(--chart-5))' },
+  { name: 'Hyderabad', value: 1, fill: 'hsl(var(--chart-1))' },
+  { name: 'Pune', value: 1, fill: 'hsl(var(--chart-2))' },
+];
+
+export const upcomingServiceData = [
+  { name: 'Oct 2024', value: 1, fill: 'hsl(var(--chart-1))' },
+  { name: 'Nov 2024', value: 2, fill: 'hsl(var(--chart-2))' },
+  { name: 'Dec 2024', value: 1, fill: 'hsl(var(--chart-3))' },
+  { name: 'Jan 2025', value: 1, fill: 'hsl(var(--chart-4))' },
+  { name: 'Feb 2025', value: 1, fill: 'hsl(var(--chart-5))' },
+  { name: 'Apr 2025', value: 1, fill: 'hsl(var(--chart-1))' },
+];
+
+export const loadDistributionData = [
+  { name: '0-50%', value: 1, fill: 'hsl(var(--chart-2))' },
+  { name: '51-70%', value: 3, fill: 'hsl(var(--chart-3))' },
+  { name: '71-90%', value: 3, fill: 'hsl(var(--chart-4))' },
+];
+
+export const serviceEngineerWorkloadData = [
+  { name: 'Ravi Kumar', value: 2, fill: 'hsl(var(--chart-1))' },
+  { name: 'Priya Sharma', value: 2, fill: 'hsl(var(--chart-2))' },
+  { name: 'Anil Singh', value: 1, fill: 'hsl(var(--chart-3))' },
+  { name: 'Meena Iyer', value: 1, fill: 'hsl(var(--chart-4))' },
+  { name: 'Sanjay Das', value: 1, fill: 'hsl(var(--chart-5))' },
+];

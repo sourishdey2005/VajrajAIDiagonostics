@@ -3,7 +3,7 @@
 import { Bar, BarChart, CartesianGrid, Line, LineChart, Pie, PieChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
-import { analysisTrendData, faultDistributionData, transformerStatusData, criticalityDistributionData, manufacturerDistributionData } from "@/lib/data"
+import { analysisTrendData, faultDistributionData, transformerStatusData, criticalityDistributionData, manufacturerDistributionData, locationDistributionData, upcomingServiceData, loadDistributionData, serviceEngineerWorkloadData } from "@/lib/data"
 import { cn } from "@/lib/utils"
 
 const chartConfig = {
@@ -167,6 +167,121 @@ export function ManufacturerDistributionChart({ className }: { className?: strin
               </Pie>
               <Legend />
             </PieChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function LocationDistributionChart({ className }: { className?: string }) {
+  return (
+    <Card className={cn(className)}>
+      <CardHeader>
+        <CardTitle>Asset Geo-distribution</CardTitle>
+        <CardDescription>Number of transformers monitored in each location.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={{}} className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={locationDistributionData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
+              <Legend />
+              <Bar dataKey="value" name="Transformers" radius={[4, 4, 0, 0]}>
+                {locationDistributionData.map((entry) => (
+                  <Cell key={`cell-${entry.name}`} fill={entry.fill} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function UpcomingServiceChart({ className }: { className?: string }) {
+  return (
+    <Card className={cn(className)}>
+      <CardHeader>
+        <CardTitle>Upcoming Maintenance</CardTitle>
+        <CardDescription>Transformers scheduled for service in the upcoming months.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={{}} className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={upcomingServiceData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
+              <Legend />
+              <Bar dataKey="value" name="Services Due" radius={[4, 4, 0, 0]}>
+                {upcomingServiceData.map((entry) => (
+                  <Cell key={`cell-${entry.name}`} fill={entry.fill} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function LoadDistributionChart({ className }: { className?: string }) {
+  return (
+    <Card className={cn(className)}>
+      <CardHeader>
+        <CardTitle>Load Distribution</CardTitle>
+        <CardDescription>Distribution of average operational load across the fleet.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={{}} className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={loadDistributionData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
+              <Legend />
+              <Bar dataKey="value" name="Count" radius={[4, 4, 0, 0]}>
+                {loadDistributionData.map((entry) => (
+                  <Cell key={`cell-${entry.name}`} fill={entry.fill} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function ServiceEngineerWorkloadChart({ className }: { className?: string }) {
+  return (
+    <Card className={cn(className)}>
+      <CardHeader>
+        <CardTitle>Engineer Workload</CardTitle>
+        <CardDescription>Number of transformers assigned to each service engineer.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={{}} className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={serviceEngineerWorkloadData} layout="vertical" margin={{ left: 20, right: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+              <XAxis type="number" />
+              <YAxis type="category" dataKey="name" width={80} tick={{ fontSize: 12 }}/>
+              <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
+              <Bar dataKey="value" name="Assigned" radius={[0, 4, 4, 0]}>
+                 {serviceEngineerWorkloadData.map((entry) => (
+                  <Cell key={`cell-${entry.name}`} fill={entry.fill} />
+                ))}
+              </Bar>
+            </BarChart>
           </ResponsiveContainer>
         </ChartContainer>
       </CardContent>

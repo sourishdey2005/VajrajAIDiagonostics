@@ -1,7 +1,17 @@
 import { Activity, AlertTriangle, BadgePercent, CircuitBoard } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { dashboardStats } from "@/lib/data"
-import { AnalysisTrendChart, CriticalityDistributionChart, FaultDistributionChart, ManufacturerDistributionChart, TransformerStatusChart } from "./components/dashboard-charts"
+import { 
+  AnalysisTrendChart, 
+  CriticalityDistributionChart, 
+  FaultDistributionChart, 
+  ManufacturerDistributionChart, 
+  TransformerStatusChart,
+  LocationDistributionChart,
+  UpcomingServiceChart,
+  LoadDistributionChart,
+  ServiceEngineerWorkloadChart
+} from "./components/dashboard-charts"
 
 export default function DashboardPage() {
   return (
@@ -80,8 +90,16 @@ export default function DashboardPage() {
           <CriticalityDistributionChart className="lg:col-span-2" />
           <AnalysisTrendChart className="lg:col-span-3" />
       </div>
-       <div className="grid gap-4 md:gap-8">
+       <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
         <ManufacturerDistributionChart />
+        <LocationDistributionChart />
+      </div>
+      <div className="grid gap-4 md:gap-8 lg:grid-cols-3">
+        <UpcomingServiceChart className="lg:col-span-2" />
+        <LoadDistributionChart />
+      </div>
+       <div className="grid gap-4 md:gap-8">
+        <ServiceEngineerWorkloadChart />
       </div>
     </div>
   )
