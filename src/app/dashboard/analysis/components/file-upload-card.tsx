@@ -20,9 +20,10 @@ import { cn } from "@/lib/utils"
 
 interface FileUploadCardProps {
   onAnalyze: (file: File, transformerId: string, criticality: string) => void
+  isAnalyzing: boolean
 }
 
-export function FileUploadCard({ onAnalyze }: FileUploadCardProps) {
+export function FileUploadCard({ onAnalyze, isAnalyzing }: FileUploadCardProps) {
   const [file, setFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [selectedTransformerId, setSelectedTransformerId] = useState<string>(transformers[0].id)
@@ -72,7 +73,7 @@ export function FileUploadCard({ onAnalyze }: FileUploadCardProps) {
       <CardHeader>
         <CardTitle>New Analysis Job</CardTitle>
         <CardDescription>
-          Select a transformer and upload its FRA data file (e.g., .csv, .xml, .dat).
+          Select a transformer and upload its FRA data file (e.g., .csv, .txt, .xml, .dat).
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6">
@@ -104,10 +105,10 @@ export function FileUploadCard({ onAnalyze }: FileUploadCardProps) {
               <p className="mt-4 text-sm text-muted-foreground">
                 <span className="font-semibold text-primary">Click to upload</span> or drag and drop
               </p>
-              <p className="text-xs text-muted-foreground mt-1">Supported formats: CSV, XML, BIN, DAT</p>
+              <p className="text-xs text-muted-foreground mt-1">Supported formats: CSV, TXT, XML, BIN, DAT</p>
             </div>
           )}
-          <Input id="file-upload" type="file" className="hidden" onChange={handleFileChange} accept=".csv,.xml,.bin,.dat" />
+          <Input id="file-upload" type="file" className="hidden" onChange={handleFileChange} accept=".csv,.xml,.bin,.dat,.txt" />
         </div>
         <div className="grid md:grid-cols-2 gap-4">
           <div className="grid gap-2">
@@ -132,9 +133,9 @@ export function FileUploadCard({ onAnalyze }: FileUploadCardProps) {
         </div>
       </CardContent>
       <CardFooter>
-        <Button onClick={handleSubmit} disabled={!file || !selectedTransformer}>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin hidden" />
-          Upload & Analyze
+        <Button onClick={handleSubmit} disabled={!file || !selectedTransformer || isAnalyzing}>
+          {isAnalyzing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isAnalyzing ? "Analyzing..." : "Upload & Analyze"}
         </Button>
       </CardFooter>
     </Card>

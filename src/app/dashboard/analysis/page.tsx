@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import { AnalysisResultCard } from "./components/analysis-result-card"
 import { FileUploadCard } from "./components/file-upload-card"
+import { classifyFraData } from "@/ai/flows/classify-fra-data"
 
 type AnalysisState = "idle" | "loading" | "results"
 type AnalysisResult = {
@@ -18,9 +19,10 @@ type AnalysisResult = {
 export default function AnalysisPage() {
   const [analysisState, setAnalysisState] = useState<AnalysisState>("idle")
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null)
+  const [isPending, startTransition] = useTransition();
   const { toast } = useToast()
 
-  const handleAnalyze = (file: File, transformerId: string, criticality: string) => {
+  const handleAnalyze = async (file: File, transformerId: string, criticality: string) => {
     if (!file) {
       toast({
         title: "No file selected",
@@ -30,7 +32,7 @@ export default function AnalysisPage() {
       return
     }
 
-    const supportedFormats = ["csv", "xml", "bin", "dat"]
+    const supportedFormats = ["csv", "xml", "bin", "dat", "txt"]
     const fileExtension = file.name.split('.').pop()?.toLowerCase()
     
     if (!fileExtension || !supportedFormats.includes(fileExtension)) {
@@ -42,42 +44,41 @@ export default function AnalysisPage() {
       return
     }
 
-
     setAnalysisState("loading")
-    // Simulate API call and analysis
-    setTimeout(() => {
-      // Simulate different results for variety
-      const randomResult = Math.random();
-      if (randomResult > 0.66) {
-        setAnalysisResult({
-            faultClassification: "Winding Deformation",
-            confidenceScore: 0.87,
-            transformerId: transformerId,
-            criticality: criticality,
-            rawFraDataSummary:
-            "Significant deviation detected in the high-frequency range (1-2 MHz) compared to baseline data, suggesting physical changes in winding geometry.",
+
+    const fileReader = new FileReader()
+    fileReader.readAsText(file, "UTF-8")
+    fileReader.onload = (e) => {
+        const fileData = e.target?.result as string;
+        startTransition(async () => {
+          try {
+            const result = await classifyFraData({ fileData, transformerId, criticality });
+            setAnalysisResult({
+              ...result,
+              transformerId,
+              criticality,
+            });
+            setAnalysisState("results");
+          } catch (error) {
+            console.error("AI Analysis failed:", error);
+            toast({
+              title: "Analysis Failed",
+              description: "The AI analysis could not be completed. Please try again.",
+              variant: "destructive",
+            });
+            setAnalysisState("idle");
+          }
         });
-      } else if (randomResult > 0.33) {
-         setAnalysisResult({
-            faultClassification: "Axial Displacement",
-            confidenceScore: 0.92,
-            transformerId: transformerId,
-            criticality: criticality,
-            rawFraDataSummary:
-            "A notable impedance mismatch is observed in the mid-frequency (20kHz-200kHz) band, indicative of axial winding movement.",
+    };
+    fileReader.onerror = (error) => {
+        console.error("Failed to read file:", error);
+        toast({
+            title: "File Read Error",
+            description: "Could not read the selected file.",
+            variant: "destructive",
         });
-      } else {
-        setAnalysisResult({
-            faultClassification: "Core Fault",
-            confidenceScore: 0.78,
-            transformerId: transformerId,
-            criticality: criticality,
-            rawFraDataSummary:
-            "Low-frequency oscillations and an anomalous response below 2kHz point towards a potential issue with the transformer core's magnetic circuit.",
-        });
-      }
-      setAnalysisState("results")
-    }, 2000)
+        setAnalysisState("idle");
+    };
   }
 
   const handleNewAnalysis = () => {
@@ -102,11 +103,11 @@ export default function AnalysisPage() {
       </div>
 
       {analysisState === "idle" && (
-        <FileUploadCard onAnalyze={handleAnalyze} />
+        <FileUploadCard onAnalyze={handleAnalyze} isAnalyzing={isPending} />
       )}
 
       {(analysisState === "loading" || (analysisState === "results" && analysisResult)) && (
-        <AnalysisResultCard result={analysisResult} isLoading={analysisState === 'loading'} />
+        <AnalysisResultCard result={analysisResult} isLoading={analysisState === 'loading' || isPending} />
       )}
     </div>
   )
