@@ -8,6 +8,7 @@ import {
   CircuitBoard,
   FileUp,
   LayoutDashboard,
+  Map,
   Settings,
   ShieldCheck,
 } from "lucide-react"
@@ -43,6 +44,7 @@ export default function DashboardLayout({
 
   const menuItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+    { href: "/dashboard/map-view", icon: Map, label: "Map View" },
     { href: "/dashboard/transformers", icon: CircuitBoard, label: "Transformers" },
     { href: "/dashboard/analysis", icon: FileUp, label: "Analysis" },
     { href: "/dashboard/settings", icon: Settings, label: "Settings" },

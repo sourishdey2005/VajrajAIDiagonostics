@@ -43,6 +43,8 @@ const manufacturers = [
 const transformerSchema = z.object({
   name: z.string().min(3, "Substation name must be at least 3 characters long."),
   location: z.string().min(2, "Location is required."),
+  latitude: z.coerce.number().min(0).max(100),
+  longitude: z.coerce.number().min(0).max(100),
   criticality: z.enum(["High", "Medium", "Low"]),
   load: z.coerce.number().min(0, "Load cannot be negative.").max(100, "Load must be 100% or less."),
   manufacturer: z.string().min(2, "Manufacturer is required."),
@@ -65,6 +67,8 @@ export function AddTransformerDialog({ isOpen, onOpenChange, onAddTransformer }:
     defaultValues: {
       name: "",
       location: "",
+      latitude: 50,
+      longitude: 50,
       criticality: "Medium",
       load: 75,
       manufacturer: "",
@@ -80,7 +84,7 @@ export function AddTransformerDialog({ isOpen, onOpenChange, onAddTransformer }:
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>Add New Transformer</DialogTitle>
           <DialogDescription>
@@ -111,6 +115,34 @@ export function AddTransformerDialog({ isOpen, onOpenChange, onAddTransformer }:
                   <FormControl>
                     <Input placeholder="e.g., Mumbai, MH" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="latitude"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Latitude (%)</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="e.g., 50" {...field} />
+                  </FormControl>
+                   <FormDescription>Vertical position on map (0-100).</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="longitude"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Longitude (%)</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="e.g., 20" {...field} />
+                  </FormControl>
+                   <FormDescription>Horizontal position on map (0-100).</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
