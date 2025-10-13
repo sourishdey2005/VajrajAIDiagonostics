@@ -4,7 +4,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartTooltipContent } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { cn } from '@/lib/utils';
 import { Thermometer, Zap, Gauge } from 'lucide-react';
 
@@ -84,8 +84,9 @@ export function LiveAnalysisChart({ isFaulty }: { isFaulty: boolean }) {
         </div>
 
         <div className="h-[250px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+          <ChartContainer config={chartConfig}>
             <AreaChart
+              accessibilityLayer
               data={data}
               margin={{
                 top: 5,
@@ -143,7 +144,7 @@ export function LiveAnalysisChart({ isFaulty }: { isFaulty: boolean }) {
               <Area type="monotone" dataKey="load" yAxisId="left" stroke={chartConfig.load.color} fillOpacity={1} fill="url(#colorLoad)" strokeWidth={2} dot={false} />
 
             </AreaChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </div>
         <p className="text-xs text-muted-foreground text-center mt-2">
             <span className="inline-block w-2 h-2 rounded-full mr-1" style={{backgroundColor: chartConfig.temperature.color}}></span> Temperature
