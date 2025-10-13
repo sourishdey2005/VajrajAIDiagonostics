@@ -22,8 +22,9 @@ interface FileUploadCardProps {
 
 export function FileUploadCard({ onAnalyze }: FileUploadCardProps) {
   const [file, setFile] = useState<File | null>(null)
-  const [transformerId, setTransformerId] = useState<string>(transformers[0].id)
-  const [criticality, setCriticality] = useState<string>(transformers[0].criticality)
+  const [selectedTransformerId, setSelectedTransformerId] = useState<string>(transformers[0].id)
+  
+  const selectedTransformer = transformers.find(t => t.id === selectedTransformerId);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -40,16 +41,8 @@ export function FileUploadCard({ onAnalyze }: FileUploadCardProps) {
   };
 
   const handleSubmit = () => {
-    if (file) {
-      onAnalyze(file, transformerId, criticality)
-    }
-  }
-  
-  const handleSelectTransformer = (id: string) => {
-    const transformer = transformers.find(t => t.id === id);
-    if(transformer) {
-      setTransformerId(transformer.id);
-      setCriticality(transformer.criticality);
+    if (file && selectedTransformer) {
+      onAnalyze(file, selectedTransformer.id, selectedTransformer.criticality)
     }
   }
 
@@ -79,7 +72,7 @@ export function FileUploadCard({ onAnalyze }: FileUploadCardProps) {
         <div className="grid md:grid-cols-2 gap-4">
           <div className="grid gap-2">
             <Label htmlFor="transformer">Transformer</Label>
-            <Select value={transformerId} onValueChange={handleSelectTransformer}>
+            <Select value={selectedTransformerId} onValueChange={setSelectedTransformerId}>
               <SelectTrigger id="transformer">
                 <SelectValue placeholder="Select Transformer" />
               </SelectTrigger>
@@ -94,7 +87,7 @@ export function FileUploadCard({ onAnalyze }: FileUploadCardProps) {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="criticality">Criticality Level</Label>
-            <Input id="criticality" value={criticality} disabled />
+            <Input id="criticality" value={selectedTransformer?.criticality || ''} disabled />
           </div>
         </div>
       </CardContent>

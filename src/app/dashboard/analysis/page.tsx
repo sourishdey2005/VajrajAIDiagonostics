@@ -65,20 +65,19 @@ export default function AnalysisPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-3xl font-headline font-bold tracking-tight">
-          FRA Data Analysis
-        </h1>
-        <p className="text-muted-foreground">
-          Upload FRA data to perform an AI-powered fault diagnosis.
-        </p>
-      </div>
-
-      {analysisState !== "idle" && (
-        <div className="flex justify-end">
-          <Button onClick={handleNewAnalysis}>Start New Analysis</Button>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-headline font-bold tracking-tight">
+            FRA Data Analysis
+          </h1>
+          <p className="text-muted-foreground">
+            Upload FRA data to perform an AI-powered fault diagnosis.
+          </p>
         </div>
-      )}
+        {analysisState !== "idle" && (
+          <Button onClick={handleNewAnalysis}>Start New Analysis</Button>
+        )}
+      </div>
 
       {analysisState === "idle" && (
         <FileUploadCard onAnalyze={handleAnalyze} />
