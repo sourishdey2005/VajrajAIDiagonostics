@@ -195,6 +195,12 @@ export function AnalysisResultCard({ result, isLoading }: AnalysisResultCardProp
   if (!result) return null
 
   const confidenceData = [{ name: 'Confidence', value: result.confidenceScore * 100 }]
+  const chartConfig = {
+    value: {
+        label: "Confidence",
+        color: "hsl(var(--chart-1))",
+    }
+  }
 
   return (
     <Card>
@@ -240,15 +246,17 @@ export function AnalysisResultCard({ result, isLoading }: AnalysisResultCardProp
                   </CardHeader>
                   <CardContent>
                     <div className="h-[60px] w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={confidenceData} layout="vertical">
-                          <XAxis type="number" domain={[0, 100]} hide />
-                          <YAxis type="category" dataKey="name" hide />
-                          <Tooltip cursor={{fill: 'hsl(var(--muted))'}} content={<ChartTooltipContent hideLabel hideIndicator />} />
-                          <Bar dataKey="value" fill="var(--color-chart-1)" radius={4} barSize={20}>
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
+                      <ChartContainer config={chartConfig}>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={confidenceData} layout="vertical">
+                              <XAxis type="number" domain={[0, 100]} hide />
+                              <YAxis type="category" dataKey="name" hide />
+                              <Tooltip cursor={{fill: 'hsl(var(--muted))'}} content={<ChartTooltipContent hideLabel hideIndicator />} />
+                              <Bar dataKey="value" fill="var(--color-value)" radius={4} barSize={20}>
+                              </Bar>
+                            </BarChart>
+                          </ResponsiveContainer>
+                      </ChartContainer>
                     </div>
                     <p className="text-right text-2xl font-bold mt-2">{(result.confidenceScore * 100).toFixed(1)}%</p>
                   </CardContent>
@@ -271,14 +279,16 @@ export function AnalysisResultCard({ result, isLoading }: AnalysisResultCardProp
           </TabsContent>
 
           <TabsContent value="root-cause">
-             <div className="flex items-start gap-4 p-1">
-                <div className="text-primary pt-1"><Share2 className="w-6 h-6" /></div>
-                <div className="flex-1">
-                    <h3 className="font-bold text-lg">AI-Powered Root Cause Analysis</h3>
-                    <p className="text-sm text-muted-foreground mb-4">The most likely contributing factors to the detected fault.</p>
-                    <RootCauseAnalysisChart result={result} />
+             <ChartContainer config={{}} className="h-[250px] w-full">
+                 <div className="flex items-start gap-4 p-1">
+                    <div className="text-primary pt-1"><Share2 className="w-6 h-6" /></div>
+                    <div className="flex-1">
+                        <h3 className="font-bold text-lg">AI-Powered Root Cause Analysis</h3>
+                        <p className="text-sm text-muted-foreground mb-4">The most likely contributing factors to the detected fault.</p>
+                        <RootCauseAnalysisChart result={result} />
+                    </div>
                 </div>
-            </div>
+             </ChartContainer>
           </TabsContent>
 
           <TabsContent value="ai-explanation">
@@ -300,3 +310,5 @@ export function AnalysisResultCard({ result, isLoading }: AnalysisResultCardProp
     </Card>
   )
 }
+
+    
