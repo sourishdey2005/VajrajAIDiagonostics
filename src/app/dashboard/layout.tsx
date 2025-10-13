@@ -1,8 +1,8 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import * as React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 import {
   CircuitBoard,
@@ -11,9 +11,10 @@ import {
   Map,
   Settings,
   ShieldCheck,
-  GitCompareArrows
-} from "lucide-react"
-import { cn } from "@/lib/utils"
+  GitCompareArrows,
+  CircleDollarSign,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 import {
   SidebarProvider,
   Sidebar,
@@ -26,37 +27,53 @@ import {
   SidebarInset,
   SidebarGroup,
   SidebarGroupLabel,
-} from "@/components/ui/sidebar"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import DashboardHeader from "./components/dashboard-header"
-import { VajraIcon } from "@/components/icons"
-import { useUserRole } from "@/contexts/user-role-context"
-import { PlaceHolderImages } from "@/lib/placeholder-images"
-import { Chatbot } from "@/components/chatbot/chatbot"
+} from '@/components/ui/sidebar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import DashboardHeader from './components/dashboard-header';
+import { VajraIcon } from '@/components/icons';
+import { useUserRole } from '@/contexts/user-role-context';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Chatbot } from '@/components/chatbot/chatbot';
 
 export default function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const pathname = usePathname()
-  const { role } = useUserRole()
+  const pathname = usePathname();
+  const { role } = useUserRole();
   const userAvatarImage = PlaceHolderImages.find(p => p.id === 'user-avatar-1');
 
   const menuItems = [
-    { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { href: "/dashboard/map-view", icon: Map, label: "Map View" },
-    { href: "/dashboard/transformers", icon: CircuitBoard, label: "Transformers" },
-    { href: "/dashboard/analysis", icon: FileUp, label: "Analysis" },
-  ]
+    { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { href: '/dashboard/map-view', icon: Map, label: 'Map View' },
+    {
+      href: '/dashboard/transformers',
+      icon: CircuitBoard,
+      label: 'Transformers',
+    },
+    { href: '/dashboard/analysis', icon: FileUp, label: 'Analysis' },
+  ];
 
   const managerMenuItems = [
-    { href: "/dashboard/comparison", icon: GitCompareArrows, label: "Comparison" },
-  ]
+    {
+      href: '/dashboard/comparison',
+      icon: GitCompareArrows,
+      label: 'Comparison',
+    },
+    {
+      href: '/dashboard/budgeting',
+      icon: CircleDollarSign,
+      label: 'Budgeting',
+    },
+  ];
 
-  const settingsItem = { href: "/dashboard/settings", icon: Settings, label: "Settings" };
-
+  const settingsItem = {
+    href: '/dashboard/settings',
+    icon: Settings,
+    label: 'Settings',
+  };
 
   return (
     <SidebarProvider>
@@ -71,7 +88,7 @@ export default function DashboardLayout({
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {menuItems.map((item) => (
+            {menuItems.map(item => (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
                   asChild
@@ -89,50 +106,53 @@ export default function DashboardLayout({
 
           {role === 'manager' && (
             <SidebarGroup>
-                <SidebarGroupLabel className="flex items-center">
-                    <ShieldCheck className="mr-2"/>
-                    Manager Tools
-                </SidebarGroupLabel>
-                 <SidebarMenu>
-                    {managerMenuItems.map((item) => (
-                    <SidebarMenuItem key={item.href}>
-                        <SidebarMenuButton
-                        asChild
-                        isActive={pathname === item.href}
-                        className="w-full justify-start"
-                        >
-                        <Link href={item.href}>
-                            <item.icon className="mr-2 h-4 w-4" />
-                            <span>{item.label}</span>
-                        </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    ))}
-                </SidebarMenu>
+              <SidebarGroupLabel className="flex items-center">
+                <ShieldCheck className="mr-2" />
+                Manager Tools
+              </SidebarGroupLabel>
+              <SidebarMenu>
+                {managerMenuItems.map(item => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === item.href}
+                      className="w-full justify-start"
+                    >
+                      <Link href={item.href}>
+                        <item.icon className="mr-2 h-4 w-4" />
+                        <span>{item.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
             </SidebarGroup>
           )}
 
-           <SidebarMenu className="mt-auto">
-             <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === settingsItem.href}
-                  className="w-full justify-start"
-                >
-                  <Link href={settingsItem.href}>
-                    <settingsItem.icon className="mr-2 h-4 w-4" />
-                    <span>{settingsItem.label}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-           </SidebarMenu>
-
+          <SidebarMenu className="mt-auto">
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === settingsItem.href}
+                className="w-full justify-start"
+              >
+                <Link href={settingsItem.href}>
+                  <settingsItem.icon className="mr-2 h-4 w-4" />
+                  <span>{settingsItem.label}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
               {userAvatarImage && (
-                <AvatarImage src={userAvatarImage.imageUrl} alt="User Avatar" data-ai-hint={userAvatarImage.imageHint} />
+                <AvatarImage
+                  src={userAvatarImage.imageUrl}
+                  alt="User Avatar"
+                  data-ai-hint={userAvatarImage.imageHint}
+                />
               )}
               <AvatarFallback>RS</AvatarFallback>
             </Avatar>
@@ -147,11 +167,9 @@ export default function DashboardLayout({
       </Sidebar>
       <SidebarInset>
         <DashboardHeader />
-        <main className="flex-1 p-4 md:p-6 lg:p-8">
-          {children}
-        </main>
+        <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
         <Chatbot />
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }
