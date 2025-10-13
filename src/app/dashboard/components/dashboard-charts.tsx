@@ -3,8 +3,19 @@
 import { Bar, BarChart, CartesianGrid, Line, LineChart, Pie, PieChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
-import { analysisTrendData, faultDistributionData, transformerStatusData, criticalityDistributionData, manufacturerDistributionData, locationDistributionData, upcomingServiceData, loadDistributionData, serviceEngineerWorkloadData } from "@/lib/data"
+import { analysisTrendData, faultDistributionData } from "@/lib/data"
 import { cn } from "@/lib/utils"
+
+type ChartData = {
+  name: string;
+  value: number;
+  fill: string;
+}[];
+
+interface DynamicChartProps {
+  data: ChartData;
+  className?: string;
+}
 
 const chartConfig = {
   analyses: {
@@ -22,7 +33,7 @@ export function FaultDistributionChart({ className }: { className?: string}) {
     <Card className={cn(className)}>
       <CardHeader>
         <CardTitle>Fault Distribution</CardTitle>
-        <CardDescription>Breakdown of fault types detected in the last quarter across the fleet.</CardDescription>
+        <CardDescription>Breakdown of simulated fault types detected in the last quarter.</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={{}} className="h-[300px] w-full">
@@ -49,7 +60,7 @@ export function AnalysisTrendChart({ className }: { className?: string}) {
   return (
     <Card className={cn(className)}>
       <CardHeader>
-        <CardTitle>Analysis & Alert Trend</CardTitle>
+        <CardTitle>Analysis & Alert Trend (Simulated)</CardTitle>
         <CardDescription>Monthly trend of data analyses performed and critical alerts generated.</CardDescription>
       </CardHeader>
       <CardContent>
@@ -71,7 +82,7 @@ export function AnalysisTrendChart({ className }: { className?: string}) {
   )
 }
 
-export function TransformerStatusChart({ className }: { className?: string }) {
+export function TransformerStatusChart({ data, className }: DynamicChartProps) {
   return (
     <Card className={cn(className)}>
       <CardHeader>
@@ -84,7 +95,7 @@ export function TransformerStatusChart({ className }: { className?: string }) {
             <PieChart>
               <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
               <Pie
-                data={transformerStatusData}
+                data={data}
                 dataKey="value"
                 nameKey="name"
                 cx="50%"
@@ -95,7 +106,7 @@ export function TransformerStatusChart({ className }: { className?: string }) {
                 labelLine={false}
                 label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
               >
-                {transformerStatusData.map((entry) => (
+                {data.map((entry) => (
                   <Cell key={`cell-${entry.name}`} fill={entry.fill} />
                 ))}
               </Pie>
@@ -107,7 +118,7 @@ export function TransformerStatusChart({ className }: { className?: string }) {
   );
 }
 
-export function CriticalityDistributionChart({ className }: { className?: string }) {
+export function CriticalityDistributionChart({ data, className }: DynamicChartProps) {
   return (
     <Card className={cn(className)}>
       <CardHeader>
@@ -120,14 +131,14 @@ export function CriticalityDistributionChart({ className }: { className?: string
             <PieChart>
               <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
               <Pie
-                data={criticalityDistributionData}
+                data={data}
                 dataKey="value"
                 nameKey="name"
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
               >
-                {criticalityDistributionData.map((entry) => (
+                {data.map((entry) => (
                   <Cell key={`cell-${entry.name}`} fill={entry.fill} />
                 ))}
               </Pie>
@@ -140,7 +151,7 @@ export function CriticalityDistributionChart({ className }: { className?: string
   );
 }
 
-export function ManufacturerDistributionChart({ className }: { className?: string }) {
+export function ManufacturerDistributionChart({ data, className }: DynamicChartProps) {
   return (
     <Card className={cn(className)}>
       <CardHeader>
@@ -153,7 +164,7 @@ export function ManufacturerDistributionChart({ className }: { className?: strin
             <PieChart>
               <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
               <Pie
-                data={manufacturerDistributionData}
+                data={data}
                 dataKey="value"
                 nameKey="name"
                 cx="50%"
@@ -161,7 +172,7 @@ export function ManufacturerDistributionChart({ className }: { className?: strin
                 outerRadius={100}
                 label={(entry) => `${entry.name} (${entry.value})`}
               >
-                {manufacturerDistributionData.map((entry) => (
+                {data.map((entry) => (
                   <Cell key={`cell-${entry.name}`} fill={entry.fill} />
                 ))}
               </Pie>
@@ -174,7 +185,7 @@ export function ManufacturerDistributionChart({ className }: { className?: strin
   );
 }
 
-export function LocationDistributionChart({ className }: { className?: string }) {
+export function LocationDistributionChart({ data, className }: DynamicChartProps) {
   return (
     <Card className={cn(className)}>
       <CardHeader>
@@ -184,14 +195,14 @@ export function LocationDistributionChart({ className }: { className?: string })
       <CardContent>
         <ChartContainer config={{}} className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={locationDistributionData}>
+            <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
               <Legend />
               <Bar dataKey="value" name="Transformers" radius={[4, 4, 0, 0]}>
-                {locationDistributionData.map((entry) => (
+                {data.map((entry) => (
                   <Cell key={`cell-${entry.name}`} fill={entry.fill} />
                 ))}
               </Bar>
@@ -203,7 +214,7 @@ export function LocationDistributionChart({ className }: { className?: string })
   );
 }
 
-export function UpcomingServiceChart({ className }: { className?: string }) {
+export function UpcomingServiceChart({ data, className }: DynamicChartProps) {
   return (
     <Card className={cn(className)}>
       <CardHeader>
@@ -213,14 +224,14 @@ export function UpcomingServiceChart({ className }: { className?: string }) {
       <CardContent>
         <ChartContainer config={{}} className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={upcomingServiceData}>
+            <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
               <Legend />
               <Bar dataKey="value" name="Services Due" radius={[4, 4, 0, 0]}>
-                {upcomingServiceData.map((entry) => (
+                {data.map((entry) => (
                   <Cell key={`cell-${entry.name}`} fill={entry.fill} />
                 ))}
               </Bar>
@@ -232,7 +243,7 @@ export function UpcomingServiceChart({ className }: { className?: string }) {
   );
 }
 
-export function LoadDistributionChart({ className }: { className?: string }) {
+export function LoadDistributionChart({ data, className }: DynamicChartProps) {
   return (
     <Card className={cn(className)}>
       <CardHeader>
@@ -242,14 +253,14 @@ export function LoadDistributionChart({ className }: { className?: string }) {
       <CardContent>
         <ChartContainer config={{}} className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={loadDistributionData}>
+            <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
               <Legend />
               <Bar dataKey="value" name="Count" radius={[4, 4, 0, 0]}>
-                {loadDistributionData.map((entry) => (
+                {data.map((entry) => (
                   <Cell key={`cell-${entry.name}`} fill={entry.fill} />
                 ))}
               </Bar>
@@ -261,7 +272,7 @@ export function LoadDistributionChart({ className }: { className?: string }) {
   );
 }
 
-export function ServiceEngineerWorkloadChart({ className }: { className?: string }) {
+export function ServiceEngineerWorkloadChart({ data, className }: DynamicChartProps) {
   return (
     <Card className={cn(className)}>
       <CardHeader>
@@ -271,13 +282,13 @@ export function ServiceEngineerWorkloadChart({ className }: { className?: string
       <CardContent>
         <ChartContainer config={{}} className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={serviceEngineerWorkloadData} layout="vertical" margin={{ left: 20, right: 20 }}>
+            <BarChart data={data} layout="vertical" margin={{ left: 20, right: 20 }}>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} />
               <XAxis type="number" />
               <YAxis type="category" dataKey="name" width={80} tick={{ fontSize: 12 }}/>
               <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
               <Bar dataKey="value" name="Assigned" radius={[0, 4, 4, 0]}>
-                 {serviceEngineerWorkloadData.map((entry) => (
+                 {data.map((entry) => (
                   <Cell key={`cell-${entry.name}`} fill={entry.fill} />
                 ))}
               </Bar>
