@@ -93,11 +93,11 @@ export const dashboardStats = {
 };
 
 export const faultDistributionData = [
-  { name: 'Axial Displacement', value: 8, fill: 'var(--color-chart-1)' },
-  { name: 'Winding Deformation', value: 5, fill: 'var(--color-chart-2)' },
-  { name: 'Core Faults', value: 3, fill: 'var(--color-chart-3)' },
-  { name: 'Bushing Faults', value: 2, fill: 'var(--color-chart-4)' },
-  { name: 'Other', value: 4, fill: 'var(--color-chart-5)' },
+  { name: 'Axial Displacement', value: 8, fill: 'hsl(var(--chart-1))' },
+  { name: 'Winding Deformation', value: 5, fill: 'hsl(var(--chart-2))' },
+  { name: 'Core Faults', value: 3, fill: 'hsl(var(--chart-3))' },
+  { name: 'Bushing Faults', value: 2, fill: 'hsl(var(--chart-4))' },
+  { name: 'Other', value: 4, fill: 'hsl(var(--chart-5))' },
 ];
 
 export const analysisTrendData = [
@@ -108,3 +108,15 @@ export const analysisTrendData = [
   { date: 'May', Analyses: 70, Alerts: 10 },
   { date: 'Jun', Analyses: 85, Alerts: 15 },
 ];
+
+export const transformerStatusData = [
+  { name: 'Operational', value: 9, fill: 'hsl(var(--chart-2))' },
+  { name: 'Needs Attention', value: 2, fill: 'hsl(var(--destructive))' },
+  { name: 'Under Maintenance', value: 1, fill: 'hsl(var(--chart-3))' },
+];
+
+export const criticalityDistributionData = [
+    { name: 'High', value: 3, fill: 'hsl(var(--destructive))' },
+    { name: 'Medium', value: 3, fill: 'hsl(var(--chart-3))' },
+    { name: 'Low', value: 1, fill: 'hsl(var(--chart-1))' },
+]
