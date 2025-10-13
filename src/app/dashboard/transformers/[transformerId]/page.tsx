@@ -18,6 +18,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { FaultProgressionChart } from './components/fault-progression-chart'
+import { LiveAnalysisChart } from './components/live-analysis-chart'
 
 export default function TransformerDetailPage() {
   const params = useParams()
@@ -137,16 +138,7 @@ export default function TransformerDetailPage() {
           )}
         </div>
         <div className="md:col-span-2">
-          <Card>
-              <CardHeader>
-                  <CardTitle>Live Data</CardTitle>
-                  <CardDescription>Real-time operational parameters.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                  <p className="text-muted-foreground text-sm text-center py-12">Live data feed is not connected.</p>
-                  {/* Future: Display live charts for temperature, load, etc. */}
-              </CardContent>
-          </Card>
+          <LiveAnalysisChart isFaulty={transformer.status === 'Needs Attention'} />
         </div>
       </div>
 
