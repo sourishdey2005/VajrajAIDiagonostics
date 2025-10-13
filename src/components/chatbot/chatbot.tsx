@@ -28,15 +28,30 @@ export function Chatbot() {
   const [input, setInput] = useState("")
   const [isPending, startTransition] = useTransition()
   const scrollAreaRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
 
-  const toggleChat = () => setIsOpen(!isOpen)
+  const toggleChat = () => {
+      setIsOpen(prev => {
+          if (!prev) {
+            setTimeout(() => inputRef.current?.focus(), 100);
+          }
+          return !prev
+      })
+  }
 
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight
     }
   }, [messages])
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit(e);
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -76,10 +91,14 @@ export function Chatbot() {
         </Button>
       </div>
 
-      {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50">
+      <div 
+        className={cn(
+            "fixed bottom-24 right-6 z-50 transition-opacity duration-300",
+            isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+      >
           <Card className="w-[380px] h-[550px] flex flex-col shadow-2xl">
-            <CardHeader>
+            <CardHeader className="flex-row items-center justify-between">
               <div className="flex items-center gap-3">
                  <div className="p-2 bg-primary/10 rounded-full border border-primary/20">
                     <BotMessageSquareIcon className="w-6 h-6 text-primary" />
@@ -89,6 +108,10 @@ export function Chatbot() {
                     <CardDescription>AI-Powered Diagnostics Helper</CardDescription>
                  </div>
               </div>
+              <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="h-8 w-8">
+                <X className="w-4 h-4"/>
+                <span className="sr-only">Close chat</span>
+              </Button>
             </CardHeader>
             <CardContent className="flex-1 overflow-hidden p-0">
                 <ScrollArea className="h-full" ref={scrollAreaRef}>
@@ -127,12 +150,14 @@ export function Chatbot() {
             <CardFooter>
                  <form onSubmit={handleSubmit} className="flex w-full items-center space-x-2 relative">
                     <Input
+                        ref={inputRef}
                         id="message"
                         placeholder="Ask about a fault type..."
                         className="flex-1 pr-12"
                         autoComplete="off"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
                         disabled={isPending}
                     />
                     <Button type="submit" size="icon" className="absolute right-1 w-8 h-8" disabled={isPending || !input}>
@@ -142,8 +167,7 @@ export function Chatbot() {
                 </form>
             </CardFooter>
           </Card>
-        </div>
-      )}
+      </div>
     </>
   )
 }
