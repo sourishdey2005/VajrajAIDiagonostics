@@ -34,7 +34,15 @@ export default function MapViewPage() {
             Real-time asset health and predictive risk zones on a live map.
           </p>
         </div>
-        <div className="h-[600px] w-full animate-pulse rounded-md bg-muted"></div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Fleet Distribution & Predictive Risk</CardTitle>
+            <CardDescription>Hover over transformers for details. Red zones indicate AI-predicted areas of higher fault probability.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[600px] w-full animate-pulse rounded-md bg-muted"></div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
