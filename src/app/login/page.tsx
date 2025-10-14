@@ -369,7 +369,7 @@ export default function LoginPage() {
             alt={loginHeroImage.description}
             fill
             className="object-cover"
-            data-ai-hint={loginHeroeImage.imageHint}
+            data-ai-hint={loginHeroImage.imageHint}
             />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
