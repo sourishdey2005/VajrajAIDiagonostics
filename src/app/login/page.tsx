@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from 'next/image';
@@ -16,10 +17,17 @@ import { Mic, MicOff, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { recognizeRoleCommand } from '@/ai/flows/recognize-role-command';
 
+const rolePasswords: Record<Role, string> = {
+    manager: 'vajra-manager',
+    field_engineer: 'vajra-engineer',
+    user: 'vajra-user'
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const { setRole } = useUserRole();
-  const [selectedRole, setSelectedRole] = useState<Role>('field_engineer');
+  const [selectedRole, setSelectedRole] = useState<Role>('manager');
+  const [password, setPassword] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, startTransition] = useTransition();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -30,8 +38,16 @@ export default function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    setRole(selectedRole);
-    router.push('/dashboard');
+    if (password === rolePasswords[selectedRole]) {
+      setRole(selectedRole);
+      router.push('/dashboard');
+    } else {
+      toast({
+        title: "Invalid Password",
+        description: "The password you entered is incorrect for the selected role.",
+        variant: "destructive",
+      });
+    }
   };
 
   const startRecording = async () => {
@@ -57,13 +73,9 @@ export default function LoginPage() {
               if (role !== 'unknown') {
                 setSelectedRole(role);
                 toast({
-                  title: "Role Detected!",
-                  description: `Logging you in as ${role.replace('_', ' ')}.`,
+                  title: `Logging you in as ${role.replace('_', ' ')}.`,
+                  description: "Please enter the password for this role.",
                 });
-                setTimeout(() => {
-                    setRole(role);
-                    router.push('/dashboard');
-                }, 1000);
               } else {
                 toast({
                   title: "Voice Command Not Recognized",
@@ -141,24 +153,30 @@ export default function LoginPage() {
                 required
               />
             </div>
+             <div className="grid gap-2">
+                <Label htmlFor="role">Role</Label>
+                <Select value={selectedRole} onValueChange={(value: Role) => setSelectedRole(value)}>
+                    <SelectTrigger>
+                    <SelectValue placeholder="Select a role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                    <SelectItem value="manager">Manager</SelectItem>
+                    <SelectItem value="field_engineer">Field Engineer</SelectItem>
+                    <SelectItem value="user">User</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
             <div className="grid gap-2">
               <div className="flex items-center">
                 <Label htmlFor="password">Password</Label>
               </div>
-              <Input id="password" type="password" defaultValue="password" required />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="role">Role</Label>
-              <Select value={selectedRole} onValueChange={(value: Role) => setSelectedRole(value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="field_engineer">Field Engineer</SelectItem>
-                  <SelectItem value="manager">Manager</SelectItem>
-                  <SelectItem value="user">User</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input 
+                id="password" 
+                type="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required 
+              />
             </div>
             <Button type="submit" className="w-full">
               Login
@@ -181,7 +199,7 @@ export default function LoginPage() {
               ) : (
                 <Mic className="mr-2 h-4 w-4" />
               )}
-              {isProcessing ? "Processing..." : isRecording ? "Recording... (Speak Now)" : "Login with Voice"}
+              {isProcessing ? "Processing..." : isRecording ? "Recording..." : "Select Role with Voice"}
             </Button>
           </form>
         </div>
@@ -205,3 +223,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    
