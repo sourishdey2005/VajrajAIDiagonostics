@@ -39,7 +39,12 @@ const chatWithVajraFlow = ai.defineFlow(
     outputSchema: ChatWithVajraOutputSchema,
   },
   async ({history, message}) => {
-    const systemPrompt = `You are Vajra Assistant, an expert AI specializing in transformer diagnostics and electrical engineering. Your purpose is to help users understand fault analysis data and manage their transformer fleet.
+    const chatHistory = history.filter(
+      (msg) => msg.content.trim() !== '' && (msg.role === 'user' || msg.role === 'model')
+    );
+
+    const {text} = await ai.generate({
+      system: `You are Vajra Assistant, an expert AI specializing in transformer diagnostics and electrical engineering. Your purpose is to help users understand fault analysis data and manage their transformer fleet.
 
 - Be concise, helpful, and professional.
 - Your answers must be based *only* on the knowledge base provided below.
@@ -66,19 +71,9 @@ const chatWithVajraFlow = ai.defineFlow(
 
 **General Concepts:**
 - **Frequency Response Analysis (FRA):** A diagnostic method to evaluate the mechanical and electrical integrity of a transformer by measuring its frequency response. It is like an 'x-ray' for the transformer.
-`;
-
-    const chatHistory = history.filter(
-      (msg) => msg.content.trim() !== '' && (msg.role === 'user' || msg.role === 'model')
-    );
-
-    const {text} = await ai.generate({
+`,
       prompt: message,
-      history: [
-        {role: 'user', content: systemPrompt},
-        {role: 'model', content: "Understood. I am Vajra Assistant, ready to help with transformer diagnostics."},
-        ...chatHistory,
-      ],
+      history: chatHistory,
       output: {
         format: 'text',
       },
