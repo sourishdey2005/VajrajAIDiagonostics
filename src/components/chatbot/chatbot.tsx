@@ -19,8 +19,8 @@ type Message = {
 
 const suggestedQueries = [
     "What is Winding Deformation?",
-    "Explain Axial Displacement.",
-    "Compare Core Fault and Bushing Fault.",
+    "Explain the difference between High and Low criticality.",
+    "What does 'Needs Attention' status mean?",
     "How do you identify an Inter-turn Short?",
 ];
 
