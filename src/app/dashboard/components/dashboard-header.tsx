@@ -31,7 +31,8 @@ export default function DashboardHeader() {
   const pathSegments = pathname.split('/').filter(Boolean);
   
   const getInitials = (name: string) => {
-      return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    if (!name) return 'U';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
   }
 
 

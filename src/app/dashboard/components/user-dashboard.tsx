@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
+import { useUserRole } from "@/contexts/user-role-context"
 
 const electricitySuppliers = [
     "Adani Electricity Mumbai Ltd",
@@ -19,6 +20,7 @@ const electricitySuppliers = [
 
 export function UserDashboard() {
     const { toast } = useToast()
+    const { userName } = useUserRole();
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
@@ -32,7 +34,7 @@ export function UserDashboard() {
         <div className="flex flex-col gap-8">
             <div>
                 <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">
-                    Welcome to your Dashboard
+                    Welcome, {userName}
                 </h1>
                 <p className="text-muted-foreground">
                     Please provide your details to get started with our services.

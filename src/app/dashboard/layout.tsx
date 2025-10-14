@@ -112,7 +112,8 @@ export default function DashboardLayout({
   const itemsToDisplay = role === 'user' ? userMenuItems : menuItems;
 
   const getInitials = (name: string) => {
-      return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    if (!name) return 'U';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
   }
 
   return (
