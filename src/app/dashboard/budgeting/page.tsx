@@ -84,8 +84,8 @@ export default function BudgetingPage() {
     return [
       {
         name: 'Cost Comparison',
-        'Reactive Repair': estimation.estimatedRepairCost,
-        'Preventative Action': estimation.preventativeMaintenanceCost,
+        "Reactive Repair": estimation.estimatedRepairCost,
+        "Preventative Action": estimation.preventativeMaintenanceCost,
       },
     ];
   }, [estimation]);
@@ -213,15 +213,15 @@ export default function BudgetingPage() {
             </CardHeader>
             <CardContent>
                  <div className="h-[300px]">
-                    <ChartContainer config={chartConfig}>
-                        <ResponsiveContainer width="100%" height="100%">
+                    <ChartContainer config={chartConfig} className="h-[300px] w-full">
+                        <ResponsiveContainer>
                             <BarChart data={chartData} layout="vertical" margin={{ left: 100 }}>
                                 <CartesianGrid strokeDasharray="3 3" horizontal={false}/>
                                 <XAxis type="number" tickFormatter={(value) => formatCurrency(value as number)} />
                                 <YAxis type="category" dataKey="name" hide />
                                 <Tooltip
                                     cursor={{ fill: 'hsl(var(--muted))' }}
-                                    content={<ChartTooltipContent formatter={(value) => formatCurrency(value as number)} />}
+                                    content={<ChartTooltipContent formatter={(value) => formatCurrency(value as number)} indicator="dot" />}
                                 />
                                 <Legend />
                                 <Bar dataKey="Reactive Repair" fill="var(--color-Reactive Repair)" radius={[0, 4, 4, 0]} barSize={30} />
