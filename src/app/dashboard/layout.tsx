@@ -15,6 +15,8 @@ import {
   CircleDollarSign,
   Users,
   History,
+  CloudLightning,
+  Target,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -78,6 +80,16 @@ export default function DashboardLayout({
         href: '/dashboard/audit-trail',
         icon: History,
         label: 'Audit Trail',
+    },
+     {
+        href: '/dashboard/environmental',
+        icon: CloudLightning,
+        label: 'Environmental',
+    },
+    {
+        href: '/dashboard/kpis',
+        icon: Target,
+        label: 'KPIs',
     },
   ];
 
