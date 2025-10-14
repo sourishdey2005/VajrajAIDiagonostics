@@ -101,6 +101,10 @@ export default function DashboardLayout({
     },
   ];
 
+  const fieldEngineerMenuItems = [
+     { href: '/dashboard/assigned-complaints', icon: ClipboardList, label: 'Assigned Complaints' },
+  ]
+
   const settingsItem = {
     href: '/dashboard/settings',
     icon: Settings,
@@ -113,7 +117,13 @@ export default function DashboardLayout({
     { href: '/dashboard/knowledge-hub', icon: BookOpen, label: 'Knowledge Hub' },
   ];
 
-  const itemsToDisplay = role === 'user' ? userMenuItems : menuItems;
+  let itemsToDisplay = menuItems;
+  if (role === 'user') {
+      itemsToDisplay = userMenuItems;
+  } else if (role === 'field_engineer') {
+      itemsToDisplay = menuItems.concat(fieldEngineerMenuItems);
+  }
+
 
   const getInitials = (name: string) => {
     if (!name) return 'U';

@@ -459,6 +459,14 @@ export const engineerPerformanceData: EngineerPerformance[] = [
   },
 ];
 
+export const engineerZones = {
+    'Ravi Kumar': 'West',
+    'Priya Sharma': 'North',
+    'Anil Singh': 'South',
+    'Meena Iyer': 'South',
+    'Sanjay Das': 'East',
+};
+
 export type Note = {
     noteId: string;
     transformerId: string;
@@ -621,5 +629,59 @@ export const recentlyResolved = [
         faultType: 'Core Fault',
         resolvedBy: 'Sanjay Das',
         resolvedDate: '2024-06-20T11:00:00Z',
+    }
+];
+
+export type Complaint = {
+  id: string;
+  issueType: 'power_outage' | 'voltage_drop' | 'sparking';
+  description: string;
+  address: string;
+  pincode: string;
+  zone: 'North' | 'South' | 'East' | 'West';
+  timestamp: string;
+  status: 'Open' | 'In Progress' | 'Resolved';
+};
+
+export const complaintsData: Complaint[] = [
+    {
+        id: 'COMP-001',
+        issueType: 'power_outage',
+        description: 'Complete blackout in the area for over an hour.',
+        address: '45, MG Road, Sector 28',
+        pincode: '122002',
+        zone: 'North',
+        timestamp: '2024-06-22T11:00:00Z',
+        status: 'Open',
+    },
+    {
+        id: 'COMP-002',
+        issueType: 'sparking',
+        description: 'Sparks are flying from the transformer pole on our street corner.',
+        address: '112, Cyber Hub, DLF Phase 2',
+        pincode: '122008',
+        zone: 'North',
+        timestamp: '2024-06-22T09:30:00Z',
+        status: 'In Progress',
+    },
+    {
+        id: 'COMP-003',
+        issueType: 'voltage_drop',
+        description: 'Lights are constantly flickering and dimming.',
+        address: '7, Juhu Tara Road',
+        pincode: '400049',
+        zone: 'West',
+        timestamp: '2024-06-21T18:45:00Z',
+        status: 'Open',
+    },
+     {
+        id: 'COMP-004',
+        issueType: 'power_outage',
+        description: 'Frequent short power cuts throughout the day.',
+        address: 'Building 7, Gachibowli',
+        pincode: '500032',
+        zone: 'South',
+        timestamp: '2024-06-22T12:00:00Z',
+        status: 'Open',
     }
 ];
