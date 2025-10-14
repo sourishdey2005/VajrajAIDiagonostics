@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -18,6 +19,7 @@ import {
   CloudLightning,
   Target,
   ClipboardList,
+  BookOpen,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -107,6 +109,7 @@ export default function DashboardLayout({
   
   const userMenuItems = [
     { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { href: '/dashboard/knowledge-hub', icon: BookOpen, label: 'Knowledge Hub' },
   ];
 
   const itemsToDisplay = role === 'user' ? userMenuItems : menuItems;
@@ -179,7 +182,7 @@ export default function DashboardLayout({
               >
                 <Link href={settingsItem.href}>
                   <settingsItem.icon className="mr-2 h-4 w-4" />
-                  <span>{settingsItem.label}</span>
+                  <span>{item.label}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
