@@ -46,7 +46,7 @@ export default function LoginPage() {
     let isAuthenticated = false;
 
     if (selectedRole === 'manager') {
-        if (password === rolePasswords.manager) {
+        if (email === 'manager@vajra.ai' && password === rolePasswords.manager) {
             defaultName = 'Rohan Sharma';
             isAuthenticated = true;
         }
@@ -97,12 +97,12 @@ export default function LoginPage() {
       return;
     }
     setRole('user');
-    setUserName(name || 'User');
+    setUserName(name || 'New User');
     toast({
         title: "Account Created!",
-        description: "You can now log in with your new credentials."
+        description: "Redirecting you to the dashboard..."
     });
-    setAuthMode('login');
+    router.push('/dashboard');
   };
 
   const handleForgotPassword = (e: React.FormEvent) => {
@@ -369,7 +369,7 @@ export default function LoginPage() {
             alt={loginHeroImage.description}
             fill
             className="object-cover"
-            data-ai-hint={loginHeroImage.imageHint}
+            data-ai-hint={loginHeroeImage.imageHint}
             />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
