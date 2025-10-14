@@ -104,6 +104,12 @@ export default function DashboardLayout({
     icon: Settings,
     label: 'Settings',
   };
+  
+  const userMenuItems = [
+    { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  ];
+
+  const itemsToDisplay = role === 'user' ? userMenuItems : menuItems;
 
   return (
     <SidebarProvider>
@@ -118,7 +124,7 @@ export default function DashboardLayout({
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {menuItems.map(item => (
+            {itemsToDisplay.map(item => (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
                   asChild

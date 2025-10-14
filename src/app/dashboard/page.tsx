@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+import { useUserRole } from "@/contexts/user-role-context"
 import { Activity, AlertTriangle, BadgePercent, CircuitBoard, Siren, Clock } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { transformers as initialTransformers, Transformer } from "@/lib/data"
@@ -19,6 +20,7 @@ import { differenceInDays, formatDistanceToNow, parseISO } from "date-fns"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { UserDashboard } from "./components/user-dashboard"
 
 // Helper to generate chart colors
 const generateChartColors = (count: number) => {
@@ -49,12 +51,10 @@ function Countdown({ date }: { date: string }) {
   return <span className="font-semibold">{timeLeft}</span>;
 }
 
-export default function DashboardPage() {
+function FleetCommandCenter() {
   const [transformers, setTransformers] = useState<Transformer[]>(initialTransformers);
-  const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
-    setIsClient(true)
     try {
       const storedTransformers = localStorage.getItem("transformers");
       if (storedTransformers) {
@@ -202,25 +202,6 @@ export default function DashboardPage() {
     })).sort((a,b) => b.value - a.value);
   }, [transformers]);
 
-
-  if (!isClient) {
-    return (
-       <div className="flex flex-col gap-8">
-          <div>
-            <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">
-              Fleet Command Center
-            </h1>
-            <p className="text-muted-foreground max-w-[700px]">
-              Here's a real-time overview of your transformer fleet's health and performance.
-            </p>
-          </div>
-           <div className="h-96 w-full animate-pulse rounded-md bg-muted"></div>
-           <div className="h-96 w-full animate-pulse rounded-md bg-muted"></div>
-           <div className="h-96 w-full animate-pulse rounded-md bg-muted"></div>
-       </div>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -350,4 +331,36 @@ export default function DashboardPage() {
       </div>
     </div>
   )
+}
+
+export default function DashboardPage() {
+  const [isClient, setIsClient] = useState(false)
+  const { role } = useUserRole();
+
+  useEffect(() => {
+    setIsClient(true)
+  }, []);
+
+  if (!isClient) {
+    return (
+       <div className="flex flex-col gap-8">
+          <div>
+            <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">
+              Loading Dashboard...
+            </h1>
+            <p className="text-muted-foreground max-w-[700px]">
+              Please wait while we prepare your dashboard.
+            </p>
+          </div>
+           <div className="h-96 w-full animate-pulse rounded-md bg-muted"></div>
+           <div className="h-96 w-full animate-pulse rounded-md bg-muted"></div>
+       </div>
+    );
+  }
+  
+  if (role === 'user') {
+    return <UserDashboard />;
+  }
+
+  return <FleetCommandCenter />;
 }
