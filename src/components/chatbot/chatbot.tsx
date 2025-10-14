@@ -17,11 +17,15 @@ type Message = {
   content: string
 }
 
-const suggestedQueries = [
+const allSuggestedQueries = [
     "What is Winding Deformation?",
     "Explain the difference between High and Low criticality.",
     "What does 'Needs Attention' status mean?",
     "How do you identify an Inter-turn Short?",
+    "What is FRA?",
+    "What causes a bushing fault?",
+    "What is the difference between FRA and DGA?",
+    "What is the Health Compass for?",
 ];
 
 const initialMessages: Message[] = [
@@ -31,14 +35,28 @@ const initialMessages: Message[] = [
     },
 ]
 
+// Function to shuffle array and get top N items
+const getShuffledQueries = (lastQuery: string, count: number) => {
+    const filteredQueries = allSuggestedQueries.filter(q => q !== lastQuery);
+    const shuffled = filteredQueries.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+}
+
+
 export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [input, setInput] = useState("")
   const [isPending, startTransition] = useTransition()
+  const [suggestedQueries, setSuggestedQueries] = useState<string[]>([]);
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
+
+  useEffect(() => {
+    // Initialize suggested queries
+    setSuggestedQueries(getShuffledQueries("", 4));
+  }, []);
 
   const toggleChat = () => {
       setIsOpen(prev => {
@@ -75,6 +93,8 @@ export function Chatbot() {
         });
         const botMessage: Message = { role: "model", content: response };
         setMessages(prev => [...prev, botMessage]);
+        // After getting a response, update the suggested queries
+        setSuggestedQueries(getShuffledQueries(query, 4));
       } catch (error) {
         console.error("Chatbot error:", error);
         toast({
@@ -99,6 +119,7 @@ export function Chatbot() {
   
   const handleClearChat = () => {
       setMessages(initialMessages);
+      setSuggestedQueries(getShuffledQueries("", 4));
       toast({
           title: "Chat Cleared",
           description: "The conversation history has been cleared.",
@@ -145,11 +166,6 @@ export function Chatbot() {
             <CardContent className="flex-1 overflow-hidden p-0">
                 <ScrollArea className="h-full" ref={scrollAreaRef}>
                     <div className="p-6 space-y-6">
-                     {messages.length === 0 && (
-                        <div className="text-center text-muted-foreground p-4">
-                            <p>Hello! I'm Vajra Assistant. How can I help you today?</p>
-                        </div>
-                     )}
                     {messages.map((message, index) => (
                         <div key={index} className={cn("flex gap-3", message.role === "user" ? "justify-end" : "justify-start")}>
                          {message.role === "model" && (
@@ -178,8 +194,8 @@ export function Chatbot() {
                             </div>
                         </div>
                     )}
-                     {messages.length <= 1 && (
-                        <div className="space-y-4">
+                     {!isPending && (
+                        <div className="space-y-4 pt-4">
                             <div className="flex items-center gap-2">
                                 <Sparkles className="w-4 h-4 text-primary" />
                                 <p className="text-sm font-medium text-muted-foreground">Suggested Queries</p>
