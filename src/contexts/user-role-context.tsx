@@ -1,3 +1,4 @@
+
 "use client";
 
 import { createContext, useContext, useState, ReactNode, Dispatch, SetStateAction, useEffect } from 'react';
@@ -14,44 +15,47 @@ type UserRoleContextType = {
 const UserRoleContext = createContext<UserRoleContextType | undefined>(undefined);
 
 export function UserRoleProvider({ children }: { children: ReactNode }) {
-  const [role, setRole] = useState<Role>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const savedRole = localStorage.getItem('userRole') as Role;
-        return savedRole ? savedRole : 'user'; 
-      } catch (error) {
-        console.error("Failed to read role from localStorage", error);
-        return 'user';
-      }
-    }
-    return 'user';
-  });
-  
-  const [userName, setUserName] = useState<string>(() => {
-      if (typeof window !== 'undefined') {
-          try {
-              const savedUserName = localStorage.getItem('userName');
-              return savedUserName ? savedUserName : "User";
-          } catch (error) {
-              console.error("Failed to read user name from localStorage", error);
-              return "User";
-          }
-      }
-      return "User";
-  });
+  const [isClient, setIsClient] = useState(false);
+  const [role, setRole] = useState<Role>('user'); 
+  const [userName, setUserName] = useState<string>("User");
 
   useEffect(() => {
+    setIsClient(true);
     try {
-        localStorage.setItem('userRole', role);
-        localStorage.setItem('userName', userName);
+      const savedRole = localStorage.getItem('userRole') as Role;
+      if (savedRole) {
+        setRole(savedRole);
+      }
+      const savedUserName = localStorage.getItem('userName');
+      if (savedUserName) {
+        setUserName(savedUserName);
+      }
     } catch (error) {
-        console.error("Failed to save to localStorage", error);
+      console.error("Failed to read from localStorage", error);
     }
-  }, [role, userName]);
+  }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      try {
+          localStorage.setItem('userRole', role);
+          localStorage.setItem('userName', userName);
+      } catch (error) {
+          console.error("Failed to save to localStorage", error);
+      }
+    }
+  }, [role, userName, isClient]);
+  
+  const value = {
+    role,
+    setRole,
+    userName,
+    setUserName
+  };
 
   return (
-    <UserRoleContext.Provider value={{ role, setRole, userName, setUserName }}>
-      {children}
+    <UserRoleContext.Provider value={value}>
+      {isClient ? children : null}
     </UserRoleContext.Provider>
   );
 }
