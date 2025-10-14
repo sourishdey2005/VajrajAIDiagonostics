@@ -1,9 +1,10 @@
 
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
 import { useUserRole } from "@/contexts/user-role-context"
-import { Activity, AlertTriangle, BadgePercent, CircuitBoard, Siren, Clock, Zap, MapPin, Search, Grid, Wrench, RefreshCw, Loader2 } from "lucide-react"
+import { Activity, AlertTriangle, BadgePercent, CircuitBoard, Siren, Clock, Zap, MapPin, Search, Grid, Wrench, RefreshCw, Loader2, PowerOff, SignalLow, Sparkles } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { transformers as initialTransformers, Transformer } from "@/lib/data"
 import { 
@@ -28,6 +29,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Textarea } from "@/components/ui/textarea"
 
 
 // Helper to generate chart colors
@@ -177,6 +179,89 @@ function LiveFaultTrackerCard() {
         </Card>
     );
 }
+
+const issueTypes = [
+  { value: "power_outage", label: "Power Outage / Blackout", icon: PowerOff },
+  { value: "voltage_drop", label: "Voltage Drop / Fluctuation", icon: SignalLow },
+  { value: "sparking", label: "Sparking / Potential Hazard", icon: Sparkles },
+];
+
+
+function ReportIssueCard() {
+    const { toast } = useToast();
+    const [issueType, setIssueType] = useState("");
+    const [details, setDetails] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!issueType) {
+            toast({
+                title: "Please select an issue type.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        setIsSubmitting(true);
+        setTimeout(() => {
+            toast({
+                title: "Report Submitted",
+                description: "Thank you for your feedback. Our team has been notified.",
+            });
+            setIssueType("");
+            setDetails("");
+            setIsSubmitting(false);
+        }, 1000);
+    };
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Report a Power Issue</CardTitle>
+                <CardDescription>Experiencing problems with your electricity supply? Let us know.</CardDescription>
+            </CardHeader>
+            <form onSubmit={handleSubmit}>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="issue-type">Issue Type</Label>
+                        <Select value={issueType} onValueChange={setIssueType}>
+                            <SelectTrigger id="issue-type">
+                                <SelectValue placeholder="Select an issue type..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {issueTypes.map(type => (
+                                    <SelectItem key={type.value} value={type.value}>
+                                        <div className="flex items-center gap-2">
+                                            <type.icon className="w-4 h-4 text-muted-foreground" />
+                                            <span>{type.label}</span>
+                                        </div>
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="issue-details">Additional Details (Optional)</Label>
+                        <Textarea 
+                            id="issue-details"
+                            placeholder="e.g., 'Flickering lights for the last hour in Bandra West...'"
+                            value={details}
+                            onChange={(e) => setDetails(e.target.value)}
+                        />
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <Button type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        Submit Report
+                    </Button>
+                </CardFooter>
+            </form>
+        </Card>
+    );
+}
+
 
 export default function DashboardPage() {
   const [isClient, setIsClient] = useState(false)
@@ -373,52 +458,55 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="grid lg:grid-cols-2 gap-8 items-start">
-          <Card>
-              <CardHeader>
-              <CardTitle>Complete Your Profile</CardTitle>
-              <CardDescription>
-                  This information helps us tailor our services to your specific needs.
-              </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleProfileSubmit}>
-              <CardContent className="grid md:grid-cols-2 gap-6">
-                  <div className="grid gap-2 md:col-span-2">
-                  <Label htmlFor="consumer-id">Consumer ID</Label>
-                  <Input id="consumer-id" placeholder="Enter your Consumer ID" required />
-                  </div>
-                  <div className="grid gap-2 md:col-span-2">
-                  <Label htmlFor="supplier">Electricity Supplier</Label>
-                  <Select>
-                      <SelectTrigger id="supplier">
-                      <SelectValue placeholder="Select your supplier" />
-                      </SelectTrigger>
-                      <SelectContent>
-                      {electricitySuppliers.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                      </SelectContent>
-                  </Select>
-                  </div>
-                  <div className="grid gap-2">
-                  <Label htmlFor="area">Area / Locality</Label>
-                  <Input id="area" placeholder="e.g., Bandra West" required />
-                  </div>
-                  <div className="grid gap-2">
-                  <Label htmlFor="pincode">Pincode</Label>
-                  <Input id="pincode" placeholder="e.g., 400050" required />
-                  </div>
-                  <div className="grid gap-2 md:col-span-2">
-                  <Label htmlFor="district">District</Label>
-                  <Input id="district" placeholder="e.g., Mumbai" required />
-                  </div>
-              </CardContent>
-              <CardFooter>
-                  <Button type="submit">Save Details</Button>
-              </CardFooter>
-              </form>
-          </Card>
-          <div className="space-y-8">
-            <AreaHealthCard />
-            <LiveFaultTrackerCard />
-          </div>
+            <div className="space-y-8">
+                <Card>
+                    <CardHeader>
+                    <CardTitle>Complete Your Profile</CardTitle>
+                    <CardDescription>
+                        This information helps us tailor our services to your specific needs.
+                    </CardDescription>
+                    </CardHeader>
+                    <form onSubmit={handleProfileSubmit}>
+                    <CardContent className="grid md:grid-cols-2 gap-6">
+                        <div className="grid gap-2 md:col-span-2">
+                        <Label htmlFor="consumer-id">Consumer ID</Label>
+                        <Input id="consumer-id" placeholder="Enter your Consumer ID" required />
+                        </div>
+                        <div className="grid gap-2 md:col-span-2">
+                        <Label htmlFor="supplier">Electricity Supplier</Label>
+                        <Select>
+                            <SelectTrigger id="supplier">
+                            <SelectValue placeholder="Select your supplier" />
+                            </SelectTrigger>
+                            <SelectContent>
+                            {electricitySuppliers.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        </div>
+                        <div className="grid gap-2">
+                        <Label htmlFor="area">Area / Locality</Label>
+                        <Input id="area" placeholder="e.g., Bandra West" required />
+                        </div>
+                        <div className="grid gap-2">
+                        <Label htmlFor="pincode">Pincode</Label>
+                        <Input id="pincode" placeholder="e.g., 400050" required />
+                        </div>
+                        <div className="grid gap-2 md:col-span-2">
+                        <Label htmlFor="district">District</Label>
+                        <Input id="district" placeholder="e.g., Mumbai" required />
+                        </div>
+                    </CardContent>
+                    <CardFooter>
+                        <Button type="submit">Save Details</Button>
+                    </CardFooter>
+                    </form>
+                </Card>
+                <LiveFaultTrackerCard />
+            </div>
+            <div className="space-y-8">
+                <AreaHealthCard />
+                <ReportIssueCard />
+            </div>
         </div>
       </div>
     )
