@@ -16,25 +16,12 @@ import {
   TransformerStatusChart,
   UpcomingServiceChart,
 } from "./components/dashboard-charts"
+import { UserDashboard } from "./components/user-dashboard"
 import { differenceInDays, formatDistanceToNow, parseISO } from "date-fns"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
-
-const electricitySuppliers = [
-    "Adani Electricity Mumbai Ltd",
-    "Tata Power",
-    "Brihanmumbai Electric Supply and Transport (BEST)",
-    "Torrent Power",
-    "India Power Corporation Limited",
-    "Other"
-];
-
 
 // Helper to generate chart colors
 const generateChartColors = (count: number) => {
@@ -67,8 +54,7 @@ function Countdown({ date }: { date: string }) {
 
 export default function DashboardPage() {
   const [isClient, setIsClient] = useState(false)
-  const { role, userName } = useUserRole();
-  const { toast } = useToast()
+  const { role } = useUserRole();
 
   const [transformers, setTransformers] = useState<Transformer[]>(initialTransformers);
 
@@ -84,13 +70,6 @@ export default function DashboardPage() {
     }
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-      e.preventDefault()
-      toast({
-          title: "Details Saved",
-          description: "Your information has been updated successfully.",
-      })
-  }
 
   const dashboardStats = useMemo(() => {
     const operational = transformers.filter(t => t.status === 'Operational').length;
@@ -248,60 +227,7 @@ export default function DashboardPage() {
   }
   
   if (role === 'user') {
-     return (
-        <div className="flex flex-col gap-8">
-            <div>
-                <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">
-                    Welcome, {userName}
-                </h1>
-                <p className="text-muted-foreground">
-                    Please provide your details to get started with our services.
-                </p>
-            </div>
-            <Card className="max-w-3xl mx-auto">
-                <CardHeader>
-                    <CardTitle>Complete Your Profile</CardTitle>
-                    <CardDescription>
-                        This information helps us tailor our services to your specific needs.
-                    </CardDescription>
-                </CardHeader>
-                <form onSubmit={handleSubmit}>
-                    <CardContent className="grid md:grid-cols-2 gap-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="consumer-id">Consumer ID</Label>
-                            <Input id="consumer-id" placeholder="Enter your Consumer ID" required />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="supplier">Electricity Supplier</Label>
-                            <Select>
-                                <SelectTrigger id="supplier">
-                                    <SelectValue placeholder="Select your supplier" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {electricitySuppliers.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="area">Area / Locality</Label>
-                            <Input id="area" placeholder="e.g., Bandra West" required />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="district">District</Label>
-                            <Input id="district" placeholder="e.g., Mumbai" required />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="pincode">Pincode</Label>
-                            <Input id="pincode" placeholder="e.g., 400050" required />
-                        </div>
-                    </CardContent>
-                    <CardFooter>
-                        <Button type="submit">Save Details</Button>
-                    </CardFooter>
-                </form>
-            </Card>
-        </div>
-    )
+    return <UserDashboard />
   }
 
   return (
@@ -434,3 +360,5 @@ export default function DashboardPage() {
     </div>
   )
 }
+
+    
