@@ -293,6 +293,24 @@ export default function DashboardPage() {
       health: health
     }
   }, [transformers]);
+  
+  const [systemHealth, setSystemHealth] = useState(dashboardStats.health);
+  
+  useEffect(() => {
+    setSystemHealth(dashboardStats.health);
+    const interval = setInterval(() => {
+      setSystemHealth(prevHealth => {
+        const fluctuation = (Math.random() - 0.5) * 0.2;
+        const newHealth = prevHealth + fluctuation;
+        if (newHealth > 100) return 100;
+        if (newHealth < dashboardStats.health - 2) return dashboardStats.health -2; // Don't let it dip too low
+        return newHealth;
+      });
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [dashboardStats.health]);
+
 
   const criticalTransformers = useMemo(() => {
       return transformers.filter(t => t.status === 'Needs Attention').sort((a,b) => new Date(a.nextServiceDate).getTime() - new Date(b.nextServiceDate).getTime());
@@ -558,7 +576,7 @@ export default function DashboardPage() {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardStats.health}%</div>
+            <div className="text-2xl font-bold">{systemHealth.toFixed(1)}%</div>
             <p className="text-xs text-muted-foreground">
               Overall fleet operational status
             </p>
@@ -642,5 +660,7 @@ export default function DashboardPage() {
     </div>
   )
 }
+
+    
 
     
