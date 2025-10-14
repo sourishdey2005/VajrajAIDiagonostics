@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode, Dispatch, SetStateAction } from 'react';
 
-export type Role = 'field_engineer' | 'manager';
+export type Role = 'field_engineer' | 'manager' | 'compliance_officer';
 
 type UserRoleContextType = {
   role: Role;

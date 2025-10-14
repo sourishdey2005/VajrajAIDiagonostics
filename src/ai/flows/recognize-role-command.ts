@@ -20,7 +20,7 @@ const RecognizeRoleCommandInputSchema = z.object({
 export type RecognizeRoleCommandInput = z.infer<typeof RecognizeRoleCommandInputSchema>;
 
 const RecognizeRoleCommandOutputSchema = z.object({
-    role: z.enum(['field_engineer', 'manager', 'unknown']).describe("The role identified from the voice command. It can be 'field_engineer', 'manager', or 'unknown'.")
+    role: z.enum(['field_engineer', 'manager', 'compliance_officer', 'unknown']).describe("The role identified from the voice command. It can be 'field_engineer', 'manager', 'compliance_officer', or 'unknown'.")
 });
 export type RecognizeRoleCommandOutput = z.infer<typeof RecognizeRoleCommandOutputSchema>;
 
@@ -34,10 +34,11 @@ const prompt = ai.definePrompt({
     name: 'recognizeRoleCommandPrompt',
     input: { schema: z.object({ text: z.string() }) },
     output: { schema: RecognizeRoleCommandOutputSchema },
-    prompt: `You are a voice command parser for a login system. Your task is to identify the user's desired role from their speech. The only valid roles are "field_engineer" and "manager".
+    prompt: `You are a voice command parser for a login system. Your task is to identify the user's desired role from their speech. The only valid roles are "field_engineer", "manager", and "compliance_officer".
 
     - If the user mentions "engineer", "field engineer", or a similar variation, the role is "field_engineer".
     - If the user mentions "manager", "lead", or a similar variation, the role is "manager".
+    - If the user mentions "compliance", "compliance officer", or "auditor", the role is "compliance_officer".
     - If the role is unclear or not mentioned, the role is "unknown".
 
     User's transcribed text: "{{{text}}}"

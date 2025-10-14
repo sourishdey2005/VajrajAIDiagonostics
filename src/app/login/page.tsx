@@ -156,6 +156,7 @@ export default function LoginPage() {
                 <SelectContent>
                   <SelectItem value="field_engineer">Field Engineer</SelectItem>
                   <SelectItem value="manager">Manager</SelectItem>
+                  <SelectItem value="compliance_officer">Compliance Officer</SelectItem>
                 </SelectContent>
               </Select>
             </div>
