@@ -6,13 +6,16 @@ import { useUserRole } from '@/contexts/user-role-context';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { transformers as initialTransformers, Transformer, recentlyResolved } from '@/lib/data';
-import { MoreHorizontal, AlertTriangle, Construction, CheckCircle2 } from 'lucide-react';
+import { MoreHorizontal, AlertTriangle, Construction, CheckCircle2, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { formatDistanceToNow, parseISO } from 'date-fns';
+import { format, formatDistanceToNow, parseISO } from 'date-fns';
+import { AddTransformerDialog } from '../transformers/components/add-transformer-dialog';
+import { useToast } from '@/hooks/use-toast';
+
 
 type ColumnId = 'new' | 'progress' | 'resolved';
 
@@ -128,6 +131,8 @@ export default function WorkflowPage() {
     const router = useRouter();
     const [isClient, setIsClient] = useState(false);
     const [transformers, setTransformers] = useState<Transformer[]>(initialTransformers);
+    const [isAddDialogOpen, setAddDialogOpen] = useState(false);
+    const { toast } = useToast();
 
     useEffect(() => {
         setIsClient(true);
@@ -145,25 +150,61 @@ export default function WorkflowPage() {
 
     }, [role, router]);
 
+    useEffect(() => {
+        if (isClient) {
+            try {
+                localStorage.setItem("transformers", JSON.stringify(transformers));
+            } catch (error) {
+                console.error("Could not save transformers to localStorage", error);
+            }
+        }
+    }, [transformers, isClient]);
+
+    const handleAddTransformer = (data: Omit<Transformer, 'id' | 'status'> & { last_inspection: Date, nextServiceDate: Date }) => {
+        const newId = `TR-${String(transformers.length + 1).padStart(3, '0')}`;
+        const newTransformer: Transformer = {
+          ...data,
+          id: newId,
+          status: 'Operational',
+          last_inspection: format(data.last_inspection, 'yyyy-MM-dd'),
+          nextServiceDate: format(data.nextServiceDate, 'yyyy-MM-dd'),
+        }
+        setTransformers(prev => [newTransformer, ...prev]);
+        toast({ title: "Transformer Added", description: `${newTransformer.name} has been added to the fleet.` });
+    }
+
     if (!isClient || role !== 'manager') {
         return null;
     }
 
     return (
-        <div className="flex flex-col gap-8 h-[calc(100vh-10rem)]">
-            <div>
-                <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">
-                    Maintenance Workflow
-                </h1>
-                <p className="text-muted-foreground">
-                    Visualize and manage the lifecycle of maintenance tasks.
-                </p>
+        <>
+            <div className="flex flex-col gap-8 h-[calc(100vh-10rem)]">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">
+                            Maintenance Workflow
+                        </h1>
+                        <p className="text-muted-foreground">
+                            Visualize and manage the lifecycle of maintenance tasks.
+                        </p>
+                    </div>
+                    <Button onClick={() => setAddDialogOpen(true)}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add Transformer
+                    </Button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 min-h-0">
+                    <WorkflowColumn columnId="new" tasks={transformers} resolvedTasks={[]} />
+                    <WorkflowColumn columnId="progress" tasks={transformers} resolvedTasks={[]} />
+                    <WorkflowColumn columnId="resolved" tasks={[]} resolvedTasks={recentlyResolved} />
+                </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 min-h-0">
-                <WorkflowColumn columnId="new" tasks={transformers} resolvedTasks={[]} />
-                <WorkflowColumn columnId="progress" tasks={transformers} resolvedTasks={[]} />
-                <WorkflowColumn columnId="resolved" tasks={[]} resolvedTasks={recentlyResolved} />
-            </div>
-        </div>
+            <AddTransformerDialog 
+                isOpen={isAddDialogOpen}
+                onOpenChange={setAddDialogOpen}
+                onAddTransformer={handleAddTransformer}
+            />
+        </>
     );
 }
