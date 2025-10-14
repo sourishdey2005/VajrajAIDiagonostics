@@ -11,6 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { Skeleton } from '@/components/ui/skeleton';
 import { budgetEstimates } from '@/lib/data';
+import { useUserRole } from '@/contexts/user-role-context';
+import { useRouter } from 'next/navigation';
 
 const faultTypes = [
   'Winding Deformation',
@@ -39,11 +41,22 @@ function formatCurrency(value: number) {
 }
 
 export default function BudgetingPage() {
+  const { role } = useUserRole();
+  const router = useRouter();
   const [selectedFault, setSelectedFault] = useState<string>(faultTypes[0]);
   const [selectedCriticality, setSelectedCriticality] = useState<string>(criticalityLevels[1]);
   const [estimation, setEstimation] = useState<EstimationResult | null>(null);
   const [isEstimating, startTransition] = useTransition();
   const { toast } = useToast();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    if (role !== 'manager') {
+      router.replace('/dashboard');
+    }
+  }, [role, router]);
+
 
   const handleEstimate = () => {
     startTransition(() => {
@@ -99,6 +112,10 @@ export default function BudgetingPage() {
           label: "Preventative Action",
           color: "hsl(var(--chart-2))",
       }
+  }
+
+  if (!isClient || role !== 'manager') {
+    return null;
   }
 
   return (
@@ -215,17 +232,17 @@ export default function BudgetingPage() {
                  <div className="h-[300px]">
                     <ChartContainer config={chartConfig} className="h-[300px] w-full">
                         <ResponsiveContainer>
-                            <BarChart data={chartData} layout="vertical" margin={{ left: 100 }}>
-                                <CartesianGrid strokeDasharray="3 3" horizontal={false}/>
-                                <XAxis type="number" tickFormatter={(value) => formatCurrency(value as number)} />
-                                <YAxis type="category" dataKey="name" hide />
+                            <BarChart data={chartData} layout="horizontal" margin={{ left: 10, right: 10 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false}/>
+                                <YAxis tickFormatter={(value) => formatCurrency(value as number)} />
+                                <XAxis type="category" dataKey="name" hide />
                                 <Tooltip
                                     cursor={{ fill: 'hsl(var(--muted))' }}
                                     content={<ChartTooltipContent formatter={(value) => formatCurrency(value as number)} indicator="dot" />}
                                 />
                                 <Legend />
-                                <Bar dataKey="Reactive Repair" fill="var(--color-Reactive Repair)" radius={[0, 4, 4, 0]} barSize={30} />
-                                <Bar dataKey="Preventative Action" fill="var(--color-Preventative Action)" radius={[0, 4, 4, 0]} barSize={30} />
+                                <Bar dataKey="Reactive Repair" fill="var(--color-Reactive Repair)" radius={[4, 4, 0, 0]} barSize={60} />
+                                <Bar dataKey="Preventative Action" fill="var(--color-Preventative Action)" radius={[4, 4, 0, 0]} barSize={60} />
                             </BarChart>
                         </ResponsiveContainer>
                     </ChartContainer>
