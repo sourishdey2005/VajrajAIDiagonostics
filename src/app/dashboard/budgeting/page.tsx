@@ -232,7 +232,7 @@ export default function BudgetingPage() {
                  <div className="h-[300px]">
                     <ChartContainer config={chartConfig} className="h-[300px] w-full">
                         <ResponsiveContainer>
-                            <BarChart data={chartData} layout="horizontal" margin={{ left: 10, right: 10 }}>
+                            <BarChart data={chartData} margin={{ top: 20, left: 10, right: 10 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false}/>
                                 <YAxis tickFormatter={(value) => formatCurrency(value as number)} />
                                 <XAxis type="category" dataKey="name" hide />
@@ -241,8 +241,8 @@ export default function BudgetingPage() {
                                     content={<ChartTooltipContent formatter={(value) => formatCurrency(value as number)} indicator="dot" />}
                                 />
                                 <Legend />
-                                <Bar dataKey="Reactive Repair" fill="var(--color-Reactive Repair)" radius={[4, 4, 0, 0]} barSize={60} />
-                                <Bar dataKey="Preventative Action" fill="var(--color-Preventative Action)" radius={[4, 4, 0, 0]} barSize={60} />
+                                <Bar dataKey="Reactive Repair" fill="var(--color-Reactive-Repair)" radius={[4, 4, 0, 0]} barSize={60} />
+                                <Bar dataKey="Preventative Action" fill="var(--color-Preventative-Action)" radius={[4, 4, 0, 0]} barSize={60} />
                             </BarChart>
                         </ResponsiveContainer>
                     </ChartContainer>
