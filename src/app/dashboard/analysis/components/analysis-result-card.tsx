@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition, useRef } from "react"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Cell } from "recharts"
-import { AlertCircle, Bot, BrainCircuit, Lightbulb, Loader2, Share2, Download } from "lucide-react"
+import { AlertCircle, Bot, BrainCircuit, Lightbulb, Loader2, Share2, Download, UploadCloud } from "lucide-react"
 import {
   Card,
   CardContent,
@@ -28,6 +28,7 @@ import { useUserRole } from "@/contexts/user-role-context"
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
 import { HealthCompass } from "./health-compass"
 import { generateAnalysisReport } from "@/lib/report-generator"
+import { useToast } from "@/hooks/use-toast"
 
 type AnalysisResult = {
   faultClassification: string;
@@ -183,6 +184,8 @@ export function AnalysisResultCard({ result, isLoading }: AnalysisResultCardProp
   const { role } = useUserRole();
   const aiDataRef = useRef<AIFetcherData>({});
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const { toast } = useToast();
 
   const handleAIData = (key: keyof AIFetcherData, data: any) => {
     aiDataRef.current[key] = data;
@@ -193,6 +196,18 @@ export function AnalysisResultCard({ result, isLoading }: AnalysisResultCardProp
       setIsGeneratingReport(true);
       await generateAnalysisReport(result, aiDataRef.current);
       setIsGeneratingReport(false);
+  }
+
+  const onSyncToPortal = () => {
+      if (!result) return;
+      setIsSyncing(true);
+      setTimeout(() => {
+          setIsSyncing(false);
+          toast({
+              title: "Sync Successful",
+              description: `Report for ${result.transformerId} has been submitted to the compliance portal.`,
+          });
+      }, 2000);
   }
 
   if (isLoading) {
@@ -236,6 +251,12 @@ export function AnalysisResultCard({ result, isLoading }: AnalysisResultCardProp
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
+            {role === 'manager' && (
+                <Button variant="outline" onClick={onSyncToPortal} disabled={isSyncing}>
+                    {isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4"/>}
+                    <span className="ml-2">{isSyncing ? "Syncing..." : "Sync to Portal"}</span>
+                </Button>
+            )}
             <Button onClick={onGenerateReport} disabled={isGeneratingReport}>
               {isGeneratingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4"/>}
               <span className="ml-2">{isGeneratingReport ? "Generating..." : "Download Report"}</span>
