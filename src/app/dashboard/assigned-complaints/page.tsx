@@ -63,10 +63,8 @@ export default function AssignedComplaintsPage() {
     }
   }, [role, router])
 
-  const engineerZone = engineerZones[userName as keyof typeof engineerZones]
-
   const assignedComplaints = complaints.filter(
-    (c) => c.zone === engineerZone && c.status !== "Resolved"
+    (c) => c.status !== "Resolved"
   ).sort((a,b) => parseISO(b.timestamp).getTime() - parseISO(a.timestamp).getTime())
 
   const handleStatusChange = (complaintId: string, newStatus: Complaint['status']) => {
@@ -85,10 +83,10 @@ export default function AssignedComplaintsPage() {
     <div className="flex flex-col gap-8">
       <div>
         <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">
-          Assigned Complaints ({engineerZone} Zone)
+          Open Complaints
         </h1>
         <p className="text-muted-foreground">
-          User-reported issues in your designated operational area.
+          All active user-reported issues across all operational areas.
         </p>
       </div>
 
@@ -119,8 +117,8 @@ export default function AssignedComplaintsPage() {
                     <TableCell>
                       <div className="flex flex-col">
                         <span className="font-medium">{complaint.address}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {complaint.pincode}
+                         <span className="text-xs text-muted-foreground">
+                          {complaint.pincode} ({complaint.zone} Zone)
                         </span>
                       </div>
                     </TableCell>
@@ -162,7 +160,7 @@ export default function AssignedComplaintsPage() {
                     colSpan={5}
                     className="h-24 text-center text-muted-foreground"
                   >
-                    No open complaints in your zone.
+                    No open complaints at the moment.
                   </TableCell>
                 </TableRow>
               )}
