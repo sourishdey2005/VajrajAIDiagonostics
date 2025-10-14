@@ -26,7 +26,7 @@ export default function SettingsPage() {
           Manage your account settings and preferences.
         </p>
       </div>
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle>Profile</CardTitle>
@@ -43,6 +43,10 @@ export default function SettingsPage() {
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" defaultValue="engineer@vajra.ai" />
             </div>
+             <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input id="phone" type="tel" defaultValue="+91 98765 43210" />
+            </div>
           </CardContent>
           <CardFooter>
             <Button>Save Changes</Button>
@@ -50,34 +54,75 @@ export default function SettingsPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Notifications</CardTitle>
+            <CardTitle>Alert Preferences</CardTitle>
             <CardDescription>
-              Configure how you receive alerts and updates.
+              Subscribe to notifications for your area.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+             <div className="space-y-2">
+              <Label htmlFor="pincode">My Pincode</Label>
+              <Input id="pincode" defaultValue="400050" placeholder="Enter your 6-digit pincode"/>
+            </div>
+             <div className="flex flex-row items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
-                <Label className="text-base">Email Notifications</Label>
-                <p className="text-sm text-muted-foreground">
-                  Receive email alerts for critical faults.
+                <Label className="text-base">Critical Fault Alerts</Label>
+                 <p className="text-sm text-muted-foreground">
+                  Get notified about urgent issues.
                 </p>
               </div>
               <Switch defaultChecked />
             </div>
              <div className="flex flex-row items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
-                <Label className="text-base">Weekly Summaries</Label>
-                <p className="text-sm text-muted-foreground">
-                  Get a weekly report of fleet health.
+                <Label className="text-base">Upcoming Maintenance</Label>
+                 <p className="text-sm text-muted-foreground">
+                  Alerts for planned outages.
                 </p>
               </div>
-              <Switch />
+              <Switch defaultChecked />
             </div>
           </CardContent>
            <CardFooter>
             <Button>Save Preferences</Button>
           </CardFooter>
+        </Card>
+         <Card>
+          <CardHeader>
+            <CardTitle>Notification Channels</CardTitle>
+            <CardDescription>
+              Configure how you receive alerts.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <Label className="text-base">App Notifications</Label>
+                <p className="text-sm text-muted-foreground">
+                  Receive alerts within the app.
+                </p>
+              </div>
+              <Switch defaultChecked disabled/>
+            </div>
+             <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <Label className="text-base">Email Notifications</Label>
+                 <p className="text-sm text-muted-foreground">
+                  Receive alerts to your inbox.
+                </p>
+              </div>
+              <Switch defaultChecked />
+            </div>
+             <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <Label className="text-base">SMS Notifications</Label>
+                 <p className="text-sm text-muted-foreground">
+                  Get alerts via text message.
+                </p>
+              </div>
+              <Switch />
+            </div>
+          </CardContent>
         </Card>
       </div>
     </div>
