@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useUserRole, type Role } from '@/contexts/user-role-context';
-import { VajraIcon } from '@/components/icons';
+import { VajraIcon, GoogleIcon, AppleIcon } from '@/components/icons';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Mic, MicOff, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -59,6 +59,11 @@ export default function LoginPage() {
         variant: "destructive",
       });
     }
+  };
+
+  const handleSocialLogin = (role: Role) => {
+    setRole(role);
+    router.push('/dashboard');
   };
 
   const handleSignUp = (e: React.FormEvent) => {
@@ -280,16 +285,29 @@ export default function LoginPage() {
                 <Button type="submit" className="w-full">
                 Login
                 </Button>
+
                 <div className="relative my-2">
                     <div className="absolute inset-0 flex items-center">
                         <span className="w-full border-t" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
                         <span className="bg-background px-2 text-muted-foreground">
-                        Or
+                        Or continue with
                         </span>
                     </div>
                 </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <Button variant="outline" type="button" onClick={() => handleSocialLogin('user')}>
+                        <GoogleIcon className="mr-2 h-4 w-4" />
+                        Google
+                    </Button>
+                    <Button variant="outline" type="button" onClick={() => handleSocialLogin('user')}>
+                        <AppleIcon className="mr-2 h-4 w-4" />
+                        Apple
+                    </Button>
+                </div>
+                
                 <Button type="button" variant="outline" className="w-full" onClick={handleVoiceCommand} disabled={isProcessing}>
                 {isProcessing ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
