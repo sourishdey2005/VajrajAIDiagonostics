@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { useUserRole } from "@/contexts/user-role-context"
-import { Activity, AlertTriangle, BadgePercent, CircuitBoard, Siren, Clock, Zap, MapPin, Search, Grid, Wrench, RefreshCw, Loader2, PowerOff, SignalLow, Sparkles } from "lucide-react"
+import { Activity, AlertTriangle, BadgePercent, CircuitBoard, Siren, Clock, Zap, MapPin, Search, Grid, Wrench, RefreshCw, Loader2, PowerOff, SignalLow, Sparkles, Phone, ShieldHalf, Ambulance, FireExtinguisher } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { transformers as initialTransformers, Transformer } from "@/lib/data"
 import { 
@@ -260,6 +260,36 @@ function ReportIssueCard() {
             </form>
         </Card>
     );
+}
+
+const emergencyContacts = [
+    { name: "National Emergency Helpline", number: "112", icon: Phone, color: "text-destructive" },
+    { name: "Police", number: "100", icon: ShieldHalf, color: "text-blue-600" },
+    { name: "Fire", number: "101", icon: FireExtinguisher, color: "text-orange-500" },
+    { name: "Ambulance", number: "102 / 108", icon: Ambulance, color: "text-red-600" },
+    { name: "Disaster Management", number: "1077", icon: AlertTriangle, color: "text-yellow-600" },
+];
+
+function EmergencyContactsCard() {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Phone className="text-destructive" /> Emergency Contacts</CardTitle>
+                <CardDescription>Quick access to all-India emergency helplines.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+                {emergencyContacts.map(contact => (
+                    <div key={contact.name} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border">
+                        <div className="flex items-center gap-3">
+                            <contact.icon className={cn("w-5 h-5", contact.color)} />
+                            <span className="font-medium">{contact.name}</span>
+                        </div>
+                        <a href={`tel:${contact.number}`} className="font-bold text-lg text-primary tracking-wider">{contact.number}</a>
+                    </div>
+                ))}
+            </CardContent>
+        </Card>
+    )
 }
 
 
@@ -524,6 +554,7 @@ export default function DashboardPage() {
             <div className="space-y-8">
                 <AreaHealthCard />
                 <ReportIssueCard />
+                <EmergencyContactsCard />
             </div>
         </div>
       </div>
