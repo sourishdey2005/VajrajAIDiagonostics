@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useTransition } from "react"
-import { Bot, Loader2, Send, X, CornerDownLeft, Sparkles } from "lucide-react"
+import { Bot, Loader2, Send, X, Sparkles, Trash2 } from "lucide-react"
 import { BotMessageSquareIcon } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,15 +24,16 @@ const suggestedQueries = [
     "How do you identify an Inter-turn Short?",
 ];
 
-
-export function Chatbot() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([
+const initialMessages: Message[] = [
     {
       role: "model",
       content: "Hello! I'm Vajra Assistant. How can I help you with your transformer diagnostics today?",
     },
-  ])
+]
+
+export function Chatbot() {
+  const [isOpen, setIsOpen] = useState(false)
+  const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [input, setInput] = useState("")
   const [isPending, startTransition] = useTransition()
   const scrollAreaRef = useRef<HTMLDivElement>(null)
@@ -63,12 +64,13 @@ export function Chatbot() {
 
   const sendQuery = (query: string) => {
     const userMessage: Message = { role: "user", content: query };
-    setMessages(prev => [...prev, userMessage]);
+    const newMessages: Message[] = [...messages, userMessage];
+    setMessages(newMessages);
 
     startTransition(async () => {
       try {
         const { response } = await chatWithVajra({
-          history: [...messages, userMessage], // Send the most up-to-date history
+          history: newMessages, // Send the most up-to-date history
           message: query,
         });
         const botMessage: Message = { role: "model", content: response };
@@ -95,6 +97,14 @@ export function Chatbot() {
     sendQuery(currentInput);
   }
   
+  const handleClearChat = () => {
+      setMessages(initialMessages);
+      toast({
+          title: "Chat Cleared",
+          description: "The conversation history has been cleared.",
+      });
+  }
+
   return (
     <>
       <div className="fixed bottom-6 right-6 z-50">
@@ -121,14 +131,25 @@ export function Chatbot() {
                     <CardDescription>AI-Powered Diagnostics Helper</CardDescription>
                  </div>
               </div>
-              <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="h-8 w-8">
-                <X className="w-4 h-4"/>
-                <span className="sr-only">Close chat</span>
-              </Button>
+              <div className="flex items-center">
+                 <Button variant="ghost" size="icon" onClick={handleClearChat} className="h-8 w-8" disabled={messages.length <= initialMessages.length}>
+                    <Trash2 className="w-4 h-4"/>
+                    <span className="sr-only">Clear chat</span>
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="h-8 w-8">
+                    <X className="w-4 h-4"/>
+                    <span className="sr-only">Close chat</span>
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="flex-1 overflow-hidden p-0">
                 <ScrollArea className="h-full" ref={scrollAreaRef}>
                     <div className="p-6 space-y-6">
+                     {messages.length === 0 && (
+                        <div className="text-center text-muted-foreground p-4">
+                            <p>Hello! I'm Vajra Assistant. How can I help you today?</p>
+                        </div>
+                     )}
                     {messages.map((message, index) => (
                         <div key={index} className={cn("flex gap-3", message.role === "user" ? "justify-end" : "justify-start")}>
                          {message.role === "model" && (
