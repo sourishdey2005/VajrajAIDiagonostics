@@ -109,6 +109,7 @@ export default function DashboardLayout({
   
   const userMenuItems = [
     { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { href: '/dashboard/complaints', icon: ClipboardList, label: 'Raise Complaint' },
     { href: '/dashboard/knowledge-hub', icon: BookOpen, label: 'Knowledge Hub' },
   ];
 
