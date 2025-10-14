@@ -182,7 +182,7 @@ export default function DashboardLayout({
               >
                 <Link href={settingsItem.href}>
                   <settingsItem.icon className="mr-2 h-4 w-4" />
-                  <span>{item.label}</span>
+                  <span>{settingsItem.label}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
