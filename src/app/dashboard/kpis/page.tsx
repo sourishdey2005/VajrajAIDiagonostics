@@ -82,10 +82,10 @@ export default function KpiDashboardPage() {
         <div className="flex flex-col gap-8">
             <div>
                 <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">
-                    Customizable KPIs
+                    Key Performance Indicators
                 </h1>
                 <p className="text-muted-foreground">
-                    Track the performance indicators that matter most to your team.
+                    Track the performance indicators that matter most to your organization.
                 </p>
             </div>
 
