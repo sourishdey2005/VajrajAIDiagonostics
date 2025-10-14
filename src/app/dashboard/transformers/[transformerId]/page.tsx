@@ -127,19 +127,7 @@ export default function TransformerDetailPage() {
 
       <div className="grid md:grid-cols-5 gap-8">
         <div className="md:col-span-3">
-          {transformer.id === 'TR-002' ? (
-            <FaultProgressionChart />
-          ) : (
-             <Card>
-              <CardHeader>
-                  <CardTitle>Fault Progression</CardTitle>
-                  <CardDescription>Historical fault analysis data for this asset.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                  <p className="text-muted-foreground text-sm text-center py-12">No historical fault progression data available for this transformer.</p>
-              </CardContent>
-            </Card>
-          )}
+          <FaultProgressionChart />
         </div>
         <div className="md:col-span-2">
           <LiveAnalysisChart isFaulty={transformer.status === 'Needs Attention'} />

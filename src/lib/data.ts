@@ -596,6 +596,47 @@ export const transformerNotes: Note[] = [
         replies: [],
         escalationStatus: 'none',
     },
+    {
+        noteId: 'NOTE-004',
+        transformerId: 'TR-018',
+        author: 'Anil Singh',
+        authorRole: 'field_engineer',
+        timestamp: '2024-06-22T11:30:00Z',
+        content: 'High load and temperature readings for the past 48 hours. FRA signature is starting to show minor deviations from baseline. Recommend monitoring.',
+        replies: [],
+        escalationStatus: 'none',
+    },
+     {
+        noteId: 'NOTE-005',
+        transformerId: 'TR-014',
+        author: 'Sanjay Das',
+        authorRole: 'field_engineer',
+        timestamp: '2024-06-19T16:00:00Z',
+        content: 'Visual inspection shows some corrosion on the tank. No immediate risk, but should be addressed during next maintenance cycle.',
+        replies: [
+             {
+                noteId: 'REPLY-002',
+                transformerId: 'TR-014',
+                author: 'Rohan Sharma',
+                authorRole: 'manager',
+                timestamp: '2024-06-20T09:00:00Z',
+                content: 'Thanks for the update, Sanjay. I have scheduled a team to address this next month.',
+                replies: [],
+                escalationStatus: 'none',
+            }
+        ],
+        escalationStatus: 'none',
+    },
+    {
+        noteId: 'NOTE-006',
+        transformerId: 'TR-009',
+        author: 'Rohan Sharma',
+        authorRole: 'manager',
+        timestamp: '2024-06-22T15:00:00Z',
+        content: 'Follow-up on NOTE-002. I have escalated this to \'resolved\' after Meena confirmed the on-site inspection is complete and parameters are stable.',
+        replies: [],
+        escalationStatus: 'resolved',
+    }
 ];
 
 export const environmentalData = [
