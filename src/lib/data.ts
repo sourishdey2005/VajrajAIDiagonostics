@@ -1,6 +1,5 @@
 
-
-
+import { format, parseISO, addMonths, isBefore, isAfter } from 'date-fns';
 
 export type Transformer = {
     id: string;
@@ -611,16 +610,16 @@ export const kpiData: Kpi[] = [
 export const recentlyResolved = [
     {
         id: 'RES-001',
-        transformerId: 'TR-010',
-        faultType: 'Bushing Fault',
-        resolvedBy: 'Sanjay Das',
+        transformerId: 'TR-004',
+        faultType: 'Inter-turn Short',
+        resolvedBy: 'Meena Iyer',
         resolvedDate: '2024-06-18T14:00:00Z',
     },
     {
         id: 'RES-002',
-        transformerId: 'TR-004',
+        transformerId: 'TR-010',
         faultType: 'Core Fault',
-        resolvedBy: 'Meena Iyer',
-        resolvedDate: '2024-06-15T11:30:00Z',
-    },
+        resolvedBy: 'Sanjay Das',
+        resolvedDate: '2024-06-20T11:00:00Z',
+    }
 ];
