@@ -96,7 +96,7 @@ export default function LoginPage() {
       });
       return;
     }
-    setRole('user');
+    setRole(selectedRole);
     setUserName(name || 'New User');
     toast({
         title: "Account Created!",
@@ -214,6 +214,19 @@ export default function LoginPage() {
                     <div className="grid gap-2">
                         <Label htmlFor="email">Email</Label>
                         <Input id="email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="role-signup">Role</Label>
+                        <Select value={selectedRole} onValueChange={(value: Role) => setSelectedRole(value)}>
+                            <SelectTrigger id="role-signup">
+                            <SelectValue placeholder="Select a role" />
+                            </SelectTrigger>
+                            <SelectContent>
+                            <SelectItem value="manager">Manager</SelectItem>
+                            <SelectItem value="field_engineer">Field Engineer</SelectItem>
+                            <SelectItem value="user">User</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="password">Password</Label>
@@ -369,7 +382,7 @@ export default function LoginPage() {
             alt={loginHeroImage.description}
             fill
             className="object-cover"
-            data-ai-hint={loginHeroImage.imageHint}
+            data-ai-hint={loginHero-image.imageHint}
             />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -381,5 +394,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    
