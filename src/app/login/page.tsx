@@ -26,8 +26,10 @@ const rolePasswords: Record<Role, string> = {
 export default function LoginPage() {
   const router = useRouter();
   const { setRole } = useUserRole();
+  const [authMode, setAuthMode] = useState<'login' | 'signup' | 'forgot'>('login');
   const [selectedRole, setSelectedRole] = useState<Role>('manager');
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('engineer@vajra.ai');
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, startTransition] = useTransition();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -38,6 +40,14 @@ export default function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    // For user role, we just check if a password is provided (since it's simulated)
+    if (selectedRole === 'user' && password.length > 0) {
+        setRole(selectedRole);
+        router.push('/dashboard');
+        return;
+    }
+    
+    // For manager and field_engineer, we check the hardcoded password
     if (password === rolePasswords[selectedRole]) {
       setRole(selectedRole);
       router.push('/dashboard');
@@ -49,6 +59,24 @@ export default function LoginPage() {
       });
     }
   };
+
+  const handleSignUp = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast({
+        title: "Account Created!",
+        description: "You can now log in with your new credentials."
+    });
+    setAuthMode('login');
+  };
+
+  const handleForgotPassword = (e: React.FormEvent) => {
+     e.preventDefault();
+     toast({
+        title: "Password Reset Instructions Sent",
+        description: `If an account exists for ${email}, you will receive an email with reset instructions.`
+    });
+    setAuthMode('login');
+  }
 
   const startRecording = async () => {
     try {
@@ -130,78 +158,155 @@ export default function LoginPage() {
       startRecording();
     }
   };
+  
+  const renderForm = () => {
+    if (authMode === 'signup') {
+        return (
+            <>
+                 <div className="grid gap-2 text-center">
+                    <VajraIcon className="h-10 w-10 text-primary mx-auto" />
+                    <h1 className="text-3xl font-bold font-headline">Create an Account</h1>
+                    <p className="text-balance text-muted-foreground">
+                        Enter your details to get started.
+                    </p>
+                </div>
+                 <form onSubmit={handleSignUp} className="grid gap-4">
+                    <div className="grid gap-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input id="email" type="email" placeholder="m@example.com" required />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="password">Password</Label>
+                        <Input id="password" type="password" required />
+                    </div>
+                     <div className="grid gap-2">
+                        <Label htmlFor="confirm-password">Confirm Password</Label>
+                        <Input id="confirm-password" type="password" required />
+                    </div>
+                    <Button type="submit" className="w-full">
+                        Sign Up
+                    </Button>
+                    <div className="mt-4 text-center text-sm">
+                        Already have an account?{' '}
+                        <Button variant="link" className="p-0" onClick={() => setAuthMode('login')}>Login</Button>
+                    </div>
+                </form>
+            </>
+        )
+    }
+
+    if (authMode === 'forgot') {
+        return (
+             <>
+                 <div className="grid gap-2 text-center">
+                    <VajraIcon className="h-10 w-10 text-primary mx-auto" />
+                    <h1 className="text-3xl font-bold font-headline">Forgot Password</h1>
+                    <p className="text-balance text-muted-foreground">
+                        Enter your email to receive reset instructions.
+                    </p>
+                </div>
+                 <form onSubmit={handleForgotPassword} className="grid gap-4">
+                    <div className="grid gap-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input id="email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                    </div>
+                    <Button type="submit" className="w-full">
+                        Send Instructions
+                    </Button>
+                    <div className="mt-4 text-center text-sm">
+                        Remember your password?{' '}
+                        <Button variant="link" className="p-0" onClick={() => setAuthMode('login')}>Login</Button>
+                    </div>
+                </form>
+            </>
+        )
+    }
+
+    return (
+        <>
+            <div className="grid gap-2 text-center">
+                <VajraIcon className="h-10 w-10 text-primary mx-auto" />
+                <h1 className="text-3xl font-bold font-headline">VajraAI Diagnostics</h1>
+                <p className="text-balance text-muted-foreground">
+                Login to access the future of transformer fault analysis
+                </p>
+            </div>
+            <form onSubmit={handleLogin} className="grid gap-4">
+                <div className="grid gap-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                        id="email"
+                        type="email"
+                        placeholder="m@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="grid gap-2">
+                    <Label htmlFor="role">Role</Label>
+                    <Select value={selectedRole} onValueChange={(value: Role) => setSelectedRole(value)}>
+                        <SelectTrigger>
+                        <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                        <SelectItem value="manager">Manager</SelectItem>
+                        <SelectItem value="field_engineer">Field Engineer</SelectItem>
+                        <SelectItem value="user">User</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="grid gap-2">
+                    <div className="flex items-center">
+                        <Label htmlFor="password">Password</Label>
+                        <Button variant="link" className="ml-auto p-0 text-sm" onClick={() => setAuthMode('forgot')}>Forgot password?</Button>
+                    </div>
+                    <Input 
+                        id="password" 
+                        type="password" 
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required 
+                    />
+                </div>
+                <Button type="submit" className="w-full">
+                Login
+                </Button>
+                <div className="relative my-2">
+                    <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">
+                        Or
+                        </span>
+                    </div>
+                </div>
+                <Button type="button" variant="outline" className="w-full" onClick={handleVoiceCommand} disabled={isProcessing}>
+                {isProcessing ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : isRecording ? (
+                    <MicOff className="mr-2 h-4 w-4 text-destructive" />
+                ) : (
+                    <Mic className="mr-2 h-4 w-4" />
+                )}
+                {isProcessing ? "Processing..." : isRecording ? "Recording..." : "Select Role with Voice"}
+                </Button>
+                 <div className="mt-4 text-center text-sm">
+                    Don&apos;t have an account?{' '}
+                    <Button variant="link" className="p-0" onClick={() => setAuthMode('signup')}>Sign up</Button>
+                </div>
+            </form>
+        </>
+    )
+  }
+
 
   return (
     <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid w-[380px] gap-6">
-          <div className="grid gap-2 text-center">
-            <VajraIcon className="h-10 w-10 text-primary mx-auto" />
-            <h1 className="text-3xl font-bold font-headline">VajraAI Diagnostics</h1>
-            <p className="text-balance text-muted-foreground">
-              Login to access the future of transformer fault analysis
-            </p>
-          </div>
-          <form onSubmit={handleLogin} className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                defaultValue="engineer@vajra.ai"
-                required
-              />
-            </div>
-             <div className="grid gap-2">
-                <Label htmlFor="role">Role</Label>
-                <Select value={selectedRole} onValueChange={(value: Role) => setSelectedRole(value)}>
-                    <SelectTrigger>
-                    <SelectValue placeholder="Select a role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                    <SelectItem value="manager">Manager</SelectItem>
-                    <SelectItem value="field_engineer">Field Engineer</SelectItem>
-                    <SelectItem value="user">User</SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-              </div>
-              <Input 
-                id="password" 
-                type="password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required 
-              />
-            </div>
-            <Button type="submit" className="w-full">
-              Login
-            </Button>
-            <div className="relative my-2">
-                <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                    Or
-                    </span>
-                </div>
-            </div>
-            <Button type="button" variant="outline" className="w-full" onClick={handleVoiceCommand} disabled={isProcessing}>
-              {isProcessing ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : isRecording ? (
-                <MicOff className="mr-2 h-4 w-4 text-destructive" />
-              ) : (
-                <Mic className="mr-2 h-4 w-4" />
-              )}
-              {isProcessing ? "Processing..." : isRecording ? "Recording..." : "Select Role with Voice"}
-            </Button>
-          </form>
+          {renderForm()}
         </div>
       </div>
       <div className="hidden bg-muted lg:block relative">
@@ -223,5 +328,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    
