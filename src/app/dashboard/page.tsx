@@ -1,8 +1,9 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
 import { useUserRole } from "@/contexts/user-role-context"
-import { Activity, AlertTriangle, BadgePercent, CircuitBoard, Siren, Clock, Zap, MapPin, Search } from "lucide-react"
+import { Activity, AlertTriangle, BadgePercent, CircuitBoard, Siren, Clock, Zap, MapPin, Search, Grid, Wrench, RefreshCw, Loader2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { transformers as initialTransformers, Transformer } from "@/lib/data"
 import { 
@@ -16,7 +17,6 @@ import {
   TransformerStatusChart,
   UpcomingServiceChart,
 } from "./components/dashboard-charts"
-import { UserDashboard } from "./components/user-dashboard"
 import { differenceInDays, formatDistanceToNow, parseISO } from "date-fns"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -25,6 +25,9 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useToast } from "@/hooks/use-toast"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 
 // Helper to generate chart colors
@@ -56,9 +59,129 @@ function Countdown({ date }: { date: string }) {
   return <span className="font-semibold">{timeLeft}</span>;
 }
 
+const electricitySuppliers = [
+    "Adani Electricity Mumbai Ltd",
+    "Tata Power",
+    "Brihanmumbai Electric Supply and Transport (BEST)",
+    "Torrent Power",
+    "India Power Corporation Limited",
+    "Other"
+];
+
+function AreaHealthCard() {
+    const [pincode, setPincode] = useState("400050");
+    const [areaStatus, setAreaStatus] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleCheckStatus = (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setTimeout(() => {
+            // Simulate fetching data for the PIN code
+            const nearbyTransformers = transformers.filter(t => ['TR-001', 'TR-015'].includes(t.id));
+            const criticalAlerts = nearbyTransformers.filter(t => t.status === 'Needs Attention').length;
+            const upcomingMaintenance = nearbyTransformers.filter(t => new Date(t.nextServiceDate) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
+            
+            setAreaStatus({
+                pincode,
+                overall: criticalAlerts > 0 ? "Potential Issues" : "All Clear",
+                criticalAlerts,
+                upcomingMaintenance: upcomingMaintenance.length
+            });
+            setIsLoading(false);
+        }, 1500);
+    };
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><MapPin /> Transformer Health in My Area</CardTitle>
+                <CardDescription>Enter your PIN code to see the status of nearby transformers and potential outages.</CardDescription>
+            </CardHeader>
+            <form onSubmit={handleCheckStatus}>
+                <CardContent className="space-y-4">
+                    <div className="flex gap-2">
+                        <Input 
+                            id="pincode-check" 
+                            placeholder="Enter your Pincode" 
+                            value={pincode}
+                            onChange={(e) => setPincode(e.target.value)}
+                            required 
+                        />
+                        <Button type="submit" disabled={isLoading}>
+                            {isLoading ? 'Checking...' : <><Search className="w-4 h-4 mr-2" /> Check</>}
+                        </Button>
+                    </div>
+
+                    {areaStatus && (
+                         <Alert variant={areaStatus.overall === "Potential Issues" ? "destructive" : "default"} className={cn(areaStatus.overall === "All Clear" && "bg-green-50 border-green-200 text-green-800 dark:bg-green-900/50 dark:border-green-800 dark:text-green-300 [&>svg]:text-green-600")}>
+                            <Zap className="h-4 w-4" />
+                            <AlertTitle>Status for Pincode {areaStatus.pincode}: <span className="font-bold">{areaStatus.overall}</span></AlertTitle>
+                            <AlertDescription className="mt-2 space-y-1">
+                                <p className="flex items-center gap-2"><AlertTriangle className="w-4 h-4"/> <strong>{areaStatus.criticalAlerts}</strong> transformers with active alerts.</p>
+                                <p className="flex items-center gap-2"><Clock className="w-4 h-4"/> <strong>{areaStatus.upcomingMaintenance}</strong> transformers with upcoming maintenance in the next 30 days.</p>
+                            </AlertDescription>
+                        </Alert>
+                    )}
+                </CardContent>
+            </form>
+        </Card>
+    );
+}
+
+const faultReasons = [
+    { type: "Grid Overload", icon: Grid, color: "text-orange-500", bgColor: "bg-orange-50 border-orange-200 dark:bg-orange-900/50 dark:border-orange-800", message: "High demand is causing stress on the grid. Power may be intermittent." },
+    { type: "Transformer Fault", icon: AlertTriangle, color: "text-destructive", bgColor: "bg-red-50 border-red-200 dark:bg-red-900/50 dark:border-red-800", message: "A nearby transformer is experiencing issues. A field crew has been dispatched." },
+    { type: "Scheduled Maintenance", icon: Wrench, color: "text-blue-500", bgColor: "bg-blue-50 border-blue-200 dark:bg-blue-900/50 dark:border-blue-800", message: "Planned maintenance is underway in your area to improve service." },
+    { type: "All Clear", icon: Zap, color: "text-green-500", bgColor: "bg-green-50 border-green-200 dark:bg-green-900/50 dark:border-green-800", message: "Our systems indicate no grid-level issues in your immediate area." }
+];
+
+function LiveFaultTrackerCard() {
+    const [status, setStatus] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    
+    const handleCheckStatus = () => {
+        setIsLoading(true);
+        setStatus(null);
+        setTimeout(() => {
+            const randomReason = faultReasons[Math.floor(Math.random() * faultReasons.length)];
+            setStatus(randomReason);
+            setIsLoading(false);
+        }, 1500);
+    }
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Zap /> Live Fault Tracker</CardTitle>
+                <CardDescription>"Why’s My Power Fluctuating?" Get real-time answers to common consumer confusion.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                 <Button onClick={handleCheckStatus} disabled={isLoading} className="w-full">
+                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                    {isLoading ? 'Checking Live Status...' : 'Check My Power Status'}
+                </Button>
+
+                {status && (
+                    <Alert className={cn("mt-4", status.bgColor)}>
+                        <status.icon className={cn("h-4 w-4", status.color)} />
+                        <AlertTitle className={cn(status.color, "font-bold")}>
+                            Status: {status.type}
+                        </AlertTitle>
+                        <AlertDescription>
+                            {status.message}
+                        </AlertDescription>
+                    </Alert>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
 export default function DashboardPage() {
   const [isClient, setIsClient] = useState(false)
-  const { role } = useUserRole();
+  const { role, userName } = useUserRole();
+  const { toast } = useToast()
 
   const [transformers, setTransformers] = useState<Transformer[]>(initialTransformers);
 
@@ -211,6 +334,14 @@ export default function DashboardPage() {
       fill: colors[index]
     })).sort((a,b) => b.value - a.value);
   }, [transformers]);
+  
+  const handleProfileSubmit = (e: React.FormEvent) => {
+      e.preventDefault()
+      toast({
+          title: "Details Saved",
+          description: "Your information has been updated successfully.",
+      })
+  }
 
 
   if (!isClient) {
@@ -231,7 +362,66 @@ export default function DashboardPage() {
   }
   
   if (role === 'user') {
-    return <UserDashboard />
+    return (
+      <div className="flex flex-col gap-8">
+        <div>
+          <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">
+            Welcome, {userName}
+          </h1>
+          <p className="text-muted-foreground">
+            Manage your profile and check the health of transformers in your area.
+          </p>
+        </div>
+        <div className="grid lg:grid-cols-2 gap-8 items-start">
+          <Card>
+              <CardHeader>
+              <CardTitle>Complete Your Profile</CardTitle>
+              <CardDescription>
+                  This information helps us tailor our services to your specific needs.
+              </CardDescription>
+              </CardHeader>
+              <form onSubmit={handleProfileSubmit}>
+              <CardContent className="grid md:grid-cols-2 gap-6">
+                  <div className="grid gap-2 md:col-span-2">
+                  <Label htmlFor="consumer-id">Consumer ID</Label>
+                  <Input id="consumer-id" placeholder="Enter your Consumer ID" required />
+                  </div>
+                  <div className="grid gap-2 md:col-span-2">
+                  <Label htmlFor="supplier">Electricity Supplier</Label>
+                  <Select>
+                      <SelectTrigger id="supplier">
+                      <SelectValue placeholder="Select your supplier" />
+                      </SelectTrigger>
+                      <SelectContent>
+                      {electricitySuppliers.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                      </SelectContent>
+                  </Select>
+                  </div>
+                  <div className="grid gap-2">
+                  <Label htmlFor="area">Area / Locality</Label>
+                  <Input id="area" placeholder="e.g., Bandra West" required />
+                  </div>
+                  <div className="grid gap-2">
+                  <Label htmlFor="pincode">Pincode</Label>
+                  <Input id="pincode" placeholder="e.g., 400050" required />
+                  </div>
+                  <div className="grid gap-2 md:col-span-2">
+                  <Label htmlFor="district">District</Label>
+                  <Input id="district" placeholder="e.g., Mumbai" required />
+                  </div>
+              </CardContent>
+              <CardFooter>
+                  <Button type="submit">Save Details</Button>
+              </CardFooter>
+              </form>
+          </Card>
+          <div className="space-y-8">
+            <AreaHealthCard />
+            <LiveFaultTrackerCard />
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
