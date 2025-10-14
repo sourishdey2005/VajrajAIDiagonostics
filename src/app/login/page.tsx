@@ -29,6 +29,7 @@ export default function LoginPage() {
   const [authMode, setAuthMode] = useState<'login' | 'signup' | 'forgot'>('login');
   const [selectedRole, setSelectedRole] = useState<Role>('manager');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [email, setEmail] = useState('engineer@vajra.ai');
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, startTransition] = useTransition();
@@ -62,6 +63,13 @@ export default function LoginPage() {
 
   const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      toast({
+        title: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
     toast({
         title: "Account Created!",
         description: "You can now log in with your new credentials."
@@ -173,15 +181,15 @@ export default function LoginPage() {
                  <form onSubmit={handleSignUp} className="grid gap-4">
                     <div className="grid gap-2">
                         <Label htmlFor="email">Email</Label>
-                        <Input id="email" type="email" placeholder="m@example.com" required />
+                        <Input id="email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="password">Password</Label>
-                        <Input id="password" type="password" required />
+                        <Input id="password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
                     </div>
                      <div className="grid gap-2">
                         <Label htmlFor="confirm-password">Confirm Password</Label>
-                        <Input id="confirm-password" type="password" required />
+                        <Input id="confirm-password" type="password" required value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
                     </div>
                     <Button type="submit" className="w-full">
                         Sign Up
