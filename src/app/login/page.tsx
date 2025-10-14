@@ -25,12 +25,13 @@ const rolePasswords: Record<Role, string> = {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setRole } = useUserRole();
+  const { setRole, setUserName } = useUserRole();
   const [authMode, setAuthMode] = useState<'login' | 'signup' | 'forgot'>('login');
   const [selectedRole, setSelectedRole] = useState<Role>('manager');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [email, setEmail] = useState('engineer@vajra.ai');
+  const [name, setName] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, startTransition] = useTransition();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -41,9 +42,12 @@ export default function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    const defaultName = selectedRole === 'user' ? 'User' : 'Rohan Sharma';
+
     // For user role, we just check if a password is provided (since it's simulated)
     if (selectedRole === 'user' && password.length > 0) {
         setRole(selectedRole);
+        setUserName(name || defaultName);
         router.push('/dashboard');
         return;
     }
@@ -51,6 +55,7 @@ export default function LoginPage() {
     // For manager and field_engineer, we check the hardcoded password
     if (password === rolePasswords[selectedRole]) {
       setRole(selectedRole);
+      setUserName(defaultName);
       router.push('/dashboard');
     } else {
       toast({
@@ -63,6 +68,7 @@ export default function LoginPage() {
 
   const handleSocialLogin = (role: Role) => {
     setRole(role);
+    setUserName('Social User');
     router.push('/dashboard');
   };
 
@@ -75,6 +81,8 @@ export default function LoginPage() {
       });
       return;
     }
+    setRole('user');
+    setUserName(name || 'User');
     toast({
         title: "Account Created!",
         description: "You can now log in with your new credentials."
@@ -184,6 +192,10 @@ export default function LoginPage() {
                     </p>
                 </div>
                  <form onSubmit={handleSignUp} className="grid gap-4">
+                    <div className="grid gap-2">
+                        <Label htmlFor="name">Full Name</Label>
+                        <Input id="name" placeholder="e.g., Alisha Khan" required value={name} onChange={e => setName(e.target.value)} />
+                    </div>
                     <div className="grid gap-2">
                         <Label htmlFor="email">Email</Label>
                         <Input id="email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
@@ -354,3 +366,7 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    
+
+    

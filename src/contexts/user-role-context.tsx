@@ -7,6 +7,8 @@ export type Role = 'field_engineer' | 'manager' | 'user';
 type UserRoleContextType = {
   role: Role;
   setRole: Dispatch<SetStateAction<Role>>;
+  userName: string;
+  setUserName: Dispatch<SetStateAction<string>>;
 };
 
 const UserRoleContext = createContext<UserRoleContextType | undefined>(undefined);
@@ -24,17 +26,31 @@ export function UserRoleProvider({ children }: { children: ReactNode }) {
     }
     return 'user';
   });
+  
+  const [userName, setUserName] = useState<string>(() => {
+      if (typeof window !== 'undefined') {
+          try {
+              const savedUserName = localStorage.getItem('userName');
+              return savedUserName ? savedUserName : "User";
+          } catch (error) {
+              console.error("Failed to read user name from localStorage", error);
+              return "User";
+          }
+      }
+      return "User";
+  });
 
   useEffect(() => {
     try {
         localStorage.setItem('userRole', role);
+        localStorage.setItem('userName', userName);
     } catch (error) {
-        console.error("Failed to save role to localStorage", error);
+        console.error("Failed to save to localStorage", error);
     }
-  }, [role]);
+  }, [role, userName]);
 
   return (
-    <UserRoleContext.Provider value={{ role, setRole }}>
+    <UserRoleContext.Provider value={{ role, setRole, userName, setUserName }}>
       {children}
     </UserRoleContext.Provider>
   );

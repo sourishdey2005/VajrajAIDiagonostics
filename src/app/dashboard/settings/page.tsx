@@ -1,3 +1,6 @@
+
+"use client"
+
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -10,8 +13,11 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { useUserRole } from "@/contexts/user-role-context"
 
 export default function SettingsPage() {
+  const { userName } = useUserRole();
+
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -31,7 +37,7 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" defaultValue="Rohan Sharma" />
+              <Input id="name" defaultValue={userName} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

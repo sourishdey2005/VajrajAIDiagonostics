@@ -47,7 +47,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { role } = useUserRole();
+  const { role, userName } = useUserRole();
   const userAvatarImage = PlaceHolderImages.find(p => p.id === 'user-avatar-1');
 
   const menuItems = [
@@ -110,6 +110,10 @@ export default function DashboardLayout({
   ];
 
   const itemsToDisplay = role === 'user' ? userMenuItems : menuItems;
+
+  const getInitials = (name: string) => {
+      return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  }
 
   return (
     <SidebarProvider>
@@ -190,10 +194,10 @@ export default function DashboardLayout({
                   data-ai-hint={userAvatarImage.imageHint}
                 />
               )}
-              <AvatarFallback>RS</AvatarFallback>
+              <AvatarFallback>{getInitials(userName)}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="font-semibold">Rohan Sharma</span>
+              <span className="font-semibold">{userName}</span>
               <span className="text-sm text-muted-foreground capitalize">
                 {role.replace('_', ' ')}
               </span>

@@ -21,12 +21,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
 import { cn } from "@/lib/utils"
+import { useUserRole } from "@/contexts/user-role-context"
 
 export default function DashboardHeader() {
   const pathname = usePathname()
+  const { userName } = useUserRole();
   const userAvatarImage = PlaceHolderImages.find(p => p.id === 'user-avatar-1');
   
   const pathSegments = pathname.split('/').filter(Boolean);
+  
+  const getInitials = (name: string) => {
+      return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  }
+
 
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30 md:static">
@@ -62,7 +69,7 @@ export default function DashboardHeader() {
             <Button variant="secondary" size="icon" className="rounded-full">
               <Avatar className="h-8 w-8">
                 {userAvatarImage && <AvatarImage src={userAvatarImage.imageUrl} alt="User Avatar" data-ai-hint={userAvatarImage.imageHint} />}
-                <AvatarFallback>RS</AvatarFallback>
+                <AvatarFallback>{getInitials(userName)}</AvatarFallback>
               </Avatar>
               <span className="sr-only">Toggle user menu</span>
             </Button>
