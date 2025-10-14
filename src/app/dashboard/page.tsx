@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { useUserRole } from "@/contexts/user-role-context"
-import { Activity, AlertTriangle, BadgePercent, CircuitBoard, Siren, Clock } from "lucide-react"
+import { Activity, AlertTriangle, BadgePercent, CircuitBoard, Siren, Clock, Zap, MapPin, Search } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { transformers as initialTransformers, Transformer } from "@/lib/data"
 import { 
@@ -22,6 +22,10 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
+
 
 // Helper to generate chart colors
 const generateChartColors = (count: number) => {
@@ -360,3 +364,5 @@ export default function DashboardPage() {
     </div>
   )
 }
+
+    
