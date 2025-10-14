@@ -29,6 +29,7 @@ import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
 import { HealthCompass } from "./health-compass"
 import { generateAnalysisReport } from "@/lib/report-generator"
 import { useToast } from "@/hooks/use-toast"
+import { Progress } from "@/components/ui/progress"
 
 type AnalysisResult = {
   faultClassification: string;
@@ -232,13 +233,7 @@ export function AnalysisResultCard({ result, isLoading }: AnalysisResultCardProp
 
   if (!result) return null
 
-  const confidenceData = [{ name: 'Confidence', value: result.confidenceScore * 100 }]
-  const chartConfig = {
-    value: {
-        label: "Confidence",
-        color: "hsl(var(--chart-1))",
-    }
-  }
+  const confidenceValue = result.confidenceScore * 100;
 
   return (
     <Card>
@@ -295,20 +290,12 @@ export function AnalysisResultCard({ result, isLoading }: AnalysisResultCardProp
                     <CardDescription>Probability of correctness.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-[60px] w-full">
-                      <ChartContainer config={chartConfig}>
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={confidenceData} layout="vertical">
-                              <XAxis type="number" domain={[0, 100]} hide />
-                              <YAxis type="category" dataKey="name" hide />
-                              <Tooltip cursor={{fill: 'hsl(var(--muted))'}} content={<ChartTooltipContent hideLabel hideIndicator />} />
-                              <Bar dataKey="value" fill="var(--color-value)" radius={4} barSize={20}>
-                              </Bar>
-                            </BarChart>
-                          </ResponsiveContainer>
-                      </ChartContainer>
+                    <div className="flex items-center gap-4">
+                        <Progress value={confidenceValue} className="h-3 flex-1" />
+                        <span className="text-xl font-bold">
+                            {confidenceValue.toFixed(1)}%
+                        </span>
                     </div>
-                    <p className="text-right text-2xl font-bold mt-2">{(result.confidenceScore * 100).toFixed(1)}%</p>
                   </CardContent>
                 </Card>
               </div>
