@@ -17,6 +17,7 @@ import {
   History,
   CloudLightning,
   Target,
+  ClipboardList,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -90,6 +91,11 @@ export default function DashboardLayout({
         href: '/dashboard/kpis',
         icon: Target,
         label: 'KPIs',
+    },
+     {
+        href: '/dashboard/workflow',
+        icon: ClipboardList,
+        label: 'Workflow',
     },
   ];
 
