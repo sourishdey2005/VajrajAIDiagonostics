@@ -19,18 +19,18 @@ import { recognizeRoleCommand } from '@/ai/flows/recognize-role-command';
 
 const rolePasswords: Record<Role, string> = {
     manager: 'vajra-manager',
-    field_engineer: 'vajra-engineer',
+    field_engineer: 'vajra-engineer', // Default password for pre-defined engineer
     user: 'vajra-user'
 }
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setRole, setUserName } = useUserRole();
+  const { setRole, setUserName, fieldEngineers } = useUserRole();
   const [authMode, setAuthMode] = useState<'login' | 'signup' | 'forgot'>('login');
   const [selectedRole, setSelectedRole] = useState<Role>('manager');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [email, setEmail] = useState('engineer@vajra.ai');
+  const [email, setEmail] = useState('manager@vajra.ai');
   const [name, setName] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, startTransition] = useTransition();
@@ -42,27 +42,42 @@ export default function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    const defaultName = selectedRole === 'user' ? 'User' : 'Rohan Sharma';
+    let defaultName = 'User';
+    let isAuthenticated = false;
 
-    // For user role, we just check if a password is provided (since it's simulated)
-    if (selectedRole === 'user' && password.length > 0) {
+    if (selectedRole === 'manager') {
+        if (password === rolePasswords.manager) {
+            defaultName = 'Rohan Sharma';
+            isAuthenticated = true;
+        }
+    } else if (selectedRole === 'user') {
+        if (password === rolePasswords.user) {
+            isAuthenticated = true;
+        }
+    } else if (selectedRole === 'field_engineer') {
+        // Check against dynamically created engineers first
+        const dynamicEngineer = fieldEngineers.find(eng => eng.email === email && eng.password === password);
+        if (dynamicEngineer) {
+            defaultName = dynamicEngineer.name;
+            isAuthenticated = true;
+        } 
+        // Fallback to the default hardcoded engineer
+        else if (email === 'engineer@vajra.ai' && password === rolePasswords.field_engineer) {
+            defaultName = 'Priya Sharma';
+            isAuthenticated = true;
+        }
+    }
+
+    if (isAuthenticated) {
         setRole(selectedRole);
         setUserName(name || defaultName);
         router.push('/dashboard');
-        return;
-    }
-    
-    // For manager and field_engineer, we check the hardcoded password
-    if (password === rolePasswords[selectedRole]) {
-      setRole(selectedRole);
-      setUserName(defaultName);
-      router.push('/dashboard');
     } else {
-      toast({
-        title: "Invalid Password",
-        description: "The password you entered is incorrect for the selected role.",
-        variant: "destructive",
-      });
+        toast({
+            title: "Invalid Credentials",
+            description: "The email or password you entered is incorrect.",
+            variant: "destructive",
+        });
     }
   };
 
@@ -366,7 +381,5 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    
 
     

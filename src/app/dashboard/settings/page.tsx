@@ -13,11 +13,52 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { useUserRole } from "@/contexts/user-role-context"
-import { ShieldCheck, MessageSquareWarning, BellRing } from "lucide-react"
+import { useUserRole, FieldEngineerAccount } from "@/contexts/user-role-context"
+import { ShieldCheck, MessageSquareWarning, BellRing, UserPlus } from "lucide-react"
+import { useForm, SubmitHandler } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { useToast } from "@/hooks/use-toast"
+
+const newEngineerSchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters."),
+  email: z.string().email("Please enter a valid email address."),
+  password: z.string().min(8, "Password must be at least 8 characters long."),
+})
+
+type NewEngineerFormValues = z.infer<typeof newEngineerSchema>;
+
 
 export default function SettingsPage() {
-  const { role, userName } = useUserRole();
+  const { role, userName, addFieldEngineer, fieldEngineers } = useUserRole();
+  const { toast } = useToast();
+
+   const form = useForm<NewEngineerFormValues>({
+    resolver: zodResolver(newEngineerSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: ""
+    }
+  });
+
+  const onSubmit: SubmitHandler<NewEngineerFormValues> = (data) => {
+    if (fieldEngineers.some(e => e.email === data.email)) {
+        toast({
+            title: "Email already exists",
+            description: "An engineer with this email address has already been registered.",
+            variant: "destructive"
+        });
+        return;
+    }
+    addFieldEngineer(data);
+    toast({
+        title: "Engineer Account Created",
+        description: `${data.name} can now log in with the provided credentials.`
+    });
+    form.reset();
+  };
+
 
   const renderManagerAndEngineerSettings = () => (
     <>
@@ -61,6 +102,40 @@ export default function SettingsPage() {
             <Button>Save Preferences</Button>
           </CardFooter>
         </Card>
+        
+        {role === 'manager' && (
+          <Card className="xl:col-span-1">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><UserPlus /> Create Field Engineer Account</CardTitle>
+              <CardDescription>
+                Provision a new login for a field engineer. They will be able to log in with the credentials you set.
+              </CardDescription>
+            </CardHeader>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="new-engineer-name">Full Name</Label>
+                  <Input id="new-engineer-name" placeholder="e.g., Alisha Khan" {...form.register("name")} />
+                  {form.formState.errors.name && <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new-engineer-email">Email Address</Label>
+                  <Input id="new-engineer-email" type="email" placeholder="alisha.k@vajra.ai" {...form.register("email")} />
+                  {form.formState.errors.email && <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new-engineer-password">Password</Label>
+                  <Input id="new-engineer-password" type="password" placeholder="Set a secure password" {...form.register("password")} />
+                  {form.formState.errors.password && <p className="text-sm text-destructive">{form.formState.errors.password.message}</p>}
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button type="submit" disabled={form.formState.isSubmitting}>Create Account</Button>
+              </CardFooter>
+            </form>
+          </Card>
+        )}
+        
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><BellRing /> Notification Channels</CardTitle>
@@ -218,3 +293,5 @@ export default function SettingsPage() {
     </div>
   )
 }
+
+    
