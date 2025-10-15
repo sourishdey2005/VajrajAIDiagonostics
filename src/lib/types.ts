@@ -42,6 +42,7 @@ export type Complaint = {
   zone: 'North' | 'South' | 'East' | 'West';
   timestamp: string;
   status: 'Open' | 'In Progress' | 'Resolved';
+  submittedBy?: string; // Add this field
 };
 
 export type EngineerPerformance = {

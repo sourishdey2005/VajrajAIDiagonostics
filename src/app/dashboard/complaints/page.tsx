@@ -54,11 +54,11 @@ export default function ComplaintsPage() {
   const [isAnalyzing, startAnalyzing] = useTransition()
   const [analysisResult, setAnalysisResult] = useState<string | null>(null)
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const { complaints, addComplaint } = useUserRole();
+  const { complaints, addComplaint, userName } = useUserRole();
   const [isFetching, setIsFetching] = useState(true);
 
-  // For this prototype, we'll just show the first 2 complaints as "My Complaints"
-  const myComplaints = complaints.slice(0, 2);
+  // For this prototype, we'll simulate the user owning the complaints they create
+  const myComplaints = complaints.filter(c => c.submittedBy === userName);
 
   useEffect(() => {
     setIsFetching(false);
@@ -93,7 +93,8 @@ export default function ComplaintsPage() {
                 ...data,
                 zone: 'West',
                 timestamp: new Date().toISOString(),
-                status: 'Open'
+                status: 'Open',
+                submittedBy: userName,
             }
             addComplaint(newComplaint);
             setIsSubmitted(true);
