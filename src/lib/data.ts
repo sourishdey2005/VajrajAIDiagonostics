@@ -1,4 +1,5 @@
 
+
 import { Transformer, HealthHistory, FaultHistory, Complaint, EngineerPerformance } from './types';
 
 export const transformers: Transformer[] = [
@@ -277,6 +278,19 @@ export const faultProgressionData = [
 ];
 
 export const notesData = [
+    // TR-001
+    {
+      id: 101,
+      transformer_id: 'TR-001',
+      author_name: 'Ravi Kumar',
+      author_role: 'field_engineer',
+      created_at: '2024-06-15T09:00:00Z',
+      content: 'Routine inspection completed. All parameters are normal. Slight discoloration on the tank, but it seems superficial. Will monitor.',
+      parent_log_id: null,
+      escalation_status: 'none',
+      replies: []
+    },
+    // TR-002
     {
       id: 1,
       transformer_id: 'TR-002',
@@ -309,6 +323,173 @@ export const notesData = [
       parent_log_id: null,
       escalation_status: 'none',
       replies: []
+    },
+    // TR-003
+    {
+      id: 103,
+      transformer_id: 'TR-003',
+      author_name: 'Anil Singh',
+      author_role: 'field_engineer',
+      created_at: '2024-05-11T11:00:00Z',
+      content: 'Following up on the previous voltage fluctuation report. The issue seems to have been resolved after grid stabilization. All readings are stable now.',
+      parent_log_id: null,
+      escalation_status: 'resolved',
+      replies: []
+    },
+    // TR-004
+    {
+      id: 104,
+      transformer_id: 'TR-004',
+      author_name: 'Sanjay Das',
+      author_role: 'field_engineer',
+      created_at: '2024-06-20T12:00:00Z',
+      content: 'Maintenance is underway. We are replacing the main cooling fans. Expected completion by EOD.',
+      parent_log_id: null,
+      escalation_status: 'none',
+      replies: [
+         {
+          id: 105,
+          transformer_id: 'TR-004',
+          author_name: 'Rohan Sharma',
+          author_role: 'manager',
+          created_at: '2024-06-20T12:15:00Z',
+          content: 'Thanks for the update, Sanjay. Let me know if you need any additional resources.',
+          parent_log_id: 104,
+          escalation_status: 'none'
+        }
+      ]
+    },
+    // TR-005
+    {
+      id: 106,
+      transformer_id: 'TR-005',
+      author_name: 'Meena Iyer',
+      author_role: 'field_engineer',
+      created_at: '2024-04-23T15:00:00Z',
+      content: 'Inspection complete. The area is prone to flooding during monsoon season. Recommended raising the plinth level during next major service.',
+      parent_log_id: null,
+      escalation_status: 'none',
+      replies: []
+    },
+    // TR-006
+    {
+        id: 107,
+        transformer_id: 'TR-006',
+        author_name: 'Anil Singh',
+        author_role: 'field_engineer',
+        created_at: '2024-03-02T13:00:00Z',
+        content: 'High load observed during peak IT park hours. The transformer is handling it well but we should watch its temperature profile.',
+        parent_log_id: null,
+        escalation_status: 'none',
+        replies: []
+    },
+    // TR-007
+    {
+        id: 108,
+        transformer_id: 'TR-007',
+        author_name: 'Anil Singh',
+        author_role: 'field_engineer',
+        created_at: '2024-05-19T10:30:00Z',
+        content: 'Post-inspection note: No issues found. Asset is in very good condition.',
+        parent_log_id: null,
+        escalation_status: 'none',
+        replies: []
+    },
+    // TR-008
+    {
+        id: 109,
+        transformer_id: 'TR-008',
+        author_name: 'Ravi Kumar',
+        author_role: 'field_engineer',
+        created_at: '2024-06-06T16:00:00Z',
+        content: 'Routine checkup. Everything looks fine. Low criticality and stable load.',
+        parent_log_id: null,
+        escalation_status: 'none',
+        replies: []
+    },
+    // TR-009
+    {
+        id: 110,
+        transformer_id: 'TR-009',
+        author_name: 'Sanjay Das',
+        author_role: 'field_engineer',
+        created_at: '2024-06-18T11:00:00Z',
+        content: 'FRA analysis from today shows a significant deviation in the low-frequency range, indicating a possible core fault. Needs further investigation.',
+        parent_log_id: null,
+        escalation_status: 'escalated',
+        replies: []
+    },
+    // TR-010
+    {
+        id: 111,
+        transformer_id: 'TR-010',
+        author_name: 'Meena Iyer',
+        author_role: 'field_engineer',
+        created_at: '2024-05-01T12:00:00Z',
+        content: 'Checked the silica gel breather, it has turned pink. Replaced it.',
+        parent_log_id: null,
+        escalation_status: 'none',
+        replies: []
+    },
+    // TR-011
+    {
+        id: 112,
+        transformer_id: 'TR-011',
+        author_name: 'Anil Singh',
+        author_role: 'field_engineer',
+        created_at: '2024-06-02T14:00:00Z',
+        content: 'Updated the firmware on the remote monitoring unit attached to this transformer.',
+        parent_log_id: null,
+        escalation_status: 'none',
+        replies: []
+    },
+    // TR-012
+    {
+        id: 113,
+        transformer_id: 'TR-012',
+        author_name: 'Rohan Sharma',
+        author_role: 'manager',
+        created_at: '2024-05-20T17:00:00Z',
+        content: 'Keep an eye on this asset. It serves a high-priority commercial area and load can be unpredictable.',
+        parent_log_id: null,
+        escalation_status: 'none',
+        replies: []
+    },
+    // TR-013
+    {
+        id: 114,
+        transformer_id: 'TR-013',
+        author_name: 'Priya Sharma',
+        author_role: 'field_engineer',
+        created_at: '2024-05-26T11:30:00Z',
+        content: 'General inspection passed. No anomalies detected.',
+        parent_log_id: null,
+        escalation_status: 'none',
+        replies: []
+    },
+    // TR-014
+    {
+        id: 115,
+        transformer_id: 'TR-014',
+        author_name: 'Anil Singh',
+        author_role: 'field_engineer',
+        created_at: '2024-06-15T10:00:00Z',
+        content: 'Core fault confirmed and resolved. The transformer is now back in operational state.',
+        parent_log_id: null,
+        escalation_status: 'resolved',
+        replies: []
+    },
+    // TR-015
+    {
+        id: 116,
+        transformer_id: 'TR-015',
+        author_name: 'Ravi Kumar',
+        author_role: 'field_engineer',
+        created_at: '2024-06-22T09:45:00Z',
+        content: 'Consumer complaint of voltage drop traced to this asset. FRA analysis shows minor bushing fault. Scheduling for replacement.',
+        parent_log_id: null,
+        escalation_status: 'none',
+        replies: []
     }
 ];
 
