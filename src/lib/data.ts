@@ -1,3 +1,4 @@
+
 import { Transformer, HealthHistory, FaultHistory, Complaint, EngineerPerformance } from './types';
 
 export const transformers: Transformer[] = [
@@ -507,4 +508,17 @@ export const recentlyResolved = [
     { id: 1, transformer_id: 'TR-014', fault_type: 'Core Fault', resolved_by: 'Anil Singh', resolved_date: '2024-06-15T10:00:00Z' },
     { id: 2, transformer_id: 'TR-004', fault_type: 'Bushing Replacement', resolved_by: 'Sanjay Das', resolved_date: '2024-06-12T15:30:00Z' },
     { id: 3, transformer_id: 'COM-003', fault_type: 'Sparking Issue', resolved_by: 'Field Team', resolved_date: '2024-06-20T09:00:00Z' },
+];
+
+export const simulationData = [
+  { load_scenario: '75% Load', projected_health_score: 93, lifespan_reduction_percent: 2, recommendation: 'Optimal performance. Standard maintenance schedule recommended.' },
+  { load_scenario: '80% Load', projected_health_score: 91, lifespan_reduction_percent: 3, recommendation: 'Slightly increased load. Monitor temperature during peak hours.' },
+  { load_scenario: '85% Load', projected_health_score: 89, lifespan_reduction_percent: 5, recommendation: 'Increased load. Consider quarterly oil quality checks.' },
+  { load_scenario: '90% Load', projected_health_score: 86, lifespan_reduction_percent: 8, recommendation: 'High load. Recommend biannual comprehensive inspection.' },
+  { load_scenario: '95% Load', projected_health_score: 82, lifespan_reduction_percent: 12, recommendation: 'Very high load. Risk of accelerated aging. Consider load balancing.' },
+  { load_scenario: '100% Load', projected_health_score: 78, lifespan_reduction_percent: 18, recommendation: 'At maximum capacity. High risk. Recommend immediate review of load management.' },
+  { load_scenario: '105% Load', projected_health_score: 72, lifespan_reduction_percent: 25, recommendation: 'Overloaded. Significant risk of thermal stress and premature failure. Urgent action required.' },
+  { load_scenario: '110% Load', projected_health_score: 65, lifespan_reduction_percent: 35, recommendation: 'Critically overloaded. High probability of imminent failure. Immediate load reduction is necessary.' },
+  { load_scenario: '115% Load', projected_health_score: 55, lifespan_reduction_percent: 50, recommendation: 'Dangerously overloaded. Asset integrity compromised. De-energize if possible and conduct emergency assessment.' },
+  { load_scenario: '120% Load', projected_health_score: 40, lifespan_reduction_percent: 70, recommendation: 'Extreme overload. Catastrophic failure is imminent. Evacuate area and de-energize immediately.' },
 ];

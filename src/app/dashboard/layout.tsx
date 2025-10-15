@@ -20,6 +20,7 @@ import {
   Target,
   ClipboardList,
   BookOpen,
+  Binary,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -68,6 +69,11 @@ export default function DashboardLayout({
       href: '/dashboard/comparison',
       icon: GitCompareArrows,
       label: 'Comparison',
+    },
+    {
+      href: '/dashboard/digital-twin',
+      icon: Binary,
+      label: 'Digital Twin',
     },
     {
       href: '/dashboard/budgeting',
