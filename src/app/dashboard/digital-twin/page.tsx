@@ -3,7 +3,6 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import { useUserRole } from '@/contexts/user-role-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -15,11 +14,7 @@ import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-
-const DigitalTwinModel = dynamic(() => import('./components/digital-twin-model').then(mod => mod.DigitalTwinModel), {
-    ssr: false,
-    loading: () => <div className="h-64 w-full rounded-lg bg-muted/50 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-});
+import { DigitalTwinModel } from './components/digital-twin-model';
 
 
 function HistoricalDataChart({ transformerId }: { transformerId: string }) {
