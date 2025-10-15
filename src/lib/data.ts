@@ -245,48 +245,39 @@ export const transformers: Transformer[] = [
     }
 ];
 
-export const healthHistory: HealthHistory[] = [
-    // TR-001
-    { id: 1, transformer_id: 'TR-001', date: '2023-09-01', health_score: 97 },
-    { id: 2, transformer_id: 'TR-001', date: '2023-12-01', health_score: 95 },
-    { id: 3, transformer_id: 'TR-001', date: '2024-03-01', health_score: 94 },
-    { id: 4, transformer_id: 'TR-001', date: '2024-06-01', health_score: 94 },
-    // TR-002
-    { id: 5, transformer_id: 'TR-002', date: '2023-09-01', health_score: 92 },
-    { id: 6, transformer_id: 'TR-002', date: '2023-12-01', health_score: 88 },
-    { id: 7, transformer_id: 'TR-002', date: '2024-03-01', health_score: 85 },
-    { id: 8, transformer_id: 'TR-002', date: '2024-06-01', health_score: 85 },
-    // TR-003
-    { id: 9, transformer_id: 'TR-003', date: '2023-09-01', health_score: 99 },
-    { id: 10, transformer_id: 'TR-003', date: '2023-12-01', health_score: 98 },
-    { id: 11, transformer_id: 'TR-003', date: '2024-03-01', health_score: 98 },
-    { id: 12, transformer_id: 'TR-003', date: '2024-06-01', health_score: 97 },
-    // TR-004
-    { id: 13, transformer_id: 'TR-004', date: '2023-09-01', health_score: 96 },
-    { id: 14, transformer_id: 'TR-004', date: '2023-12-01', health_score: 94 },
-    { id: 15, transformer_id: 'TR-004', date: '2024-03-01', health_score: 92 },
-    { id: 16, transformer_id: 'TR-004', date: '2024-06-01', health_score: 90 },
-    // TR-005
-    { id: 17, transformer_id: 'TR-005', date: '2023-09-01', health_score: 98 },
-    { id: 18, transformer_id: 'TR-005', date: '2023-12-01', health_score: 97 },
-    { id: 19, transformer_id: 'TR-005', date: '2024-03-01', health_score: 97 },
-    { id: 20, transformer_id: 'TR-005', date: '2024-06-01', health_score: 96 },
-    // TR-006
-    { id: 21, transformer_id: 'TR-006', date: '2023-09-01', health_score: 98 },
-    { id: 22, transformer_id: 'TR-006', date: '2023-12-01', health_score: 96 },
-    { id: 23, transformer_id: 'TR-006', date: '2024-03-01', health_score: 96 },
-    { id: 24, transformer_id: 'TR-006', date: '2024-06-01', health_score: 96 },
-    // Add more for others to ensure data exists
-    { id: 25, transformer_id: 'TR-007', date: '2024-06-01', health_score: 98 },
-    { id: 26, transformer_id: 'TR-008', date: '2024-06-01', health_score: 99 },
-    { id: 27, transformer_id: 'TR-009', date: '2024-06-01', health_score: 88 },
-    { id: 28, transformer_id: 'TR-010', date: '2024-06-01', health_score: 97 },
-    { id: 29, transformer_id: 'TR-011', date: '2024-06-01', health_score: 99 },
-    { id: 30, transformer_id: 'TR-012', date: '2024-06-01', health_score: 95 },
-    { id: 31, transformer_id: 'TR-013', date: '2024-06-01', health_score: 96 },
-    { id: 32, transformer_id: 'TR-014', date: '2024-06-01', health_score: 92 },
-    { id: 33, transformer_id: 'TR-015', date: '2024-06-01', health_score: 90 },
-];
+const generateHistory = (id: string, finalScore: number, months: number): HealthHistory[] => {
+    const history: HealthHistory[] = [];
+    let currentScore = finalScore + Math.random() * (100 - finalScore) * 0.5; // Start a bit higher
+    currentScore = Math.min(currentScore, 99.5);
+
+    for (let i = 0; i < months; i++) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - (months - 1 - i));
+        
+        // Add more variability
+        const drop = Math.random() * 0.5;
+        const recovery = Math.random() * 0.2;
+        currentScore = currentScore - drop + recovery;
+
+        // Ensure score doesn't go below final score or above 100
+        currentScore = Math.max(finalScore, currentScore);
+        currentScore = Math.min(100, currentScore);
+
+        history.push({
+            id: parseInt(`${transformers.findIndex(t => t.id === id) + 1}${i}`),
+            transformer_id: id,
+            date: date.toISOString().split('T')[0],
+            health_score: parseFloat(currentScore.toFixed(1))
+        });
+    }
+
+    // Ensure the last entry matches the transformer's current score
+    history[history.length-1].health_score = finalScore;
+
+    return history;
+}
+
+export const healthHistory: HealthHistory[] = transformers.flatMap(t => generateHistory(t.id, t.health_score, 12));
 
 export const faultHistory: FaultHistory[] = [
     { id: 1, transformer_id: 'TR-002', date: '2024-03-15', fault_type: 'Winding Deformation', severity: 'High' },
