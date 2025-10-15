@@ -387,7 +387,7 @@ export default function LoginPage() {
             <h2 className="text-4xl font-bold font-headline">Intelligent Diagnostics. Actionable Insights.</h2>
             <p className="text-lg mt-2 max-w-2xl">VajraAI leverages state-of-the-art AI to predict and diagnose transformer faults before they become critical.</p>
         </div>
-        <Card className="absolute bottom-10 left-10 text-sm text-card-foreground bg-card/80 backdrop-blur-sm w-[360px]">
+        <Card className="absolute top-10 left-10 text-sm text-card-foreground bg-card/80 backdrop-blur-sm w-[360px]">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <Info className="w-5 h-5 text-primary" />
@@ -412,5 +412,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    
