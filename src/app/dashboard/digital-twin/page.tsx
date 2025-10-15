@@ -47,13 +47,13 @@ function PerformanceSimulation({ transformerId }: { transformerId: string }) {
     const [load, setLoad] = useState(75);
     const [simulationResult, setSimulationResult] = useState(simulationData[0]);
 
-    const handleSimulate = () => {
-        // In a real app, this would be an API call to a simulation model
-        const result = simulationData.find(s => s.load_scenario === `${load}% Load`);
-        if (result) {
-            setSimulationResult(result);
-        }
-    };
+    useEffect(() => {
+        // Find the closest load scenario from the mock data
+        const closestScenario = simulationData.reduce((prev, curr) => {
+            return (Math.abs(parseInt(curr.load_scenario) - load) < Math.abs(parseInt(prev.load_scenario) - load) ? curr : prev);
+        });
+        setSimulationResult(closestScenario);
+    }, [load]);
     
     const chartData = [
         { name: 'Projected Health', value: simulationResult.projected_health_score, fill: 'hsl(var(--chart-2))' },
@@ -81,17 +81,16 @@ function PerformanceSimulation({ transformerId }: { transformerId: string }) {
                             className="mt-2"
                         />
                     </div>
-                    <Button onClick={handleSimulate}>Run Simulation</Button>
                 </div>
 
                 <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <h4 className="font-semibold mb-2">Projected Outcomes (1-Year)</h4>
-                        <p className="text-sm text-muted-foreground">{simulationResult.recommendation}</p>
+                        <p className="text-sm text-muted-foreground h-16">{simulationResult.recommendation}</p>
                          <div className="mt-4 space-y-2">
                             <div className="flex justify-between items-center">
                                 <span className="text-sm">Projected Lifespan Reduction:</span>
-                                <span className="font-bold text-destructive">{simulationResult.lifespan_reduction_percent}%</span>
+                                <span className="font-bold text-destructive text-lg">{simulationResult.lifespan_reduction_percent}%</span>
                             </div>
                          </div>
                     </div>
