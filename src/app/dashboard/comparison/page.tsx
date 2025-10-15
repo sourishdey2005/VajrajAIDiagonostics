@@ -9,26 +9,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { X, Calendar, Zap, Gauge, AlertTriangle, Shield, TrendingUp, History, ChevronDown } from "lucide-react"
-import { transformers, healthHistory, faultHistory, type Transformer } from "@/lib/data"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import { X, Calendar, Zap, Gauge, AlertTriangle, Shield, TrendingUp, History, ChevronDown, Loader2 } from "lucide-react"
+import { Transformer, HealthHistory, FaultHistory } from "@/lib/types"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { Separator } from "@/components/ui/separator"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
 import { format, parseISO, differenceInDays } from "date-fns"
 import { useUserRole } from "@/contexts/user-role-context"
 import { useRouter } from "next/navigation"
-
+import { supabase } from "@/lib/supabaseClient"
+import { useToast } from "@/hooks/use-toast"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const chartColors = [
     "hsl(var(--chart-1))",
@@ -38,24 +31,33 @@ const chartColors = [
     "hsl(var(--chart-5))",
 ];
 
-function HealthTrendChart({ selectedIds }: { selectedIds: string[] }) {
+function HealthTrendChart({ selectedIds, healthHistory }: { selectedIds: string[], healthHistory: HealthHistory[] }) {
     const chartData = useMemo(() => {
-        if (selectedIds.length === 0) return [];
+        if (selectedIds.length === 0 || healthHistory.length === 0) return [];
 
-        const filteredHistory = healthHistory.filter(h => selectedIds.includes(h.transformerId));
+        const filteredHistory = healthHistory.filter(h => selectedIds.includes(h.transformer_id));
         
         // Group by date
         const dataByDate = filteredHistory.reduce((acc, curr) => {
-            if (!acc[curr.date]) {
-                acc[curr.date] = { date: format(parseISO(curr.date), "MMM yyyy") };
+            const formattedDate = format(parseISO(curr.date), "MMM yyyy");
+            if (!acc[formattedDate]) {
+                acc[formattedDate] = { date: formattedDate };
             }
-            acc[curr.date][curr.transformerId] = curr.healthScore;
+            acc[formattedDate][curr.transformer_id] = curr.health_score;
             return acc;
         }, {} as Record<string, any>);
+        
+        const sortedData = Object.values(dataByDate).sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        
+        // Ensure all selected transformers have data for all dates
+        return sortedData.map(d => {
+            selectedIds.forEach(id => {
+                if (!d[id]) d[id] = null; // or some placeholder value
+            });
+            return d;
+        });
 
-        return Object.values(dataByDate).sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-    }, [selectedIds]);
+    }, [selectedIds, healthHistory]);
 
     return (
         <Card>
@@ -82,7 +84,7 @@ function HealthTrendChart({ selectedIds }: { selectedIds: string[] }) {
                                                             <div key={p.dataKey} className="flex items-center gap-2">
                                                                 <div style={{ background: chartColors[i % chartColors.length] }} className="w-3 h-3 rounded-full" />
                                                                 <p className="text-sm text-muted-foreground">{p.dataKey}:</p>
-                                                                <p className="text-sm font-medium">{p.value}</p>
+                                                                <p className="text-sm font-medium">{p.value || 'N/A'}</p>
                                                             </div>
                                                         ))}
                                                     </div>
@@ -100,6 +102,7 @@ function HealthTrendChart({ selectedIds }: { selectedIds: string[] }) {
                                         dataKey={id}
                                         stroke={chartColors[index % chartColors.length]}
                                         strokeWidth={2}
+                                        connectNulls // This will connect points across null values
                                     />
                                 ))}
                             </LineChart>
@@ -115,12 +118,12 @@ function HealthTrendChart({ selectedIds }: { selectedIds: string[] }) {
     );
 }
 
-function FaultHistory({ selectedIds }: { selectedIds: string[] }) {
+function FaultHistory({ selectedIds, faultHistory }: { selectedIds: string[], faultHistory: FaultHistory[] }) {
     const filteredHistory = useMemo(() => {
         return faultHistory
-            .filter(f => selectedIds.includes(f.transformerId))
+            .filter(f => selectedIds.includes(f.transformer_id))
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    }, [selectedIds]);
+    }, [selectedIds, faultHistory]);
 
     return (
         <Card>
@@ -138,8 +141,8 @@ function FaultHistory({ selectedIds }: { selectedIds: string[] }) {
                                     <p className="text-xs text-muted-foreground">{format(parseISO(fault.date), "MMM")}</p>
                                 </div>
                                 <div className="flex-1 p-3 bg-muted/50 rounded-lg border">
-                                    <p className="font-semibold text-primary">{fault.transformerId}</p>
-                                    <p>{fault.faultType} - <span className={fault.severity === 'High' ? 'text-destructive font-bold' : fault.severity === 'Medium' ? 'text-yellow-500 font-semibold' : ''}>{fault.severity} Severity</span></p>
+                                    <p className="font-semibold text-primary">{fault.transformer_id}</p>
+                                    <p>{fault.fault_type} - <span className={fault.severity === 'High' ? 'text-destructive font-bold' : fault.severity === 'Medium' ? 'text-yellow-500 font-semibold' : ''}>{fault.severity} Severity</span></p>
                                 </div>
                             </div>
                         ))
@@ -154,10 +157,10 @@ function FaultHistory({ selectedIds }: { selectedIds: string[] }) {
     )
 }
 
-function KeyStats({ selectedIds }: { selectedIds: string[] }) {
+function KeyStats({ selectedIds, transformers }: { selectedIds: string[], transformers: Transformer[] }) {
     const selectedTransformers = useMemo(() => {
         return transformers.filter(t => selectedIds.includes(t.id));
-    }, [selectedIds]);
+    }, [selectedIds, transformers]);
 
     if (selectedIds.length === 0) {
         return (
@@ -218,8 +221,14 @@ function KeyStats({ selectedIds }: { selectedIds: string[] }) {
 export default function ComparisonPage() {
     const { role } = useUserRole();
     const router = useRouter();
-    const [selectedIds, setSelectedIds] = useState<string[]>(['TR-001', 'TR-002', 'TR-006']);
+    const { toast } = useToast();
     const [isClient, setIsClient] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const [allTransformers, setAllTransformers] = useState<Transformer[]>([]);
+    const [healthHistory, setHealthHistory] = useState<HealthHistory[]>([]);
+    const [faultHistory, setFaultHistory] = useState<FaultHistory[]>([]);
+    const [selectedIds, setSelectedIds] = useState<string[]>(['TR-001', 'TR-002', 'TR-006']);
 
     useEffect(() => {
         setIsClient(true);
@@ -227,6 +236,32 @@ export default function ComparisonPage() {
             router.replace('/dashboard');
         }
     }, [role, router]);
+
+    useEffect(() => {
+        if(role === 'manager') {
+            const fetchData = async () => {
+                setIsLoading(true);
+                const [transformersRes, healthRes, faultRes] = await Promise.all([
+                    supabase.from('transformers').select('*'),
+                    supabase.from('health_history').select('*'),
+                    supabase.from('fault_history').select('*')
+                ]);
+
+                if(transformersRes.error) toast({title: "Error fetching transformers", variant: "destructive"});
+                else setAllTransformers(transformersRes.data as Transformer[]);
+                
+                if(healthRes.error) toast({title: "Error fetching health history", variant: "destructive"});
+                else setHealthHistory(healthRes.data as HealthHistory[]);
+
+                if(faultRes.error) toast({title: "Error fetching fault history", variant: "destructive"});
+                else setFaultHistory(faultRes.data as FaultHistory[]);
+
+                setIsLoading(false);
+            }
+            fetchData();
+        }
+    }, [role, toast]);
+
 
     const handleSelect = (id: string) => {
         setSelectedIds(prev =>
@@ -238,6 +273,27 @@ export default function ComparisonPage() {
 
     if (!isClient || role !== 'manager') {
         return null;
+    }
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col gap-8">
+                <div>
+                    <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">Asset Performance Comparison</h1>
+                    <p className="text-muted-foreground">Select two or more transformers to compare their performance metrics side-by-side.</p>
+                </div>
+                 <div className="flex items-center justify-center pt-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <p className="ml-4 text-muted-foreground">Loading comparison data...</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Skeleton className="h-32" /> <Skeleton className="h-32" /> <Skeleton className="h-32" />
+                </div>
+                <div className="grid lg:grid-cols-2 gap-8 items-start">
+                    <Skeleton className="h-96" /> <Skeleton className="h-96" />
+                </div>
+            </div>
+        )
     }
 
     return (
@@ -270,7 +326,7 @@ export default function ComparisonPage() {
                                 <CommandList>
                                     <CommandEmpty>No transformers found.</CommandEmpty>
                                     <CommandGroup>
-                                        {transformers.map(t => (
+                                        {allTransformers.map(t => (
                                             <CommandItem key={t.id} onSelect={() => handleSelect(t.id)}>
                                                 <Checkbox
                                                     checked={selectedIds.includes(t.id)}
@@ -297,11 +353,11 @@ export default function ComparisonPage() {
                 </CardContent>
             </Card>
 
-            <KeyStats selectedIds={selectedIds} />
+            <KeyStats selectedIds={selectedIds} transformers={allTransformers} />
 
             <div className="grid lg:grid-cols-2 gap-8 items-start">
-                <HealthTrendChart selectedIds={selectedIds} />
-                <FaultHistory selectedIds={selectedIds} />
+                <HealthTrendChart selectedIds={selectedIds} healthHistory={healthHistory} />
+                <FaultHistory selectedIds={selectedIds} faultHistory={faultHistory} />
             </div>
         </div>
     )

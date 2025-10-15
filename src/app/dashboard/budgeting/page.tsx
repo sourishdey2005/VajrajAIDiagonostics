@@ -10,9 +10,9 @@ import { DollarSign, LineChart, Loader2, TrendingDown, TrendingUp } from 'lucide
 import { useToast } from '@/hooks/use-toast';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { Skeleton } from '@/components/ui/skeleton';
-import { budgetEstimates } from '@/lib/data';
 import { useUserRole } from '@/contexts/user-role-context';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabaseClient';
 
 const faultTypes = [
   'Winding Deformation',
@@ -59,38 +59,49 @@ export default function BudgetingPage() {
 
 
   const handleEstimate = () => {
-    startTransition(() => {
+    startTransition(async () => {
         setEstimation(null);
-        // Simulate a short delay to give user feedback
-        setTimeout(() => {
-            try {
-                const result = budgetEstimates[selectedFault as keyof typeof budgetEstimates]?.[selectedCriticality as keyof typeof budgetEstimates[keyof typeof budgetEstimates]];
-                if (result) {
-                    setEstimation(result);
-                } else {
-                     toast({
-                        title: 'Estimation Not Available',
-                        description: 'No cost estimate found for the selected scenario.',
-                        variant: 'destructive',
-                    });
-                }
-            } catch (error) {
-                console.error('Failed to get estimation', error);
+        try {
+            const { data, error } = await supabase
+                .from('budget_estimates')
+                .select('*')
+                .eq('fault_type', selectedFault)
+                .eq('criticality', selectedCriticality)
+                .single();
+
+            if (error || !data) {
                 toast({
-                title: 'Estimation Failed',
-                description: 'Could not retrieve cost estimates. Please try again.',
-                variant: 'destructive',
+                    title: 'Estimation Not Available',
+                    description: 'No cost estimate found for the selected scenario.',
+                    variant: 'destructive',
+                });
+                setEstimation(null);
+            } else {
+                 setEstimation({
+                    estimatedRepairCost: data.estimated_repair_cost,
+                    preventativeMaintenanceCost: data.preventative_maintenance_cost,
+                    potentialSavings: data.potential_savings,
+                    costBreakdown: data.cost_breakdown,
                 });
             }
-        }, 300);
+        } catch (error) {
+            console.error('Failed to get estimation', error);
+            toast({
+            title: 'Estimation Failed',
+            description: 'Could not retrieve cost estimates. Please try again.',
+            variant: 'destructive',
+            });
+        }
     });
   };
 
   // Pre-load initial estimation on component mount
   useEffect(() => {
-    handleEstimate();
+    if(isClient) {
+        handleEstimate();
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isClient]);
 
   const chartData = useMemo(() => {
     if (!estimation) return [];
