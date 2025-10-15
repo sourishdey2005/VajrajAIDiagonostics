@@ -43,7 +43,7 @@ function HistoricalDataChart({ transformerId }: { transformerId: string }) {
     )
 }
 
-function PerformanceSimulation({ transformerId }: { transformerId: string }) {
+function PerformanceSimulation({ transformer }: { transformer: Transformer }) {
     const [load, setLoad] = useState(75);
     const [simulationResult, setSimulationResult] = useState(simulationData[0]);
 
@@ -57,7 +57,7 @@ function PerformanceSimulation({ transformerId }: { transformerId: string }) {
     
     const chartData = [
         { name: 'Projected Health', value: simulationResult.projected_health_score, fill: 'hsl(var(--chart-2))' },
-        { name: 'Current Health', value: healthHistory.find(h => h.transformer_id === transformerId)?.health_score || 95, fill: 'hsl(var(--chart-1))'},
+        { name: 'Current Health', value: transformer.health_score, fill: 'hsl(var(--chart-1))'},
     ];
 
 
@@ -213,7 +213,7 @@ export default function DigitalTwinPage() {
                             <div className="mt-6 space-y-4 text-sm">
                                 <div className="flex justify-between items-center border-b pb-2">
                                     <span className="flex items-center gap-2 text-muted-foreground"><HeartPulse /> Health Score</span>
-                                    <span className="font-bold text-lg text-green-500">{healthHistory.find(h => h.transformer_id === selectedTransformer.id)?.health_score || 'N/A'}%</span>
+                                    <span className="font-bold text-lg text-green-500">{selectedTransformer.health_score}%</span>
                                 </div>
                                 <div className="flex justify-between items-center border-b pb-2">
                                     <span className="flex items-center gap-2 text-muted-foreground"><Thermometer /> Temperature</span>
@@ -232,7 +232,7 @@ export default function DigitalTwinPage() {
                     </Card>
 
                     <div className="lg:col-span-2 space-y-8">
-                        <PerformanceSimulation transformerId={selectedTransformer.id} />
+                        <PerformanceSimulation transformer={selectedTransformer} />
                         <HistoricalDataChart transformerId={selectedTransformer.id} />
                     </div>
                 </div>

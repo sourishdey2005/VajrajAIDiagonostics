@@ -8,6 +8,7 @@ export type Transformer = {
     longitude: number;
     status: 'Operational' | 'Needs Attention' | 'Under Maintenance';
     criticality: 'High' | 'Medium' | 'Low';
+    health_score: number;
     last_inspection: string;
     manufacturer: string;
     servicedBy: string;
