@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/table"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell } from 'recharts';
-import { Trophy, ClipboardCheck, Timer, Award, Zap, PlusCircle, MoreHorizontal, Trash2 } from 'lucide-react';
-import { engineerPerformanceData as initialEngineerData, type EngineerPerformance } from '@/lib/data';
+import { Trophy, ClipboardCheck, Timer, Award, Zap, PlusCircle, MoreHorizontal, Trash2, Loader2 } from 'lucide-react';
+import { EngineerPerformance } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { Progress } from '@/components/ui/progress';
@@ -25,6 +25,8 @@ import { AddEngineerDialog } from './components/add-engineer-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { supabase } from '@/lib/supabaseClient';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 export default function PerformancePage() {
@@ -32,8 +34,9 @@ export default function PerformancePage() {
     const router = useRouter();
     const { toast } = useToast();
     const [isClient, setIsClient] = useState(false);
-    const [engineerData, setEngineerData] = useState<EngineerPerformance[]>(initialEngineerData);
+    const [engineerData, setEngineerData] = useState<EngineerPerformance[]>([]);
     const [isAddDialogOpen, setAddDialogOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
 
     useEffect(() => {
@@ -42,6 +45,23 @@ export default function PerformancePage() {
             router.replace('/dashboard');
         }
     }, [role, router]);
+
+     const fetchEngineers = async () => {
+        setIsLoading(true);
+        const { data, error } = await supabase.from('engineer_performance').select('*');
+        if (error) {
+            toast({ title: "Error", description: "Could not fetch engineer performance data.", variant: "destructive" });
+        } else {
+            setEngineerData(data as EngineerPerformance[]);
+        }
+        setIsLoading(false);
+    }
+
+    useEffect(() => {
+        if(role === 'manager') {
+            fetchEngineers();
+        }
+    }, [role, toast]);
 
     const topPerformers = useMemo(() => {
         if (engineerData.length === 0) return { faults: null, reports: null, onTime: null, resolution: null };
@@ -60,23 +80,87 @@ export default function PerformancePage() {
         })).sort((a, b) => b.value - a.value);
     }, [engineerData]);
 
-    const handleAddEngineer = (data: Omit<EngineerPerformance, 'engineerId' | 'avatar'>) => {
-        const newEngineer: EngineerPerformance = {
+    const handleAddEngineer = async (data: Omit<EngineerPerformance, 'engineerId' | 'avatar'>) => {
+        const { data: maxIdData, error: maxIdError } = await supabase
+            .from('engineer_performance')
+            .select('engineerId')
+            .order('engineerId', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (maxIdError && maxIdError.code !== 'PGRST116') {
+             toast({ title: "Database Error", description: "Could not generate new engineer ID.", variant: "destructive" });
+             return;
+        }
+
+        const nextIdNumber = maxIdData ? parseInt(maxIdData.engineerId.split('-')[1]) + 1 : 1;
+        const newId = `E-${String(nextIdNumber).padStart(3, '0')}`;
+        
+        const newEngineer = {
             ...data,
-            engineerId: `E-${String(engineerData.length + 1).padStart(3, '0')}`,
-            avatar: 'user-avatar-placeholder', // This could be improved to select an avatar
+            engineerId: newId,
+            avatar: 'user-avatar-placeholder',
         };
-        setEngineerData(prev => [...prev, newEngineer]);
-        toast({ title: "Engineer Added", description: `${data.name} has been added to the team.` });
+
+        const { data: insertedData, error } = await supabase.from('engineer_performance').insert(newEngineer).select().single();
+
+        if (error) {
+            toast({ title: "Error Adding Engineer", description: error.message, variant: "destructive" });
+        } else {
+            setEngineerData(prev => [...prev, insertedData as EngineerPerformance]);
+            toast({ title: "Engineer Added", description: `${data.name} has been added to the team.` });
+        }
     };
 
-    const handleRemoveEngineer = (engineerId: string) => {
-        setEngineerData(prev => prev.filter(e => e.engineerId !== engineerId));
-        toast({ title: "Engineer Removed", description: `The engineer has been removed from the team.`, variant: "destructive" });
+    const handleRemoveEngineer = async (engineerId: string) => {
+        const { error } = await supabase.from('engineer_performance').delete().eq('engineerId', engineerId);
+        if (error) {
+             toast({ title: "Error Removing Engineer", description: error.message, variant: "destructive" });
+        } else {
+            setEngineerData(prev => prev.filter(e => e.engineerId !== engineerId));
+            toast({ title: "Engineer Removed", description: `The engineer has been removed from the team.`, variant: "destructive" });
+        }
     }
 
     if (!isClient || role !== 'manager') {
-        return null; // or a loading spinner
+        return null;
+    }
+
+    if (isLoading) {
+        return (
+             <div className="flex flex-col gap-8">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">Engineer Performance</h1>
+                        <p className="text-muted-foreground">Track and compare key performance indicators for your field engineering team.</p>
+                    </div>
+                     <Button><PlusCircle className="mr-2 h-4 w-4"/>Add Engineer</Button>
+                </div>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                    <Skeleton className="h-28" />
+                    <Skeleton className="h-28" />
+                    <Skeleton className="h-28" />
+                    <Skeleton className="h-28" />
+                </div>
+                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                    <Card className="lg:col-span-2">
+                        <CardHeader>
+                            <Skeleton className="h-8 w-1/2" />
+                            <Skeleton className="h-4 w-3/4" />
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                             <Skeleton className="h-12 w-full" />
+                             <Skeleton className="h-12 w-full" />
+                             <div className="flex items-center justify-center pt-8">
+                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                <p className="ml-4 text-muted-foreground">Fetching performance data...</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Skeleton className="h-96" />
+                </div>
+             </div>
+        )
     }
 
     return (

@@ -5,8 +5,8 @@ import { useState, useMemo, useEffect } from 'react';
 import { useUserRole } from '@/contexts/user-role-context';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { transformers as initialTransformers, Transformer, recentlyResolved } from '@/lib/data';
-import { MoreHorizontal, AlertTriangle, Construction, CheckCircle2, PlusCircle } from 'lucide-react';
+import { Transformer } from '@/lib/data';
+import { MoreHorizontal, AlertTriangle, Construction, CheckCircle2, PlusCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
@@ -15,7 +15,16 @@ import { Badge } from '@/components/ui/badge';
 import { format, formatDistanceToNow, parseISO } from 'date-fns';
 import { AddTransformerDialog } from '../transformers/components/add-transformer-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabaseClient';
+import { Skeleton } from '@/components/ui/skeleton';
 
+type RecentlyResolved = {
+    id: number;
+    transformer_id: string;
+    fault_type: string;
+    resolved_by: string;
+    resolved_date: string;
+}
 
 type ColumnId = 'new' | 'progress' | 'resolved';
 
@@ -44,7 +53,7 @@ const columnStyles: Record<ColumnId, { title: string; icon: React.ReactNode, des
     },
 };
 
-function TransformerTaskCard({ task }: { task: Task }) {
+function TransformerTaskCard({ task, onStatusChange }: { task: Task, onStatusChange: (id: string, status: Transformer['status']) => void }) {
     return (
         <Card className="mb-4 bg-background/80 hover:shadow-md transition-shadow">
             <CardHeader className="p-4">
@@ -63,7 +72,9 @@ function TransformerTaskCard({ task }: { task: Task }) {
                             <DropdownMenuItem asChild>
                                 <Link href={`/dashboard/transformers/${task.id}`}>View Details</Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>Assign Engineer</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onStatusChange(task.id, 'Needs Attention')}>Move to New Issues</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onStatusChange(task.id, 'Under Maintenance')}>Move to In Progress</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onStatusChange(task.id, 'Operational')}>Mark as Resolved</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -81,27 +92,48 @@ function TransformerTaskCard({ task }: { task: Task }) {
     );
 }
 
-function ResolvedTaskCard({ task }: { task: (typeof recentlyResolved)[0] }) {
+function ResolvedTaskCard({ task }: { task: RecentlyResolved }) {
     return (
         <Card className="mb-4 bg-background/80 hover:shadow-md transition-shadow">
             <CardHeader className="p-4">
                 <div className="flex justify-between items-start">
                     <div>
-                        <CardTitle className="text-base">{task.transformerId}</CardTitle>
-                        <CardDescription>Fault: {task.faultType}</CardDescription>
+                        <CardTitle className="text-base">{task.transformer_id}</CardTitle>
+                        <CardDescription>Fault: {task.fault_type}</CardDescription>
                     </div>
                 </div>
             </CardHeader>
              <CardContent className="p-4 pt-0 text-xs text-muted-foreground">
-                <p>Resolved by {task.resolvedBy} {formatDistanceToNow(parseISO(task.resolvedDate), { addSuffix: true })}</p>
+                <p>Resolved by {task.resolved_by} {formatDistanceToNow(parseISO(task.resolved_date), { addSuffix: true })}</p>
             </CardContent>
         </Card>
     )
 }
 
-function WorkflowColumn({ columnId, tasks, resolvedTasks }: { columnId: ColumnId, tasks: Task[], resolvedTasks: (typeof recentlyResolved) }) {
+function WorkflowColumn({ columnId, tasks, resolvedTasks, onStatusChange }: { columnId: ColumnId, tasks: Task[], resolvedTasks: RecentlyResolved[], onStatusChange: (id: string, status: Transformer['status']) => void }) {
     const { title, icon, description, color } = columnStyles[columnId];
     
+    let columnContent;
+    switch(columnId) {
+        case 'new':
+            const newTasks = tasks.filter(t => t.status === 'Needs Attention');
+            columnContent = newTasks.length > 0 
+                ? newTasks.map(task => <TransformerTaskCard key={task.id} task={task} onStatusChange={onStatusChange} />)
+                : <p className="text-sm text-muted-foreground text-center py-4">No new issues.</p>;
+            break;
+        case 'progress':
+            const progressTasks = tasks.filter(t => t.status === 'Under Maintenance');
+            columnContent = progressTasks.length > 0
+                ? progressTasks.map(task => <TransformerTaskCard key={task.id} task={task} onStatusChange={onStatusChange} />)
+                : <p className="text-sm text-muted-foreground text-center py-4">No tasks in progress.</p>;
+            break;
+        case 'resolved':
+            columnContent = resolvedTasks.length > 0
+                ? resolvedTasks.map(task => <ResolvedTaskCard key={task.id} task={task} />)
+                : <p className="text-sm text-muted-foreground text-center py-4">No recently resolved issues.</p>;
+            break;
+    }
+
     return (
         <Card className={cn("flex flex-col", color)}>
             <CardHeader>
@@ -114,13 +146,7 @@ function WorkflowColumn({ columnId, tasks, resolvedTasks }: { columnId: ColumnId
                 </div>
             </CardHeader>
             <CardContent className="flex-1 overflow-y-auto bg-muted/30 rounded-b-lg p-4">
-                {columnId === 'new' && tasks.filter(t => t.status === 'Needs Attention').map(task => <TransformerTaskCard key={task.id} task={task} />)}
-                {columnId === 'progress' && tasks.filter(t => t.status === 'Under Maintenance').map(task => <TransformerTaskCard key={task.id} task={task} />)}
-                {columnId === 'resolved' && resolvedTasks.map(task => <ResolvedTaskCard key={task.id} task={task} />)}
-                
-                {columnId === 'new' && tasks.filter(t => t.status === 'Needs Attention').length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No new issues.</p>}
-                {columnId === 'progress' && tasks.filter(t => t.status === 'Under Maintenance').length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No tasks in progress.</p>}
-                {columnId === 'resolved' && resolvedTasks.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No recently resolved issues.</p>}
+                {columnContent}
             </CardContent>
         </Card>
     );
@@ -130,8 +156,10 @@ export default function WorkflowPage() {
     const { role } = useUserRole();
     const router = useRouter();
     const [isClient, setIsClient] = useState(false);
-    const [transformers, setTransformers] = useState<Transformer[]>(initialTransformers);
+    const [transformers, setTransformers] = useState<Transformer[]>([]);
+    const [resolved, setResolved] = useState<RecentlyResolved[]>([]);
     const [isAddDialogOpen, setAddDialogOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -139,42 +167,93 @@ export default function WorkflowPage() {
         if (role !== 'manager') {
             router.replace('/dashboard');
         }
-        try {
-            const storedTransformers = localStorage.getItem("transformers");
-            if (storedTransformers) {
-                setTransformers(JSON.parse(storedTransformers));
-            }
-        } catch (error) {
-            console.error("Could not load transformers from localStorage", error);
-        }
-
     }, [role, router]);
 
     useEffect(() => {
-        if (isClient) {
-            try {
-                localStorage.setItem("transformers", JSON.stringify(transformers));
-            } catch (error) {
-                console.error("Could not save transformers to localStorage", error);
-            }
-        }
-    }, [transformers, isClient]);
+        if (role === 'manager') {
+            const fetchData = async () => {
+                setIsLoading(true);
+                const [transformersRes, resolvedRes] = await Promise.all([
+                    supabase.from('transformers').select('*'),
+                    supabase.from('resolved_issues').select('*').order('resolved_date', { ascending: false })
+                ]);
+                
+                if (transformersRes.error) {
+                     toast({ title: "Error", description: "Could not fetch transformers.", variant: "destructive" });
+                } else {
+                    setTransformers(transformersRes.data as Transformer[]);
+                }
 
-    const handleAddTransformer = (data: Omit<Transformer, 'id' | 'status'> & { last_inspection: Date, nextServiceDate: Date }) => {
-        const newId = `TR-${String(transformers.length + 1).padStart(3, '0')}`;
-        const newTransformer: Transformer = {
-          ...data,
-          id: newId,
-          status: 'Operational',
-          last_inspection: format(data.last_inspection, 'yyyy-MM-dd'),
-          nextServiceDate: format(data.nextServiceDate, 'yyyy-MM-dd'),
+                if(resolvedRes.error) {
+                     toast({ title: "Error", description: "Could not fetch resolved issues.", variant: "destructive" });
+                } else {
+                    setResolved(resolvedRes.data as RecentlyResolved[]);
+                }
+                setIsLoading(false);
+            }
+            fetchData();
         }
-        setTransformers(prev => [newTransformer, ...prev]);
-        toast({ title: "Transformer Added", description: `${newTransformer.name} has been added to the fleet.` });
+    }, [role, toast]);
+
+    const handleStatusChange = async (id: string, status: Transformer['status']) => {
+        const { data, error } = await supabase
+            .from('transformers')
+            .update({ status })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) {
+            toast({ title: "Update Failed", description: "Could not change transformer status.", variant: "destructive" });
+        } else {
+            setTransformers(prev => prev.map(t => t.id === id ? data as Transformer : t));
+            toast({ title: "Status Updated", description: `Moved ${id} to ${status === 'Operational' ? 'Resolved' : status}.` });
+        }
     }
+    
+    const handleAddTransformer = async (data: Omit<Transformer, 'id' | 'status'> & { last_inspection: string, nextServiceDate: string }) => {
+        const { data: maxIdData, error: maxIdError } = await supabase.from('transformers').select('id').order('id', { ascending: false }).limit(1).single();
+        if (maxIdError && maxIdError.code !== 'PGRST116') {
+             toast({ title: "Database Error", description: "Could not generate new ID.", variant: "destructive" }); return;
+        }
+        const nextIdNumber = maxIdData ? parseInt(maxIdData.id.split('-')[1]) + 1 : 1;
+        const newId = `TR-${String(nextIdNumber).padStart(3, '0')}`;
+        const newTransformer = { ...data, id: newId, status: 'Operational' };
+        const { data: insertedData, error } = await supabase.from('transformers').insert([newTransformer]).select();
+        if (error) {
+            toast({ title: "Database Error", description: "Could not save new transformer.", variant: "destructive" });
+        } else if (insertedData) {
+            setTransformers(prev => [insertedData[0] as Transformer, ...prev]);
+            toast({ title: "Transformer Added", description: `${insertedData[0].name} successfully added.` });
+        }
+    }
+
 
     if (!isClient || role !== 'manager') {
         return null;
+    }
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col gap-8 h-[calc(100vh-10rem)]">
+                 <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">Maintenance Workflow</h1>
+                        <p className="text-muted-foreground">Visualize and manage the lifecycle of maintenance tasks.</p>
+                    </div>
+                    <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Transformer</Button>
+                </div>
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 min-h-0">
+                    <Skeleton className="h-full w-full" />
+                    <Skeleton className="h-full w-full" />
+                    <Skeleton className="h-full w-full" />
+                </div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/50 backdrop-blur-sm">
+                    <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                    <p className="mt-4 font-semibold text-muted-foreground">Loading Workflow...</p>
+                </div>
+            </div>
+        )
     }
 
     return (
@@ -195,9 +274,9 @@ export default function WorkflowPage() {
                     </Button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 min-h-0">
-                    <WorkflowColumn columnId="new" tasks={transformers} resolvedTasks={[]} />
-                    <WorkflowColumn columnId="progress" tasks={transformers} resolvedTasks={[]} />
-                    <WorkflowColumn columnId="resolved" tasks={[]} resolvedTasks={recentlyResolved} />
+                    <WorkflowColumn columnId="new" tasks={transformers} resolvedTasks={[]} onStatusChange={handleStatusChange} />
+                    <WorkflowColumn columnId="progress" tasks={transformers} resolvedTasks={[]} onStatusChange={handleStatusChange}/>
+                    <WorkflowColumn columnId="resolved" tasks={[]} resolvedTasks={resolved} onStatusChange={handleStatusChange}/>
                 </div>
             </div>
             <AddTransformerDialog 

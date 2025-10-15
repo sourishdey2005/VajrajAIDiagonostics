@@ -26,10 +26,10 @@ import { Input } from "@/components/ui/input"
 
 const engineerSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters long."),
-  faultsDetected: z.coerce.number().min(0, "Cannot be negative."),
-  reportsSubmitted: z.coerce.number().min(0, "Cannot be negative."),
-  onTimeCompletion: z.coerce.number().min(0).max(100, "Must be between 0 and 100."),
-  avgResolutionHours: z.coerce.number().min(0, "Cannot be negative."),
+  faults_detected: z.coerce.number().min(0, "Cannot be negative."),
+  reports_submitted: z.coerce.number().min(0, "Cannot be negative."),
+  on_time_completion: z.coerce.number().min(0).max(100, "Must be between 0 and 100."),
+  avg_resolution_hours: z.coerce.number().min(0, "Cannot be negative."),
 })
 
 type EngineerFormValues = z.infer<typeof engineerSchema>
@@ -45,10 +45,10 @@ export function AddEngineerDialog({ isOpen, onOpenChange, onAddEngineer }: AddEn
     resolver: zodResolver(engineerSchema),
     defaultValues: {
       name: "",
-      faultsDetected: 0,
-      reportsSubmitted: 0,
-      onTimeCompletion: 90,
-      avgResolutionHours: 40,
+      faults_detected: 0,
+      reports_submitted: 0,
+      on_time_completion: 90,
+      avg_resolution_hours: 40,
     },
   })
 
@@ -84,7 +84,7 @@ export function AddEngineerDialog({ isOpen, onOpenChange, onAddEngineer }: AddEn
             />
             <FormField
               control={form.control}
-              name="faultsDetected"
+              name="faults_detected"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Faults Detected</FormLabel>
@@ -97,7 +97,7 @@ export function AddEngineerDialog({ isOpen, onOpenChange, onAddEngineer }: AddEn
             />
              <FormField
               control={form.control}
-              name="reportsSubmitted"
+              name="reports_submitted"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Reports Submitted</FormLabel>
@@ -110,7 +110,7 @@ export function AddEngineerDialog({ isOpen, onOpenChange, onAddEngineer }: AddEn
             />
              <FormField
               control={form.control}
-              name="onTimeCompletion"
+              name="on_time_completion"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>On-Time Completion (%)</FormLabel>
@@ -123,7 +123,7 @@ export function AddEngineerDialog({ isOpen, onOpenChange, onAddEngineer }: AddEn
             />
             <FormField
               control={form.control}
-              name="avgResolutionHours"
+              name="avg_resolution_hours"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Avg. Resolution (Hrs)</FormLabel>
