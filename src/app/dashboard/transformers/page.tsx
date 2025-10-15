@@ -111,6 +111,7 @@ export default function TransformersPage() {
                 <TableHead>Status</TableHead>
                 <TableHead>Criticality</TableHead>
                 <TableHead className="text-right">Load (%)</TableHead>
+                <TableHead className="text-right">Oil Level (%)</TableHead>
                 <TableHead>Manufacturer</TableHead>
                 <TableHead>Last Service</TableHead>
                 <TableHead>Next Service</TableHead>
@@ -162,6 +163,7 @@ export default function TransformersPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">{transformer.load}%</TableCell>
+                  <TableCell className="text-right">{transformer.oil_level}%</TableCell>
                   <TableCell>{transformer.manufacturer}</TableCell>
                   <TableCell>{format(parseISO(transformer.last_inspection), 'dd MMM yyyy')}</TableCell>
                   <TableCell>{format(parseISO(transformer.nextServiceDate), 'dd MMM yyyy')}</TableCell>
@@ -187,7 +189,7 @@ export default function TransformersPage() {
               ))}
                {transformers.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={11} className="h-24 text-center">
+                  <TableCell colSpan={12} className="h-24 text-center">
                     No transformers found.
                   </TableCell>
                 </TableRow>

@@ -1,4 +1,5 @@
 
+
 export type Transformer = {
     id: string;
     name: string;
@@ -14,6 +15,7 @@ export type Transformer = {
     servicedBy: string;
     load: number;
     nextServiceDate: string;
+    oil_level: number;
 };
 
 export type HealthHistory = {

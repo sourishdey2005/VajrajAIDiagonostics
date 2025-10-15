@@ -5,7 +5,7 @@
 import { useParams, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { format, parseISO } from 'date-fns'
-import { ArrowLeft, Zap, MapPin, Shield, Gauge, Calendar, User, Factory, Hash, Loader2 } from 'lucide-react'
+import { ArrowLeft, Zap, MapPin, Shield, Gauge, Calendar, User, Factory, Hash, Loader2, Droplet } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { transformers } from '@/lib/data'
 import type { Transformer } from "@/lib/data"
@@ -77,6 +77,7 @@ export default function TransformerDetailPage() {
     { icon: MapPin, label: 'Location', value: transformer.location },
     { icon: Factory, label: 'Manufacturer', value: transformer.manufacturer },
     { icon: Gauge, label: 'Average Load', value: `${transformer.load}%` },
+    { icon: Droplet, label: 'Oil Level', value: `${transformer.oil_level}%` },
     { icon: Calendar, label: 'Last Inspection', value: format(parseISO(transformer.last_inspection), 'dd MMM yyyy') },
     { icon: Calendar, label: 'Next Service Due', value: format(parseISO(transformer.nextServiceDate), 'dd MMM yyyy') },
     { icon: User, label: 'Last Serviced By', value: transformer.servicedBy },

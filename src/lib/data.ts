@@ -17,7 +17,8 @@ export const transformers: Transformer[] = [
         "manufacturer": "Siemens India",
         "servicedBy": "Ravi Kumar",
         "load": 85,
-        "nextServiceDate": "2024-09-15"
+        "nextServiceDate": "2024-09-15",
+        "oil_level": 92
     },
     {
         "id": "TR-002",
@@ -33,7 +34,8 @@ export const transformers: Transformer[] = [
         "manufacturer": "ABB India",
         "servicedBy": "Priya Sharma",
         "load": 92,
-        "nextServiceDate": "2024-07-20"
+        "nextServiceDate": "2024-07-20",
+        "oil_level": 78
     },
     {
         "id": "TR-003",
@@ -49,7 +51,8 @@ export const transformers: Transformer[] = [
         "manufacturer": "Crompton Greaves",
         "servicedBy": "Anil Singh",
         "load": 78,
-        "nextServiceDate": "2024-11-10"
+        "nextServiceDate": "2024-11-10",
+        "oil_level": 95
     },
     {
         "id": "TR-004",
@@ -65,7 +68,8 @@ export const transformers: Transformer[] = [
         "manufacturer": "Bharat Heavy Electricals",
         "servicedBy": "Sanjay Das",
         "load": 0,
-        "nextServiceDate": "2024-08-15"
+        "nextServiceDate": "2024-08-15",
+        "oil_level": 88
     },
     {
         "id": "TR-005",
@@ -81,7 +85,8 @@ export const transformers: Transformer[] = [
         "manufacturer": "GE T&D India",
         "servicedBy": "Meena Iyer",
         "load": 65,
-        "nextServiceDate": "2024-10-22"
+        "nextServiceDate": "2024-10-22",
+        "oil_level": 99
     },
     {
         "id": "TR-006",
@@ -97,7 +102,8 @@ export const transformers: Transformer[] = [
         "manufacturer": "Schneider Electric",
         "servicedBy": "Anil Singh",
         "load": 88,
-        "nextServiceDate": "2024-09-01"
+        "nextServiceDate": "2024-09-01",
+        "oil_level": 91
     },
     {
         "id": "TR-007",
@@ -113,7 +119,8 @@ export const transformers: Transformer[] = [
         "manufacturer": "Kirloskar Electric",
         "servicedBy": "Anil Singh",
         "load": 72,
-        "nextServiceDate": "2024-11-18"
+        "nextServiceDate": "2024-11-18",
+        "oil_level": 96
     },
     {
         "id": "TR-008",
@@ -129,7 +136,8 @@ export const transformers: Transformer[] = [
         "manufacturer": "Siemens India",
         "servicedBy": "Ravi Kumar",
         "load": 55,
-        "nextServiceDate": "2024-12-05"
+        "nextServiceDate": "2024-12-05",
+        "oil_level": 98
     },
     {
         "id": "TR-009",
@@ -145,7 +153,8 @@ export const transformers: Transformer[] = [
         "manufacturer": "ABB India",
         "servicedBy": "Sanjay Das",
         "load": 80,
-        "nextServiceDate": "2024-08-11"
+        "nextServiceDate": "2024-08-11",
+        "oil_level": 82
     },
     {
         "id": "TR-010",
@@ -161,7 +170,8 @@ export const transformers: Transformer[] = [
         "manufacturer": "Crompton Greaves",
         "servicedBy": "Meena Iyer",
         "load": 68,
-        "nextServiceDate": "2024-10-30"
+        "nextServiceDate": "2024-10-30",
+        "oil_level": 94
     },
     {
         "id": "TR-011",
@@ -177,7 +187,8 @@ export const transformers: Transformer[] = [
         "manufacturer": "GE T&D India",
         "servicedBy": "Anil Singh",
         "load": 45,
-        "nextServiceDate": "2024-12-01"
+        "nextServiceDate": "2024-12-01",
+        "oil_level": 97
     },
     {
         "id": "TR-012",
@@ -193,7 +204,8 @@ export const transformers: Transformer[] = [
         "manufacturer": "Siemens India",
         "servicedBy": "Sanjay Das",
         "load": 82,
-        "nextServiceDate": "2024-10-10"
+        "nextServiceDate": "2024-10-10",
+        "oil_level": 93
     },
     {
         "id": "TR-013",
@@ -209,7 +221,8 @@ export const transformers: Transformer[] = [
         "manufacturer": "Bharat Heavy Electricals",
         "servicedBy": "Priya Sharma",
         "load": 70,
-        "nextServiceDate": "2024-11-25"
+        "nextServiceDate": "2024-11-25",
+        "oil_level": 95
     },
     {
         "id": "TR-014",
@@ -225,7 +238,8 @@ export const transformers: Transformer[] = [
         "manufacturer": "ABB India",
         "servicedBy": "Anil Singh",
         "load": 0,
-        "nextServiceDate": "2024-10-01"
+        "nextServiceDate": "2024-10-01",
+        "oil_level": 85
     },
     {
         "id": "TR-015",
@@ -241,7 +255,8 @@ export const transformers: Transformer[] = [
         "manufacturer": "Schneider Electric",
         "servicedBy": "Ravi Kumar",
         "load": 75,
-        "nextServiceDate": "2024-07-15"
+        "nextServiceDate": "2024-07-15",
+        "oil_level": 80
     }
 ];
 
