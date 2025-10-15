@@ -16,7 +16,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 import { Trophy, ClipboardCheck, Timer, Award, Zap, PlusCircle, MoreHorizontal, Trash2, Loader2 } from 'lucide-react';
-import { EngineerPerformance } from '@/lib/data';
+import { EngineerPerformance, engineerPerformanceData } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { Progress } from '@/components/ui/progress';
@@ -25,7 +25,6 @@ import { AddEngineerDialog } from './components/add-engineer-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { supabase } from '@/lib/supabaseClient';
 import { Skeleton } from '@/components/ui/skeleton';
 
 
@@ -46,22 +45,15 @@ export default function PerformancePage() {
         }
     }, [role, router]);
 
-     const fetchEngineers = async () => {
-        setIsLoading(true);
-        const { data, error } = await supabase.from('engineer_performance').select('*');
-        if (error) {
-            toast({ title: "Error", description: "Could not fetch engineer performance data.", variant: "destructive" });
-        } else {
-            setEngineerData(data as EngineerPerformance[]);
-        }
-        setIsLoading(false);
-    }
-
     useEffect(() => {
         if(role === 'manager') {
-            fetchEngineers();
+            setIsLoading(true);
+            setTimeout(() => {
+                setEngineerData(engineerPerformanceData);
+                setIsLoading(false);
+            }, 1000);
         }
-    }, [role, toast]);
+    }, [role]);
 
     const topPerformers = useMemo(() => {
         if (engineerData.length === 0) return { faults: null, reports: null, onTime: null, resolution: null };
@@ -80,46 +72,20 @@ export default function PerformancePage() {
         })).sort((a, b) => b.value - a.value);
     }, [engineerData]);
 
-    const handleAddEngineer = async (data: Omit<EngineerPerformance, 'engineerId' | 'avatar'>) => {
-        const { data: maxIdData, error: maxIdError } = await supabase
-            .from('engineer_performance')
-            .select('engineerId')
-            .order('engineerId', { ascending: false })
-            .limit(1)
-            .single();
-
-        if (maxIdError && maxIdError.code !== 'PGRST116') {
-             toast({ title: "Database Error", description: "Could not generate new engineer ID.", variant: "destructive" });
-             return;
-        }
-
-        const nextIdNumber = maxIdData ? parseInt(maxIdData.engineerId.split('-')[1]) + 1 : 1;
-        const newId = `E-${String(nextIdNumber).padStart(3, '0')}`;
-        
+    const handleAddEngineer = (data: Omit<EngineerPerformance, 'engineerId' | 'avatar'>) => {
+        // Simulate adding engineer
         const newEngineer = {
             ...data,
-            engineerId: newId,
+            engineerId: `E-${String(engineerData.length + 1).padStart(3, '0')}`,
             avatar: 'user-avatar-placeholder',
         };
-
-        const { data: insertedData, error } = await supabase.from('engineer_performance').insert(newEngineer).select().single();
-
-        if (error) {
-            toast({ title: "Error Adding Engineer", description: error.message, variant: "destructive" });
-        } else {
-            setEngineerData(prev => [...prev, insertedData as EngineerPerformance]);
-            toast({ title: "Engineer Added", description: `${data.name} has been added to the team.` });
-        }
+        setEngineerData(prev => [...prev, newEngineer]);
+        toast({ title: "Engineer Added", description: `${data.name} has been added to the team.` });
     };
 
-    const handleRemoveEngineer = async (engineerId: string) => {
-        const { error } = await supabase.from('engineer_performance').delete().eq('engineerId', engineerId);
-        if (error) {
-             toast({ title: "Error Removing Engineer", description: error.message, variant: "destructive" });
-        } else {
-            setEngineerData(prev => prev.filter(e => e.engineerId !== engineerId));
-            toast({ title: "Engineer Removed", description: `The engineer has been removed from the team.`, variant: "destructive" });
-        }
+    const handleRemoveEngineer = (engineerId: string) => {
+        setEngineerData(prev => prev.filter(e => e.engineerId !== engineerId));
+        toast({ title: "Engineer Removed", description: `The engineer has been removed from the team.`, variant: "destructive" });
     }
 
     if (!isClient || role !== 'manager') {

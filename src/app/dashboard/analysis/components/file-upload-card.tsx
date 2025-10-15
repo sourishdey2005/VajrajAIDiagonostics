@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
-import { supabase } from "@/lib/supabaseClient"
+import { transformers as allTransformers } from "@/lib/data"
 import type { Transformer } from "@/lib/types"
 
 interface FileUploadCardProps {
@@ -32,19 +32,12 @@ export function FileUploadCard({ onAnalyze, isAnalyzing }: FileUploadCardProps) 
   const { toast } = useToast()
   
   useEffect(() => {
-    const fetchTransformers = async () => {
-      const { data, error } = await supabase.from('transformers').select('*').order('id');
-      if (error) {
-        toast({ title: "Error", description: "Could not fetch transformers list.", variant: "destructive" });
-      } else {
-        setTransformers(data as Transformer[]);
-        if (data.length > 0) {
-          setSelectedTransformerId(data[0].id);
-        }
-      }
+    // Simulate fetching transformers
+    setTransformers(allTransformers);
+    if (allTransformers.length > 0) {
+      setSelectedTransformerId(allTransformers[0].id);
     }
-    fetchTransformers();
-  }, [toast]);
+  }, []);
 
   const selectedTransformer = transformers.find(t => t.id === selectedTransformerId);
 

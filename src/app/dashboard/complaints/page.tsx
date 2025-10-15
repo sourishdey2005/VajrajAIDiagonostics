@@ -26,7 +26,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { format, parseISO } from "date-fns"
 import { cn } from "@/lib/utils"
-import { supabase } from "@/lib/supabaseClient"
 import { useUserRole } from "@/contexts/user-role-context"
 
 const complaintSchema = z.object({
@@ -60,25 +59,14 @@ export default function ComplaintsPage() {
   const [isFetching, setIsFetching] = useState(true);
 
   useEffect(() => {
-    async function fetchComplaints() {
-        setIsFetching(true);
-        // This is a simulation of fetching complaints for a logged-in user.
-        // In a real app, you'd use the authenticated user's ID.
-        const { data, error } = await supabase
-            .from('complaints')
-            .select('*')
-            .order('timestamp', { ascending: false });
-
-        if (error) {
-            toast({ title: "Error", description: "Could not fetch your complaints.", variant: "destructive" });
-        } else {
-            // Mocking which user is logged in
-            setMyComplaints(data.slice(0, 2).map((c: any) => ({...c, status: 'Open'})) as Complaint[]);
-        }
-        setIsFetching(false);
-    }
-    fetchComplaints();
-  }, [toast]);
+    setIsFetching(true);
+    // This is a simulation of fetching complaints for a logged-in user.
+    setTimeout(() => {
+      // Mocking which user is logged in by taking a slice
+      setMyComplaints(complaintsData.slice(0, 2));
+      setIsFetching(false);
+    }, 500);
+  }, []);
 
   const form = useForm<ComplaintFormValues>({
     resolver: zodResolver(complaintSchema),
@@ -90,32 +78,11 @@ export default function ComplaintsPage() {
     },
   })
 
-  async function onSubmit(data: ComplaintFormValues) {
+  function onSubmit(data: ComplaintFormValues) {
     setAnalysisResult(null)
     setIsSubmitted(false)
     
-    // This is a new complaint object to be inserted
-    const newComplaint = {
-        issue_type: data.issueType,
-        description: data.description,
-        address: data.address,
-        pincode: data.pincode,
-        zone: 'West', // Mock zone
-        status: 'Open',
-        // In a real app, you'd associate this with the logged-in user's ID
-    };
-
-    const { data: insertedData, error } = await supabase
-        .from('complaints')
-        .insert(newComplaint)
-        .select()
-        .single();
-    
-    if (error) {
-        toast({ title: "Submission Failed", description: "Could not file your complaint.", variant: "destructive" });
-        return;
-    }
-
+    // Simulate submitting to a backend
     startAnalyzing(() => {
       setTimeout(() => {
         if (data.issueType === 'power_outage' || data.issueType === 'sparking') {
@@ -125,11 +92,18 @@ export default function ComplaintsPage() {
         }
         
         setTimeout(() => {
-            setMyComplaints(prev => [insertedData as unknown as Complaint, ...prev]);
+            const newComplaint: Complaint = {
+                id: `COM-${String(myComplaints.length + 5).padStart(3, '0')}`,
+                ...data,
+                zone: 'West',
+                timestamp: new Date().toISOString(),
+                status: 'Open'
+            }
+            setMyComplaints(prev => [newComplaint, ...prev]);
             setIsSubmitted(true);
             toast({
               title: "Complaint Submitted Successfully",
-              description: `Your complaint #${(insertedData.id as string).slice(-6)} has been filed.`,
+              description: `Your complaint #${newComplaint.id.slice(-6)} has been filed.`,
               className: "bg-green-100 border-green-200 text-green-800"
             });
             form.reset({
@@ -296,5 +270,3 @@ export default function ComplaintsPage() {
     </div>
   )
 }
-
-    

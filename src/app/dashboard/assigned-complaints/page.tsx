@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { useUserRole } from "@/contexts/user-role-context"
 import { useRouter } from "next/navigation"
 import {
+  complaintsData,
   Complaint,
 } from "@/lib/data"
 import {
@@ -34,7 +35,6 @@ import { cn } from "@/lib/utils"
 import { PowerOff, SignalLow, Sparkles, Loader2 } from "lucide-react"
 import { formatDistanceToNow, parseISO } from "date-fns"
 import { useToast } from "@/hooks/use-toast"
-import { supabase } from "@/lib/supabaseClient"
 import { Skeleton } from "@/components/ui/skeleton"
 
 const issueIcons = {
@@ -66,48 +66,30 @@ export default function AssignedComplaintsPage() {
 
   useEffect(() => {
     if (role === "field_engineer") {
-        const fetchComplaints = async () => {
-            setIsLoading(true);
-            const { data, error } = await supabase
-                .from('complaints')
-                .select('*')
-                .in('status', ['Open', 'In Progress'])
-                .order('timestamp', { ascending: false });
-
-            if (error) {
-                toast({ title: "Error", description: "Could not fetch complaints.", variant: "destructive" });
-            } else {
-                setComplaints(data as unknown as Complaint[]);
-            }
+        setIsLoading(true);
+        // Simulate fetching complaints
+        setTimeout(() => {
+            const openComplaints = complaintsData.filter(c => c.status === 'Open' || c.status === 'In Progress');
+            setComplaints(openComplaints);
             setIsLoading(false);
-        };
-        fetchComplaints();
+        }, 1000);
     }
-  }, [role, toast]);
+  }, [role]);
 
-  const handleStatusChange = async (complaintId: string, newStatus: Complaint['status']) => {
-      const originalComplaints = [...complaints];
-      
-      const updatedComplaints = complaints.map(c => c.id === complaintId ? { ...c, status: newStatus } : c);
-      setComplaints(updatedComplaints);
+  const handleStatusChange = (complaintId: string, newStatus: Complaint['status']) => {
+      // Simulate API call
+      setComplaints(prev => prev.map(c => c.id === complaintId ? {...c, status: newStatus} : c));
 
-      const { error } = await supabase
-        .from('complaints')
-        .update({ status: newStatus })
-        .eq('id', complaintId);
+      toast({
+          title: "Status Updated",
+          description: `Complaint #${complaintId.slice(-6)} has been updated to "${newStatus}".`
+      });
 
-      if (error) {
-          setComplaints(originalComplaints);
-          toast({ title: "Update Failed", description: "Could not update the complaint status.", variant: "destructive" });
-      } else {
-          toast({
-              title: "Status Updated",
-              description: `Complaint #${complaintId.slice(-6)} has been updated to "${newStatus}".`
-          });
-          // If resolved, remove from the list
-          if (newStatus === 'Resolved') {
+      // If resolved, remove from the list after a delay
+      if (newStatus === 'Resolved') {
+          setTimeout(() => {
               setComplaints(prev => prev.filter(c => c.id !== complaintId));
-          }
+          }, 500);
       }
   }
 
@@ -232,5 +214,3 @@ export default function AssignedComplaintsPage() {
     </div>
   )
 }
-
-    

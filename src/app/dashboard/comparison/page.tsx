@@ -12,14 +12,13 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { X, Calendar, Zap, Gauge, AlertTriangle, Shield, TrendingUp, History, ChevronDown, Loader2 } from "lucide-react"
-import { Transformer, HealthHistory, FaultHistory } from "@/lib/types"
+import { Transformer, HealthHistory, FaultHistory, transformers, healthHistory, faultHistory } from "@/lib/data"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
 import { format, parseISO, differenceInDays } from "date-fns"
 import { useUserRole } from "@/contexts/user-role-context"
 import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabaseClient"
 import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -31,9 +30,9 @@ const chartColors = [
     "hsl(var(--chart-5))",
 ];
 
-function HealthTrendChart({ selectedIds, healthHistory }: { selectedIds: string[], healthHistory: HealthHistory[] }) {
+function HealthTrendChart({ selectedIds }: { selectedIds: string[] }) {
     const chartData = useMemo(() => {
-        if (selectedIds.length === 0 || healthHistory.length === 0) return [];
+        if (selectedIds.length === 0) return [];
 
         const filteredHistory = healthHistory.filter(h => selectedIds.includes(h.transformer_id));
         
@@ -57,7 +56,7 @@ function HealthTrendChart({ selectedIds, healthHistory }: { selectedIds: string[
             return d;
         });
 
-    }, [selectedIds, healthHistory]);
+    }, [selectedIds]);
 
     return (
         <Card>
@@ -118,12 +117,12 @@ function HealthTrendChart({ selectedIds, healthHistory }: { selectedIds: string[
     );
 }
 
-function FaultHistory({ selectedIds, faultHistory }: { selectedIds: string[], faultHistory: FaultHistory[] }) {
+function FaultHistory({ selectedIds }: { selectedIds: string[] }) {
     const filteredHistory = useMemo(() => {
         return faultHistory
             .filter(f => selectedIds.includes(f.transformer_id))
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    }, [selectedIds, faultHistory]);
+    }, [selectedIds]);
 
     return (
         <Card>
@@ -157,10 +156,10 @@ function FaultHistory({ selectedIds, faultHistory }: { selectedIds: string[], fa
     )
 }
 
-function KeyStats({ selectedIds, transformers }: { selectedIds: string[], transformers: Transformer[] }) {
+function KeyStats({ selectedIds }: { selectedIds: string[] }) {
     const selectedTransformers = useMemo(() => {
         return transformers.filter(t => selectedIds.includes(t.id));
-    }, [selectedIds, transformers]);
+    }, [selectedIds]);
 
     if (selectedIds.length === 0) {
         return (
@@ -226,8 +225,6 @@ export default function ComparisonPage() {
     const [isLoading, setIsLoading] = useState(true);
 
     const [allTransformers, setAllTransformers] = useState<Transformer[]>([]);
-    const [healthHistory, setHealthHistory] = useState<HealthHistory[]>([]);
-    const [faultHistory, setFaultHistory] = useState<FaultHistory[]>([]);
     const [selectedIds, setSelectedIds] = useState<string[]>(['TR-001', 'TR-002', 'TR-006']);
 
     useEffect(() => {
@@ -239,26 +236,12 @@ export default function ComparisonPage() {
 
     useEffect(() => {
         if(role === 'manager') {
-            const fetchData = async () => {
-                setIsLoading(true);
-                const [transformersRes, healthRes, faultRes] = await Promise.all([
-                    supabase.from('transformers').select('*'),
-                    supabase.from('health_history').select('*'),
-                    supabase.from('fault_history').select('*')
-                ]);
-
-                if(transformersRes.error) toast({title: "Error fetching transformers", variant: "destructive"});
-                else setAllTransformers(transformersRes.data as Transformer[]);
-                
-                if(healthRes.error) toast({title: "Error fetching health history", variant: "destructive"});
-                else setHealthHistory(healthRes.data as HealthHistory[]);
-
-                if(faultRes.error) toast({title: "Error fetching fault history", variant: "destructive"});
-                else setFaultHistory(faultRes.data as FaultHistory[]);
-
+            setIsLoading(true);
+            // Simulate fetching data
+            setTimeout(() => {
+                setAllTransformers(transformers);
                 setIsLoading(false);
-            }
-            fetchData();
+            }, 1000);
         }
     }, [role, toast]);
 
@@ -353,11 +336,11 @@ export default function ComparisonPage() {
                 </CardContent>
             </Card>
 
-            <KeyStats selectedIds={selectedIds} transformers={allTransformers} />
+            <KeyStats selectedIds={selectedIds} />
 
             <div className="grid lg:grid-cols-2 gap-8 items-start">
-                <HealthTrendChart selectedIds={selectedIds} healthHistory={healthHistory} />
-                <FaultHistory selectedIds={selectedIds} faultHistory={faultHistory} />
+                <HealthTrendChart selectedIds={selectedIds} />
+                <FaultHistory selectedIds={selectedIds} />
             </div>
         </div>
     )

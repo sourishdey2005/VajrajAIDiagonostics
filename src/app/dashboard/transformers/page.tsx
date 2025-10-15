@@ -22,7 +22,6 @@ import { Button } from "@/components/ui/button"
 import { PlusCircle, MoreHorizontal, Eye, Loader2 } from "lucide-react"
 import { AddTransformerDialog } from "./components/add-transformer-dialog"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
-import { supabase } from "@/lib/supabaseClient"
 import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -35,68 +34,27 @@ export default function TransformersPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchTransformers = async () => {
-      setIsLoading(true);
-      const { data, error } = await supabase.from('transformers').select('*').order('id', { ascending: true });
-      if (error) {
-        console.error("Error fetching transformers:", error);
-        toast({
-          title: "Error fetching data",
-          description: "Could not load transformer data from the database.",
-          variant: "destructive"
-        });
-        setTransformers([]);
-      } else {
-        setTransformers(data as Transformer[]);
-      }
+    setIsLoading(true);
+    // Simulate loading data
+    setTimeout(() => {
+      setTransformers(initialTransformers);
       setIsLoading(false);
-    };
-
-    fetchTransformers();
-  }, [toast]);
+    }, 1000);
+  }, []);
 
 
-  const handleAddTransformer = async (data: Omit<Transformer, 'id' | 'status'> & { last_inspection: string, nextServiceDate: string }) => {
-    const { data: maxIdData, error: maxIdError } = await supabase
-      .from('transformers')
-      .select('id')
-      .order('id', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (maxIdError && maxIdError.code !== 'PGRST116') { // Ignore 'range not found' error for empty table
-      console.error('Error fetching max ID:', maxIdError);
-      return;
-    }
-    
-    const nextIdNumber = maxIdData ? parseInt(maxIdData.id.split('-')[1]) + 1 : 1;
-    const newId = `TR-${String(nextIdNumber).padStart(3, '0')}`;
-    
-    const newTransformer = {
+  const handleAddTransformer = (data: Omit<Transformer, 'id' | 'status'>) => {
+    // This is a mock implementation
+    const newTransformer: Transformer = {
       ...data,
-      id: newId,
-      status: 'Operational'
+      id: `TR-${String(transformers.length + 1).padStart(3, '0')}`,
+      status: 'Operational', // Default status for new transformers
     };
-
-    const { data: insertedData, error } = await supabase
-      .from('transformers')
-      .insert([newTransformer])
-      .select();
-
-    if (error) {
-        console.error("Error adding transformer:", error);
-         toast({
-          title: "Database Error",
-          description: "Could not save the new transformer.",
-          variant: "destructive"
-        });
-    } else if (insertedData) {
-        setTransformers(prev => [insertedData[0] as Transformer, ...prev]);
-        toast({
-          title: "Transformer Added",
-          description: `${insertedData[0].name} has been successfully added to the fleet.`,
-        });
-    }
+    setTransformers(prev => [newTransformer, ...prev].sort((a,b) => a.id.localeCompare(b.id)));
+    toast({
+      title: "Transformer Added",
+      description: `${data.name} has been successfully added to the fleet.`,
+    });
   }
 
   if (isLoading) {
@@ -119,7 +77,7 @@ export default function TransformersPage() {
                     <Skeleton className="h-12 w-full" />
                     <div className="flex items-center justify-center pt-8">
                       <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                      <p className="ml-4 text-muted-foreground">Connecting to the database...</p>
+                      <p className="ml-4 text-muted-foreground">Loading transformer data...</p>
                     </div>
                 </CardContent>
             </Card>
@@ -230,7 +188,7 @@ export default function TransformersPage() {
                {transformers.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={11} className="h-24 text-center">
-                    No transformers found in the database.
+                    No transformers found.
                   </TableCell>
                 </TableRow>
               )}

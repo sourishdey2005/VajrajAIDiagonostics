@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,10 +10,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useUserRole } from '@/contexts/user-role-context';
 import { cn } from '@/lib/utils';
+import { notesData, Transformer } from '@/lib/data';
 import { MessageCircle, Send, AlertTriangle, ChevronsUp, CheckCircle, Loader2 } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabaseClient';
 
 interface CommunicationLogProps {
   transformerId: string;
@@ -138,102 +138,69 @@ export function CommunicationLog({ transformerId }: CommunicationLogProps) {
   const [newNoteContent, setNewNoteContent] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchNotes = useCallback(async () => {
-    setIsLoading(true);
-    const { data, error } = await supabase
-        .from('communication_logs')
-        .select('*')
-        .eq('transformer_id', transformerId)
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        console.error("Error fetching notes:", error);
-        toast({ title: 'Error fetching notes', variant: 'destructive' });
-        setNotes([]);
-    } else {
-        const topLevelNotes = data.filter(n => n.parent_log_id === null);
-        const replies = data.filter(n => n.parent_log_id !== null);
-
-        const notesWithReplies = topLevelNotes.map(note => ({
-            ...note,
-            replies: replies.filter(reply => reply.parent_log_id === note.id).sort((a,b) => parseISO(a.created_at).getTime() - parseISO(b.created_at).getTime())
-        }));
-        setNotes(notesWithReplies as Note[]);
-    }
-    setIsLoading(false);
-  }, [transformerId, toast]);
-
   useEffect(() => {
-    fetchNotes();
-  }, [fetchNotes]);
+    setIsLoading(true);
+    setTimeout(() => {
+        const filteredNotes = notesData
+            .filter(note => note.transformer_id === transformerId)
+            .sort((a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime());
+        setNotes(filteredNotes as Note[]);
+        setIsLoading(false);
+    }, 500);
+  }, [transformerId]);
 
-  const handleAddNote = async () => {
+  const handleAddNote = () => {
     if (!newNoteContent.trim()) return;
 
-    const newNote = {
+    const newNote: Note = {
+      id: Date.now(),
       transformer_id: transformerId,
       author_name: userName,
-      author_role: role,
+      author_role: role as 'manager' | 'field_engineer',
+      created_at: new Date().toISOString(),
       content: newNoteContent,
+      parent_log_id: null,
+      escalation_status: 'none',
+      replies: []
     };
 
-    const { error } = await supabase.from('communication_logs').insert([newNote]);
-
-    if (error) {
-        console.error("Error adding note:", error);
-        toast({ title: 'Failed to add note', variant: 'destructive' });
-    } else {
-        setNewNoteContent('');
-        toast({ title: 'Note Added', description: 'Your note has been added to the log.' });
-        fetchNotes(); // Re-fetch all notes
-    }
+    setNotes(prev => [newNote, ...prev]);
+    setNewNoteContent('');
+    toast({ title: 'Note Added', description: 'Your note has been added to the log.' });
   };
 
-  const handleReply = async (noteId: number, content: string) => {
-    const newReply = {
+  const handleReply = (noteId: number, content: string) => {
+    const newReply: Note = {
+      id: Date.now(),
       transformer_id: transformerId,
       author_name: userName,
-      author_role: role,
-      content: content,
-      parent_log_id: noteId
+      author_role: role as 'manager' | 'field_engineer',
+      created_at: new Date().toISOString(),
+      content,
+      parent_log_id: noteId,
+      escalation_status: 'none'
     };
 
-    const { error } = await supabase.from('communication_logs').insert([newReply]);
-    
-    if (error) {
-        toast({ title: 'Failed to send reply', variant: 'destructive' });
-    } else {
-        toast({ title: 'Reply Sent' });
-        fetchNotes();
-    }
+    setNotes(prev => prev.map(note => {
+      if (note.id === noteId) {
+        return {
+          ...note,
+          replies: [...(note.replies || []), newReply]
+        }
+      }
+      return note;
+    }));
+    toast({ title: 'Reply Sent' });
   };
 
-  const handleEscalate = async (noteId: number) => {
-    const { error } = await supabase
-        .from('communication_logs')
-        .update({ escalation_status: 'escalated' })
-        .eq('id', noteId);
-    
-    if (error) {
-        toast({ title: 'Failed to escalate', variant: 'destructive' });
-    } else {
-        toast({ title: 'Issue Escalated', variant: 'destructive' });
-        fetchNotes();
-    }
+  const handleEscalate = (noteId: number) => {
+    setNotes(prev => prev.map(note => note.id === noteId ? { ...note, escalation_status: 'escalated' } : note));
+    toast({ title: 'Issue Escalated', variant: 'destructive' });
   };
   
-  const handleResolve = async (noteId: number) => {
-    const { error } = await supabase
-        .from('communication_logs')
-        .update({ escalation_status: 'resolved' })
-        .eq('id', noteId);
-    
-     if (error) {
-        toast({ title: 'Failed to resolve', variant: 'destructive' });
-    } else {
-        toast({ title: 'Issue Resolved', className: 'bg-green-100 border-green-200 text-green-800' });
-        fetchNotes();
-    }
+  const handleResolve = (noteId: number) => {
+    setNotes(prev => prev.map(note => note.id === noteId ? { ...note, escalation_status: 'resolved' } : note));
+    toast({ title: 'Issue Resolved', className: 'bg-green-100 border-green-200 text-green-800' });
   };
 
 

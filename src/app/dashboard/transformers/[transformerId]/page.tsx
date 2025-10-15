@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { format, parseISO } from 'date-fns'
 import { ArrowLeft, Zap, MapPin, Shield, Gauge, Calendar, User, Factory, Hash, Loader2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabaseClient'
+import { transformers } from '@/lib/data'
 import type { Transformer } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -32,25 +32,12 @@ export default function TransformerDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTransformer = async () => {
-        if (!transformerId) return;
-        setIsLoading(true);
-        const { data, error } = await supabase
-            .from('transformers')
-            .select('*')
-            .eq('id', transformerId)
-            .single();
-
-        if (error || !data) {
-            console.error("Error fetching transformer:", error);
-            setTransformer(null);
-        } else {
-            setTransformer(data as Transformer);
-        }
-        setIsLoading(false);
-    };
-
-    fetchTransformer();
+    setIsLoading(true);
+    setTimeout(() => {
+      const foundTransformer = transformers.find(t => t.id === transformerId);
+      setTransformer(foundTransformer || null);
+      setIsLoading(false);
+    }, 500);
   }, [transformerId]);
 
   if (isLoading) {

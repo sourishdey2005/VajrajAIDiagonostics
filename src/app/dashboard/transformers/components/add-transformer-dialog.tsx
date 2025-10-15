@@ -29,6 +29,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
+import { Transformer } from "@/lib/data"
 
 const manufacturers = [
     "Bharat Heavy Electricals",
@@ -59,7 +60,7 @@ type TransformerFormValues = z.infer<typeof transformerSchema>
 interface AddTransformerDialogProps {
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
-  onAddTransformer: (data: Omit<TransformerFormValues, 'last_inspection' | 'nextServiceDate'> & { last_inspection: string, nextServiceDate: string }) => void
+  onAddTransformer: (data: Omit<Transformer, 'id' | 'status'>) => void
 }
 
 export function AddTransformerDialog({ isOpen, onOpenChange, onAddTransformer }: AddTransformerDialogProps) {

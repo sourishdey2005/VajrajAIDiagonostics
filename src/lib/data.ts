@@ -1,4 +1,254 @@
+import { Transformer, HealthHistory, FaultHistory, Complaint, EngineerPerformance } from './types';
 
+export const transformers: Transformer[] = [
+    {
+        "id": "TR-001",
+        "name": "Bandra Substation",
+        "location": "Mumbai, MH",
+        "zone": "West",
+        "latitude": 50,
+        "longitude": 20,
+        "status": "Operational",
+        "criticality": "High",
+        "last_inspection": "2024-03-15",
+        "manufacturer": "Siemens India",
+        "servicedBy": "Ravi Kumar",
+        "load": 85,
+        "nextServiceDate": "2024-09-15"
+    },
+    {
+        "id": "TR-002",
+        "name": "Powai Substation",
+        "location": "Mumbai, MH",
+        "zone": "West",
+        "latitude": 40,
+        "longitude": 30,
+        "status": "Needs Attention",
+        "criticality": "High",
+        "last_inspection": "2024-02-20",
+        "manufacturer": "ABB India",
+        "servicedBy": "Priya Sharma",
+        "load": 92,
+        "nextServiceDate": "2024-07-20"
+    },
+    {
+        "id": "TR-003",
+        "name": "Koramangala GSS",
+        "location": "Bengaluru, KA",
+        "zone": "South",
+        "latitude": 75,
+        "longitude": 60,
+        "status": "Operational",
+        "criticality": "Medium",
+        "last_inspection": "2024-05-10",
+        "manufacturer": "Crompton Greaves",
+        "servicedBy": "Anil Singh",
+        "load": 78,
+        "nextServiceDate": "2024-11-10"
+    },
+    {
+        "id": "TR-004",
+        "name": "Nehru Place GSS",
+        "location": "Delhi, DL",
+        "zone": "North",
+        "latitude": 20,
+        "longitude": 50,
+        "status": "Under Maintenance",
+        "criticality": "High",
+        "last_inspection": "2024-01-30",
+        "manufacturer": "Bharat Heavy Electricals",
+        "servicedBy": "Sanjay Das",
+        "load": 0,
+        "nextServiceDate": "2024-08-15"
+    },
+    {
+        "id": "TR-005",
+        "name": "Salt Lake Sector V",
+        "location": "Kolkata, WB",
+        "zone": "East",
+        "latitude": 45,
+        "longitude": 85,
+        "status": "Operational",
+        "criticality": "Medium",
+        "last_inspection": "2024-04-22",
+        "manufacturer": "GE T&D India",
+        "servicedBy": "Meena Iyer",
+        "load": 65,
+        "nextServiceDate": "2024-10-22"
+    },
+    {
+        "id": "TR-006",
+        "name": "Hitech City GSS",
+        "location": "Hyderabad, TS",
+        "zone": "South",
+        "latitude": 85,
+        "longitude": 55,
+        "status": "Operational",
+        "criticality": "High",
+        "last_inspection": "2024-03-01",
+        "manufacturer": "Schneider Electric",
+        "servicedBy": "Anil Singh",
+        "load": 88,
+        "nextServiceDate": "2024-09-01"
+    },
+    {
+        "id": "TR-007",
+        "name": "Adyar Substation",
+        "location": "Chennai, TN",
+        "zone": "South",
+        "latitude": 90,
+        "longitude": 70,
+        "status": "Operational",
+        "criticality": "Medium",
+        "last_inspection": "2024-05-18",
+        "manufacturer": "Kirloskar Electric",
+        "servicedBy": "Anil Singh",
+        "load": 72,
+        "nextServiceDate": "2024-11-18"
+    },
+    {
+        "id": "TR-008",
+        "name": "Civil Lines Substation",
+        "location": "Nagpur, MH",
+        "zone": "West",
+        "latitude": 60,
+        "longitude": 40,
+        "status": "Operational",
+        "criticality": "Low",
+        "last_inspection": "2024-06-05",
+        "manufacturer": "Siemens India",
+        "servicedBy": "Ravi Kumar",
+        "load": 55,
+        "nextServiceDate": "2024-12-05"
+    },
+    {
+        "id": "TR-009",
+        "name": "Sector 17 Substation",
+        "location": "Chandigarh, CH",
+        "zone": "North",
+        "latitude": 10,
+        "longitude": 45,
+        "status": "Needs Attention",
+        "criticality": "Medium",
+        "last_inspection": "2024-02-11",
+        "manufacturer": "ABB India",
+        "servicedBy": "Sanjay Das",
+        "load": 80,
+        "nextServiceDate": "2024-08-11"
+    },
+    {
+        "id": "TR-010",
+        "name": "Ballygunge GSS",
+        "location": "Kolkata, WB",
+        "zone": "East",
+        "latitude": 50,
+        "longitude": 90,
+        "status": "Operational",
+        "criticality": "Medium",
+        "last_inspection": "2024-04-30",
+        "manufacturer": "Crompton Greaves",
+        "servicedBy": "Meena Iyer",
+        "load": 68,
+        "nextServiceDate": "2024-10-30"
+    },
+    {
+        "id": "TR-011",
+        "name": "Guindy Industrial Estate",
+        "location": "Chennai, TN",
+        "zone": "South",
+        "latitude": 92,
+        "longitude": 75,
+        "status": "Operational",
+        "criticality": "Low",
+        "last_inspection": "2024-06-01",
+        "manufacturer": "GE T&D India",
+        "servicedBy": "Anil Singh",
+        "load": 45,
+        "nextServiceDate": "2024-12-01"
+    },
+    {
+        "id": "TR-012",
+        "name": "Connaught Place",
+        "location": "Delhi, DL",
+        "zone": "North",
+        "latitude": 18,
+        "longitude": 55,
+        "status": "Operational",
+        "criticality": "High",
+        "last_inspection": "2024-04-10",
+        "manufacturer": "Siemens India",
+        "servicedBy": "Sanjay Das",
+        "load": 82,
+        "nextServiceDate": "2024-10-10"
+    },
+    {
+        "id": "TR-013",
+        "name": "Viman Nagar GSS",
+        "location": "Pune, MH",
+        "zone": "West",
+        "latitude": 65,
+        "longitude": 35,
+        "status": "Operational",
+        "criticality": "Medium",
+        "last_inspection": "2024-05-25",
+        "manufacturer": "Bharat Heavy Electricals",
+        "servicedBy": "Priya Sharma",
+        "load": 70,
+        "nextServiceDate": "2024-11-25"
+    },
+    {
+        "id": "TR-014",
+        "name": "Whitefield GSS",
+        "location": "Bengaluru, KA",
+        "zone": "South",
+        "latitude": 78,
+        "longitude": 65,
+        "status": "Under Maintenance",
+        "criticality": "Medium",
+        "last_inspection": "2024-04-01",
+        "manufacturer": "ABB India",
+        "servicedBy": "Anil Singh",
+        "load": 0,
+        "nextServiceDate": "2024-10-01"
+    },
+    {
+        "id": "TR-015",
+        "name": "Juhu Substation",
+        "location": "Mumbai, MH",
+        "zone": "West",
+        "latitude": 48,
+        "longitude": 25,
+        "status": "Needs Attention",
+        "criticality": "Low",
+        "last_inspection": "2024-01-15",
+        "manufacturer": "Schneider Electric",
+        "servicedBy": "Ravi Kumar",
+        "load": 75,
+        "nextServiceDate": "2024-07-15"
+    }
+];
+
+export const healthHistory: HealthHistory[] = [
+    { id: 1, transformer_id: 'TR-001', date: '2023-06-01', health_score: 98 },
+    { id: 2, transformer_id: 'TR-001', date: '2023-09-01', health_score: 97 },
+    { id: 3, transformer_id: 'TR-001', date: '2023-12-01', health_score: 95 },
+    { id: 4, transformer_id: 'TR-001', date: '2024-03-01', health_score: 94 },
+    { id: 5, transformer_id: 'TR-002', date: '2023-06-01', health_score: 95 },
+    { id: 6, transformer_id: 'TR-002', date: '2023-09-01', health_score: 92 },
+    { id: 7, transformer_id: 'TR-002', date: '2023-12-01', health_score: 88 },
+    { id: 8, transformer_id: 'TR-002', date: '2024-03-01', health_score: 85 },
+    { id: 9, transformer_id: 'TR-006', date: '2023-06-01', health_score: 99 },
+    { id: 10, transformer_id: 'TR-006', date: '2023-09-01', health_score: 98 },
+    { id: 11, transformer_id: 'TR-006', date: '2023-12-01', health_score: 96 },
+    { id: 12, transformer_id: 'TR-006', date: '2024-03-01', health_score: 96 },
+];
+
+export const faultHistory: FaultHistory[] = [
+    { id: 1, transformer_id: 'TR-002', date: '2024-03-15', fault_type: 'Winding Deformation', severity: 'High' },
+    { id: 2, transformer_id: 'TR-009', date: '2024-02-28', fault_type: 'Core Fault', severity: 'Medium' },
+    { id: 3, transformer_id: 'TR-015', date: '2024-01-20', fault_type: 'Bushing Fault', severity: 'Low' },
+    { id: 4, transformer_id: 'TR-002', date: '2023-12-10', fault_type: 'Axial Displacement', severity: 'Medium' },
+];
 
 export const faultDistributionData = [
   { name: 'Axial Displacement', value: 8, fill: 'hsl(var(--chart-1))' },
@@ -23,6 +273,125 @@ export const faultProgressionData = [
     { date: '2024-03-22', deviation: 2.5, status: 'Moderate Deviation' },
     { date: '2024-05-10', deviation: 4.8, status: 'Significant Deviation' },
     { date: '2024-06-20', deviation: 7.2, status: 'Critical Fault Detected' },
+];
+
+export const notesData = [
+    {
+      id: 1,
+      transformer_id: 'TR-002',
+      author_name: 'Priya Sharma',
+      author_role: 'field_engineer',
+      created_at: '2024-06-21T10:00:00Z',
+      content: 'Initial check shows high temperature readings around the main bushing. Recommend immediate follow-up.',
+      parent_log_id: null,
+      escalation_status: 'escalated',
+      replies: [
+        {
+          id: 3,
+          transformer_id: 'TR-002',
+          author_name: 'Rohan Sharma',
+          author_role: 'manager',
+          created_at: '2024-06-21T10:05:00Z',
+          content: 'Acknowledged. I\'ve escalated this to the maintenance team. Keep monitoring.',
+          parent_log_id: 1,
+          escalation_status: 'none'
+        }
+      ]
+    },
+    {
+      id: 2,
+      transformer_id: 'TR-002',
+      author_name: 'Sanjay Das',
+      author_role: 'field_engineer',
+      created_at: '2024-06-19T14:30:00Z',
+      content: 'Audible buzzing noise heard from the main tank. No visual signs of distress.',
+      parent_log_id: null,
+      escalation_status: 'none',
+      replies: []
+    }
+];
+
+export type { Transformer, HealthHistory, FaultHistory, Complaint, EngineerPerformance };
+
+export const complaintsData: Complaint[] = [
+    {
+        id: "COM-001",
+        issueType: 'power_outage',
+        description: 'Complete power outage in the entire building for the last 2 hours.',
+        address: 'A-12, Sundar Nagar',
+        pincode: '400051',
+        zone: 'West',
+        timestamp: '2024-06-21T08:00:00Z',
+        status: 'Open',
+    },
+    {
+        id: "COM-002",
+        issueType: 'voltage_drop',
+        description: 'Lights are flickering constantly and some appliances are not working.',
+        address: '45, Rajiv Gandhi IT Park',
+        pincode: '411057',
+        zone: 'West',
+        timestamp: '2024-06-20T18:30:00Z',
+        status: 'In Progress',
+    },
+    {
+        id: "COM-003",
+        issueType: 'sparking',
+        description: 'Saw sparks coming from the transformer on the street corner. It looks dangerous.',
+        address: 'Near HSR Layout BDA Complex',
+        pincode: '560102',
+        zone: 'South',
+        timestamp: '2024-06-19T22:00:00Z',
+        status: 'Resolved',
+    }
+];
+
+export const engineerPerformanceData: EngineerPerformance[] = [
+    {
+        engineerId: 'E-001',
+        name: 'Ravi Kumar',
+        avatar: 'user-avatar-1',
+        faultsDetected: 25,
+        reportsSubmitted: 40,
+        onTimeCompletion: 98,
+        avgResolutionHours: 28,
+    },
+    {
+        engineerId: 'E-002',
+        name: 'Priya Sharma',
+        avatar: 'user-avatar-2',
+        faultsDetected: 32,
+        reportsSubmitted: 48,
+        onTimeCompletion: 95,
+        avgResolutionHours: 24,
+    },
+    {
+        engineerId: 'E-003',
+        name: 'Anil Singh',
+        avatar: 'user-avatar-3',
+        faultsDetected: 28,
+        reportsSubmitted: 42,
+        onTimeCompletion: 92,
+        avgResolutionHours: 35,
+    },
+    {
+        engineerId: 'E-004',
+        name: 'Meena Iyer',
+        avatar: 'user-avatar-4',
+        faultsDetected: 22,
+        reportsSubmitted: 35,
+        onTimeCompletion: 99,
+        avgResolutionHours: 30,
+    },
+     {
+        engineerId: 'E-005',
+        name: 'Sanjay Das',
+        avatar: 'user-avatar-5',
+        faultsDetected: 18,
+        reportsSubmitted: 30,
+        onTimeCompletion: 88,
+        avgResolutionHours: 42,
+    },
 ];
 
 export const environmentalData = [
@@ -116,4 +485,26 @@ export const kpiData: Kpi[] = [
             { month: 'Jun', value: 78 },
         ]
     },
+];
+
+export const budgetEstimates = [
+    { fault_type: 'Winding Deformation', criticality: 'High', estimated_repair_cost: 7500000, preventative_maintenance_cost: 1500000, potential_savings: 6000000, cost_breakdown: 'High criticality winding deformation can lead to catastrophic failure. Reactive repair involves full winding replacement and significant downtime costs. Preventative action involves scheduled inspection, minor repairs, and oil treatment.' },
+    { fault_type: 'Winding Deformation', criticality: 'Medium', estimated_repair_cost: 4000000, preventative_maintenance_cost: 800000, potential_savings: 3200000, cost_breakdown: 'Medium criticality winding deformation requires significant repair. Preventative action includes detailed FRA analysis and localized repairs.' },
+    { fault_type: 'Winding Deformation', criticality: 'Low', estimated_repair_cost: 1500000, preventative_maintenance_cost: 400000, potential_savings: 1100000, cost_breakdown: 'Low criticality winding deformation can often be monitored. Reactive repair is less severe but still costly. Preventative action is mainly monitoring and minor adjustments.' },
+    { fault_type: 'Core Fault', criticality: 'High', estimated_repair_cost: 6000000, preventative_maintenance_cost: 1200000, potential_savings: 4800000, cost_breakdown: 'Core faults are serious. Reactive repair may require core re-stacking or replacement. Preventative action involves regular DGA and magnetic balance tests.' },
+    { fault_type: 'Core Fault', criticality: 'Medium', estimated_repair_cost: 3000000, preventative_maintenance_cost: 600000, potential_savings: 2400000, cost_breakdown: 'Medium criticality core faults can be managed if caught early. Preventative action focuses on insulation and grounding checks.' },
+    { fault_type: 'Core Fault', criticality: 'Low', estimated_repair_cost: 1000000, preventative_maintenance_cost: 300000, potential_savings: 700000, cost_breakdown: 'Low criticality core faults are rare but can be addressed with minor repairs if detected early.' },
+    { fault_type: 'Bushing Fault', criticality: 'High', estimated_repair_cost: 5000000, preventative_maintenance_cost: 500000, potential_savings: 4500000, cost_breakdown: 'Bushing faults are a major fire risk. Reactive repair often means full transformer loss. Preventative action is a simple bushing replacement.' },
+    { fault_type: 'Bushing Fault', criticality: 'Medium', estimated_repair_cost: 2500000, preventative_maintenance_cost: 400000, potential_savings: 2100000, cost_breakdown: 'Early detection of bushing issues allows for replacement with minimal downtime.' },
+    { fault_type: 'Bushing Fault', criticality: 'Low', estimated_repair_cost: 800000, preventative_maintenance_cost: 200000, potential_savings: 600000, cost_breakdown: 'Even at low criticality, a bushing fault is worth addressing proactively due to the high potential savings.' },
+    { fault_type: 'Inter-turn Short', criticality: 'High', estimated_repair_cost: 8000000, preventative_maintenance_cost: 2000000, potential_savings: 6000000, cost_breakdown: 'The most severe fault. Reactive repair often means total loss. Preventative action is costly but far cheaper than replacement.' },
+    { fault_type: 'Inter-turn Short', criticality: 'Medium', estimated_repair_cost: 4500000, preventative_maintenance_cost: 1200000, potential_savings: 3300000, cost_breakdown: 'Detecting an early-stage inter-turn short is critical. Proactive repair can save the asset.' },
+    { fault_type: 'Inter-turn Short', criticality: 'Low', estimated_repair_cost: 2000000, preventative_maintenance_cost: 700000, potential_savings: 1300000, cost_breakdown: 'Even a low-criticality asset with this fault is a major concern. Proactive repair is highly recommended.' },
+    // Add more combinations as needed...
+];
+
+export const recentlyResolved = [
+    { id: 1, transformer_id: 'TR-014', fault_type: 'Core Fault', resolved_by: 'Anil Singh', resolved_date: '2024-06-15T10:00:00Z' },
+    { id: 2, transformer_id: 'TR-004', fault_type: 'Bushing Replacement', resolved_by: 'Sanjay Das', resolved_date: '2024-06-12T15:30:00Z' },
+    { id: 3, transformer_id: 'COM-003', fault_type: 'Sparking Issue', resolved_by: 'Field Team', resolved_date: '2024-06-20T09:00:00Z' },
 ];

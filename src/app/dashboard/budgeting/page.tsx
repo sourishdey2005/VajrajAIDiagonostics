@@ -8,11 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { DollarSign, LineChart, Loader2, TrendingDown, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { budgetEstimates } from '@/lib/data';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useUserRole } from '@/contexts/user-role-context';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabaseClient';
 
 const faultTypes = [
   'Winding Deformation',
@@ -59,39 +59,29 @@ export default function BudgetingPage() {
 
 
   const handleEstimate = () => {
-    startTransition(async () => {
-        setEstimation(null);
-        try {
-            const { data, error } = await supabase
-                .from('budget_estimates')
-                .select('*')
-                .eq('fault_type', selectedFault)
-                .eq('criticality', selectedCriticality)
-                .single();
+    startTransition(() => {
+      setEstimation(null);
+      // Simulate API call to AI model or database
+      setTimeout(() => {
+        const foundEstimation = budgetEstimates.find(
+          (e) => e.fault_type === selectedFault && e.criticality === selectedCriticality
+        );
 
-            if (error || !data) {
-                toast({
-                    title: 'Estimation Not Available',
-                    description: 'No cost estimate found for the selected scenario.',
-                    variant: 'destructive',
-                });
-                setEstimation(null);
-            } else {
-                 setEstimation({
-                    estimatedRepairCost: data.estimated_repair_cost,
-                    preventativeMaintenanceCost: data.preventative_maintenance_cost,
-                    potentialSavings: data.potential_savings,
-                    costBreakdown: data.cost_breakdown,
-                });
-            }
-        } catch (error) {
-            console.error('Failed to get estimation', error);
-            toast({
-            title: 'Estimation Failed',
-            description: 'Could not retrieve cost estimates. Please try again.',
+        if (foundEstimation) {
+          setEstimation({
+            estimatedRepairCost: foundEstimation.estimated_repair_cost,
+            preventativeMaintenanceCost: foundEstimation.preventative_maintenance_cost,
+            potentialSavings: foundEstimation.potential_savings,
+            costBreakdown: foundEstimation.cost_breakdown,
+          });
+        } else {
+          toast({
+            title: 'Estimation Not Available',
+            description: 'No cost estimate found for the selected scenario.',
             variant: 'destructive',
-            });
+          });
         }
+      }, 1000);
     });
   };
 

@@ -6,8 +6,7 @@ import { useState, useEffect, useMemo } from "react"
 import { useUserRole } from "@/contexts/user-role-context"
 import { Activity, AlertTriangle, BadgePercent, CircuitBoard, Siren, Clock, Zap, MapPin, Search, Grid, Wrench, RefreshCw, Loader2, PowerOff, SignalLow, Sparkles, Phone, ShieldHalf, Ambulance, FireExtinguisher } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
-import { type Transformer } from "@/lib/data"
-import { supabase } from "@/lib/supabaseClient"
+import { transformers as initialTransformers, type Transformer } from "@/lib/data"
 import { 
   AnalysisTrendChart, 
   CriticalityDistributionChart, 
@@ -79,26 +78,18 @@ function AreaHealthCard() {
     const handleCheckStatus = (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setTimeout(async () => {
-            // This is a simulation. A real implementation would query transformers by pincode/location.
-            const { data: nearbyTransformers, error } = await supabase
-                .from('transformers')
-                .select('*')
-                .in('id', ['TR-001', 'TR-015']); // Simulate finding nearby transformers
-
-            if (error) {
-              console.error(error);
-            } else {
-              const criticalAlerts = nearbyTransformers.filter(t => t.status === 'Needs Attention').length;
-              const upcomingMaintenance = nearbyTransformers.filter(t => new Date(t.nextServiceDate) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
-              
-              setAreaStatus({
-                  pincode,
-                  overall: criticalAlerts > 0 ? "Potential Issues" : "All Clear",
-                  criticalAlerts,
-                  upcomingMaintenance: upcomingMaintenance.length
-              });
-            }
+        setTimeout(() => {
+            // Simulate fetching data for the PIN code
+            const nearbyTransformers = initialTransformers.filter(t => ['TR-001', 'TR-015'].includes(t.id));
+            const criticalAlerts = nearbyTransformers.filter(t => t.status === 'Needs Attention').length;
+            const upcomingMaintenance = nearbyTransformers.filter(t => new Date(t.nextServiceDate) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
+            
+            setAreaStatus({
+                pincode,
+                overall: criticalAlerts > 0 ? "Potential Issues" : "All Clear",
+                criticalAlerts,
+                upcomingMaintenance: upcomingMaintenance.length
+            });
             setIsLoading(false);
         }, 1500);
     };
@@ -310,19 +301,13 @@ export default function DashboardPage() {
   const [transformers, setTransformers] = useState<Transformer[]>([]);
 
   useEffect(() => {
-    const fetchTransformers = async () => {
-        setIsLoading(true);
-        const { data, error } = await supabase.from('transformers').select('*');
-        if (error) {
-            console.error("Error fetching transformers:", error);
-            toast({ title: 'Error fetching data', description: "Could not load transformer data.", variant: "destructive" });
-        } else {
-            setTransformers(data as Transformer[]);
-        }
+    setIsLoading(true);
+    // Simulate loading data
+    setTimeout(() => {
+        setTransformers(initialTransformers);
         setIsLoading(false);
-    };
-    fetchTransformers();
-  }, [toast]);
+    }, 1000);
+  }, []);
 
 
   const dashboardStats = useMemo(() => {
@@ -502,7 +487,7 @@ export default function DashboardPage() {
               Loading Dashboard...
             </h1>
             <p className="text-muted-foreground max-w-[700px]">
-              Please wait while we connect to the database.
+              Please wait while we prepare your command center.
             </p>
           </div>
            <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
@@ -714,8 +699,3 @@ export default function DashboardPage() {
     </div>
   )
 }
-
-    
-
-    
-

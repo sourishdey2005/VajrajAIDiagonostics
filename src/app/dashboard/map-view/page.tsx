@@ -4,13 +4,11 @@
 
 import { useState, useEffect } from "react"
 import { MapView } from "./components/map-view"
-import { type Transformer } from "@/lib/data"
-import { supabase } from "@/lib/supabaseClient"
+import { transformers as initialTransformers, type Transformer } from "@/lib/data"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { MapControls } from "./components/map-controls"
 import { addMonths, isBefore, isAfter } from "date-fns"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useToast } from "@/hooks/use-toast"
 
 export type HealthStatus = 'All' | 'Healthy' | 'Warning' | 'Critical';
 export type Zone = 'All' | 'North' | 'South' | 'East' | 'West';
@@ -41,23 +39,15 @@ export default function MapViewPage() {
     zone: 'All' as Zone,
     maintenance: 'All' as MaintenanceStatus,
   });
-  const { toast } = useToast();
 
   useEffect(() => {
-    const fetchTransformers = async () => {
-      setIsLoading(true);
-      const { data, error } = await supabase.from('transformers').select('*');
-      if (error) {
-        console.error("Error fetching transformers:", error);
-        toast({ title: "Error", description: "Could not fetch transformer data.", variant: "destructive" });
-      } else {
-        setAllTransformers(data as Transformer[]);
-        setFilteredTransformers(data as Transformer[]);
-      }
+    // Simulate loading data
+    setTimeout(() => {
+      setAllTransformers(initialTransformers);
+      setFilteredTransformers(initialTransformers);
       setIsLoading(false);
-    };
-    fetchTransformers();
-  }, [toast]);
+    }, 1000);
+  }, []);
 
   useEffect(() => {
     let transformersToFilter = allTransformers;

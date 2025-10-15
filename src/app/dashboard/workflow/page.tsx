@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useUserRole } from '@/contexts/user-role-context';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Transformer } from '@/lib/data';
+import { Transformer, transformers as allTransformers, recentlyResolved, complaintsData } from '@/lib/data';
 import { MoreHorizontal, AlertTriangle, Construction, CheckCircle2, PlusCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -15,7 +15,6 @@ import { Badge } from '@/components/ui/badge';
 import { format, formatDistanceToNow, parseISO } from 'date-fns';
 import { AddTransformerDialog } from '../transformers/components/add-transformer-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabaseClient';
 import { Skeleton } from '@/components/ui/skeleton';
 
 type RecentlyResolved = {
@@ -110,7 +109,7 @@ function ResolvedTaskCard({ task }: { task: RecentlyResolved }) {
     )
 }
 
-function WorkflowColumn({ columnId, tasks, resolvedTasks, onStatusChange }: { columnId: ColumnId, tasks: Task[], resolvedTasks: RecentlyResolved[], onStatusChange: (id: string, status: Transformer['status']) => void }) {
+function WorkflowColumn({ columnId, tasks, onStatusChange }: { columnId: ColumnId, tasks: Task[], onStatusChange: (id: string, status: Transformer['status']) => void }) {
     const { title, icon, description, color } = columnStyles[columnId];
     
     let columnContent;
@@ -128,8 +127,8 @@ function WorkflowColumn({ columnId, tasks, resolvedTasks, onStatusChange }: { co
                 : <p className="text-sm text-muted-foreground text-center py-4">No tasks in progress.</p>;
             break;
         case 'resolved':
-            columnContent = resolvedTasks.length > 0
-                ? resolvedTasks.map(task => <ResolvedTaskCard key={task.id} task={task} />)
+            columnContent = recentlyResolved.length > 0
+                ? recentlyResolved.map(task => <ResolvedTaskCard key={task.id} task={task} />)
                 : <p className="text-sm text-muted-foreground text-center py-4">No recently resolved issues.</p>;
             break;
     }
@@ -157,7 +156,6 @@ export default function WorkflowPage() {
     const router = useRouter();
     const [isClient, setIsClient] = useState(false);
     const [transformers, setTransformers] = useState<Transformer[]>([]);
-    const [resolved, setResolved] = useState<RecentlyResolved[]>([]);
     const [isAddDialogOpen, setAddDialogOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
@@ -171,61 +169,27 @@ export default function WorkflowPage() {
 
     useEffect(() => {
         if (role === 'manager') {
-            const fetchData = async () => {
-                setIsLoading(true);
-                const [transformersRes, resolvedRes] = await Promise.all([
-                    supabase.from('transformers').select('*'),
-                    supabase.from('resolved_issues').select('*').order('resolved_date', { ascending: false })
-                ]);
-                
-                if (transformersRes.error) {
-                     toast({ title: "Error", description: "Could not fetch transformers.", variant: "destructive" });
-                } else {
-                    setTransformers(transformersRes.data as Transformer[]);
-                }
-
-                if(resolvedRes.error) {
-                     toast({ title: "Error", description: "Could not fetch resolved issues.", variant: "destructive" });
-                } else {
-                    setResolved(resolvedRes.data as RecentlyResolved[]);
-                }
+            setIsLoading(true);
+            setTimeout(() => {
+                setTransformers(allTransformers);
                 setIsLoading(false);
-            }
-            fetchData();
+            }, 500);
         }
-    }, [role, toast]);
+    }, [role]);
 
-    const handleStatusChange = async (id: string, status: Transformer['status']) => {
-        const { data, error } = await supabase
-            .from('transformers')
-            .update({ status })
-            .eq('id', id)
-            .select()
-            .single();
-
-        if (error) {
-            toast({ title: "Update Failed", description: "Could not change transformer status.", variant: "destructive" });
-        } else {
-            setTransformers(prev => prev.map(t => t.id === id ? data as Transformer : t));
-            toast({ title: "Status Updated", description: `Moved ${id} to ${status === 'Operational' ? 'Resolved' : status}.` });
-        }
+    const handleStatusChange = (id: string, status: Transformer['status']) => {
+        setTransformers(prev => prev.map(t => t.id === id ? { ...t, status } : t));
+        toast({ title: "Status Updated", description: `Moved ${id} to ${status === 'Operational' ? 'Resolved' : status}.` });
     }
     
-    const handleAddTransformer = async (data: Omit<Transformer, 'id' | 'status'> & { last_inspection: string, nextServiceDate: string }) => {
-        const { data: maxIdData, error: maxIdError } = await supabase.from('transformers').select('id').order('id', { ascending: false }).limit(1).single();
-        if (maxIdError && maxIdError.code !== 'PGRST116') {
-             toast({ title: "Database Error", description: "Could not generate new ID.", variant: "destructive" }); return;
-        }
-        const nextIdNumber = maxIdData ? parseInt(maxIdData.id.split('-')[1]) + 1 : 1;
-        const newId = `TR-${String(nextIdNumber).padStart(3, '0')}`;
-        const newTransformer = { ...data, id: newId, status: 'Operational' };
-        const { data: insertedData, error } = await supabase.from('transformers').insert([newTransformer]).select();
-        if (error) {
-            toast({ title: "Database Error", description: "Could not save new transformer.", variant: "destructive" });
-        } else if (insertedData) {
-            setTransformers(prev => [insertedData[0] as Transformer, ...prev]);
-            toast({ title: "Transformer Added", description: `${insertedData[0].name} successfully added.` });
-        }
+    const handleAddTransformer = (data: Omit<Transformer, 'id' | 'status'>) => {
+        const newTransformer: Transformer = {
+          ...data,
+          id: `TR-${String(transformers.length + 1).padStart(3, '0')}`,
+          status: 'Operational',
+        };
+        setTransformers(prev => [newTransformer, ...prev]);
+        toast({ title: "Transformer Added", description: `${data.name} successfully added.` });
     }
 
 
@@ -274,9 +238,9 @@ export default function WorkflowPage() {
                     </Button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 min-h-0">
-                    <WorkflowColumn columnId="new" tasks={transformers} resolvedTasks={[]} onStatusChange={handleStatusChange} />
-                    <WorkflowColumn columnId="progress" tasks={transformers} resolvedTasks={[]} onStatusChange={handleStatusChange}/>
-                    <WorkflowColumn columnId="resolved" tasks={[]} resolvedTasks={resolved} onStatusChange={handleStatusChange}/>
+                    <WorkflowColumn columnId="new" tasks={transformers} onStatusChange={handleStatusChange} />
+                    <WorkflowColumn columnId="progress" tasks={transformers} onStatusChange={handleStatusChange}/>
+                    <WorkflowColumn columnId="resolved" tasks={transformers} onStatusChange={handleStatusChange}/>
                 </div>
             </div>
             <AddTransformerDialog 
