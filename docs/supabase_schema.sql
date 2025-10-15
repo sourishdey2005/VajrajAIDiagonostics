@@ -1,26 +1,9 @@
--- Roles Table
-CREATE TABLE roles (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE
-);
+-- Enable UUID generation
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Insert initial roles
-INSERT INTO roles (name) VALUES ('manager'), ('field_engineer'), ('user');
-
--- Users Table
-CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    role_id INTEGER NOT NULL REFERENCES roles(id),
-    name TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL, -- Note: In a real app, this should be a hashed password
-    avatar_url TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Transformers Table
+-- transformers table
 CREATE TABLE transformers (
-    id TEXT PRIMARY KEY, -- e.g., 'TR-001'
+    id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     location TEXT,
     zone TEXT,
@@ -32,79 +15,79 @@ CREATE TABLE transformers (
     nextServiceDate DATE,
     manufacturer TEXT,
     servicedBy TEXT,
-    load INTEGER -- As a percentage
+    load INTEGER
 );
 
--- Communication Logs Table (Notes)
+-- communication_logs table
 CREATE TABLE communication_logs (
     id SERIAL PRIMARY KEY,
     transformer_id TEXT NOT NULL REFERENCES transformers(id) ON DELETE CASCADE,
     author_name TEXT NOT NULL,
-    author_role TEXT NOT NULL,
+    author_role TEXT,
     content TEXT NOT NULL,
-    parent_log_id INTEGER REFERENCES communication_logs(id) ON DELETE CASCADE, -- For replies
-    escalation_status TEXT DEFAULT 'none', -- 'none', 'escalated', 'resolved'
+    parent_log_id INTEGER REFERENCES communication_logs(id) ON DELETE CASCADE,
+    escalation_status TEXT DEFAULT 'none',
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Complaints Table
+-- complaints table
 CREATE TABLE complaints (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    issue_type TEXT NOT NULL,
+    id TEXT PRIMARY KEY DEFAULT 'COMP-' || nextval('complaints_id_seq'),
+    issue_type TEXT,
     description TEXT,
     address TEXT,
     pincode TEXT,
     zone TEXT,
-    status TEXT DEFAULT 'Open', -- 'Open', 'In Progress', 'Resolved'
-    timestamp TIMESTAMPTZ DEFAULT NOW()
+    timestamp TIMESTAMPTZ DEFAULT NOW(),
+    status TEXT
 );
+CREATE SEQUENCE complaints_id_seq;
 
--- Engineer Performance Table
+
+-- engineer_performance table
 CREATE TABLE engineer_performance (
-    engineer_id TEXT PRIMARY KEY,
+    engineerId TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     avatar TEXT,
-    faults_detected INTEGER,
-    reports_submitted INTEGER,
-    on_time_completion INTEGER,
-    avg_resolution_hours INTEGER
+    faultsDetected INTEGER,
+    reportsSubmitted INTEGER,
+    onTimeCompletion INTEGER,
+    avgResolutionHours INTEGER
 );
 
--- Resolved Issues Table
+-- resolved_issues table
 CREATE TABLE resolved_issues (
     id SERIAL PRIMARY KEY,
-    transformer_id TEXT NOT NULL,
-    fault_type TEXT NOT NULL,
-    resolved_by TEXT NOT NULL,
-    resolved_date TIMESTAMPTZ DEFAULT NOW()
+    transformer_id TEXT,
+    fault_type TEXT,
+    resolved_by TEXT,
+    resolved_date TIMESTAMPTZ
 );
 
--- Health History Table
+-- health_history table
 CREATE TABLE health_history (
     id SERIAL PRIMARY KEY,
-    transformer_id TEXT NOT NULL REFERENCES transformers(id) ON DELETE CASCADE,
-    date DATE NOT NULL,
-    health_score INTEGER NOT NULL,
-    UNIQUE(transformer_id, date)
+    transformer_id TEXT,
+    date DATE,
+    health_score INTEGER
 );
 
--- Fault History Table
+-- fault_history table
 CREATE TABLE fault_history (
     id SERIAL PRIMARY KEY,
-    transformer_id TEXT NOT NULL REFERENCES transformers(id) ON DELETE CASCADE,
-    date DATE NOT NULL,
-    fault_type TEXT NOT NULL,
-    severity TEXT NOT NULL
+    transformer_id TEXT,
+    date DATE,
+    fault_type TEXT,
+    severity TEXT
 );
 
--- Budget Estimates Table
+-- budget_estimates table
 CREATE TABLE budget_estimates (
     id SERIAL PRIMARY KEY,
-    fault_type TEXT NOT NULL,
-    criticality TEXT NOT NULL,
-    estimated_repair_cost BIGINT,
-    preventative_maintenance_cost BIGINT,
-    potential_savings BIGINT,
-    cost_breakdown TEXT,
-    UNIQUE(fault_type, criticality)
+    fault_type TEXT,
+    criticality TEXT,
+    estimated_repair_cost INTEGER,
+    preventative_maintenance_cost INTEGER,
+    potential_savings INTEGER,
+    cost_breakdown TEXT
 );

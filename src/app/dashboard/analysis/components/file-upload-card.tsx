@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { UploadCloud, FileCheck2, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -14,9 +14,10 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { transformers } from "@/lib/data"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
+import { supabase } from "@/lib/supabaseClient"
+import type { Transformer } from "@/lib/types"
 
 interface FileUploadCardProps {
   onAnalyze: (file: File, transformerId: string, criticality: string) => void
@@ -26,9 +27,25 @@ interface FileUploadCardProps {
 export function FileUploadCard({ onAnalyze, isAnalyzing }: FileUploadCardProps) {
   const [file, setFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
-  const [selectedTransformerId, setSelectedTransformerId] = useState<string>(transformers[0].id)
+  const [transformers, setTransformers] = useState<Transformer[]>([]);
+  const [selectedTransformerId, setSelectedTransformerId] = useState<string>("")
   const { toast } = useToast()
   
+  useEffect(() => {
+    const fetchTransformers = async () => {
+      const { data, error } = await supabase.from('transformers').select('*').order('id');
+      if (error) {
+        toast({ title: "Error", description: "Could not fetch transformers list.", variant: "destructive" });
+      } else {
+        setTransformers(data as Transformer[]);
+        if (data.length > 0) {
+          setSelectedTransformerId(data[0].id);
+        }
+      }
+    }
+    fetchTransformers();
+  }, [toast]);
+
   const selectedTransformer = transformers.find(t => t.id === selectedTransformerId);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,7 +130,7 @@ export function FileUploadCard({ onAnalyze, isAnalyzing }: FileUploadCardProps) 
         <div className="grid md:grid-cols-2 gap-4">
           <div className="grid gap-2">
             <Label htmlFor="transformer">Transformer</Label>
-            <Select value={selectedTransformerId} onValueChange={setSelectedTransformerId}>
+            <Select value={selectedTransformerId} onValueChange={setSelectedTransformerId} disabled={transformers.length === 0}>
               <SelectTrigger id="transformer">
                 <SelectValue placeholder="Select Transformer" />
               </SelectTrigger>
