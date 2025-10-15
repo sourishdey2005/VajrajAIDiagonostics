@@ -209,8 +209,7 @@ export default function DigitalTwinPage() {
                             <CardDescription>Real-time mirrored parameters of {selectedTransformer.id}.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                           <DigitalTwinModel status={selectedTransformer.status} />
-                            <div className="mt-6 space-y-4 text-sm">
+                            <div className="space-y-4 text-sm">
                                 <div className="flex justify-between items-center border-b pb-2">
                                     <span className="flex items-center gap-2 text-muted-foreground"><HeartPulse /> Health Score</span>
                                     <span className="font-bold text-lg text-green-500">{selectedTransformer.health_score}%</span>
