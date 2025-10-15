@@ -1,68 +1,64 @@
--- Supabase (PostgreSQL) Schema for VajraAI Application
 
--- 1. Roles Table
--- Manages the different user roles within the application.
+-- Supabase Schema for VajraAI Application
+
+-- 1. Roles for users
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE
 );
 
--- Pre-populate roles
+-- Insert the predefined roles
 INSERT INTO roles (name) VALUES ('manager'), ('field_engineer'), ('user');
+COMMENT ON TABLE roles IS 'Stores the different user roles in the system.';
 
 
--- 2. Users Table
--- Stores information for all users, including managers, engineers, and standard users.
+-- 2. Users table
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     role_id INTEGER NOT NULL REFERENCES roles(id),
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
-    password_hash TEXT, -- Store hashed passwords, not plain text
-    avatar_url TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+COMMENT ON TABLE users IS 'Stores user and engineer information.';
 
-
--- 3. Transformers Table
--- The core table for all transformer assets being monitored.
+-- 3. Transformers table
 CREATE TABLE transformers (
-    id TEXT PRIMARY KEY, -- Using the custom format like 'TR-001'
+    id TEXT PRIMARY KEY, -- e.g., 'TR-001'
     name TEXT NOT NULL,
     location TEXT,
     zone TEXT,
     latitude FLOAT,
     longitude FLOAT,
-    status TEXT NOT NULL, -- e.g., 'Operational', 'Needs Attention'
-    criticality TEXT NOT NULL, -- e.g., 'High', 'Medium', 'Low'
+    status TEXT NOT NULL,
+    criticality TEXT NOT NULL,
     last_inspection DATE,
     next_service_date DATE,
     manufacturer TEXT,
     serviced_by_id UUID REFERENCES users(id),
-    load INTEGER -- Load as a percentage
+    load INTEGER -- As a percentage
 );
+COMMENT ON TABLE transformers IS 'Core table for all transformer assets.';
 
 
--- 4. Communication Logs Table (Notes & Replies)
--- Stores all communication related to a specific transformer.
--- Replies are handled by linking to a parent log.
+-- 4. Communication Logs (Notes) table
 CREATE TABLE communication_logs (
     id SERIAL PRIMARY KEY,
     transformer_id TEXT NOT NULL REFERENCES transformers(id) ON DELETE CASCADE,
     author_id UUID NOT NULL REFERENCES users(id),
     content TEXT NOT NULL,
-    parent_log_id INTEGER REFERENCES communication_logs(id) ON DELETE CASCADE, -- This links a reply to its parent note
+    parent_log_id INTEGER REFERENCES communication_logs(id) ON DELETE CASCADE, -- For replies
     escalation_status TEXT DEFAULT 'none', -- 'none', 'escalated', 'resolved'
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+COMMENT ON TABLE communication_logs IS 'Stores notes, replies, and escalations for transformers.';
 
 
--- 5. Analysis Results Table
--- Stores the results from the AI-powered FRA data analysis.
+-- 5. Analysis Results table
 CREATE TABLE analysis_results (
     id SERIAL PRIMARY KEY,
     transformer_id TEXT NOT NULL REFERENCES transformers(id) ON DELETE CASCADE,
-    submitted_by_id UUID REFERENCES users(id),
+    user_id UUID REFERENCES users(id),
     fault_classification TEXT,
     confidence_score FLOAT,
     raw_fra_data_summary TEXT,
@@ -70,44 +66,19 @@ CREATE TABLE analysis_results (
     actionable_insights TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+COMMENT ON TABLE analysis_results IS 'Stores the output from the FRA data analysis.';
 
 
--- 6. Complaints Table
--- Stores user-submitted power issues and complaints.
+-- 6. Complaints table
 CREATE TABLE complaints (
     id SERIAL PRIMARY KEY,
-    submitted_by_id UUID REFERENCES users(id),
-    issue_type TEXT NOT NULL, -- 'power_outage', 'voltage_drop', 'sparking'
+    user_id UUID REFERENCES users(id),
+    issue_type TEXT NOT NULL,
     description TEXT,
     address TEXT,
     pincode TEXT,
     status TEXT DEFAULT 'Open', -- 'Open', 'In Progress', 'Resolved'
-    assigned_to_id UUID REFERENCES users(id), -- To assign to a field engineer
+    assigned_to_id UUID REFERENCES users(id),
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
-
-
--- 7. Audit Trail Table
--- Logs significant actions taken within the system.
-CREATE TABLE audit_trail (
-    id SERIAL PRIMARY KEY,
-    actor_id UUID REFERENCES users(id),
-    action TEXT NOT NULL, -- e.g., 'CREATE', 'UPDATE', 'ESCALATE'
-    target_type TEXT, -- e.g., 'Transformer', 'Note'
-    target_id TEXT,
-    details TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-
--- 8. Engineer Performance Table
--- Stores performance metrics for field engineers.
-CREATE TABLE engineer_performance (
-    id SERIAL PRIMARY KEY,
-    engineer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    faults_detected INTEGER DEFAULT 0,
-    reports_submitted INTEGER DEFAULT 0,
-    on_time_completion_rate FLOAT DEFAULT 100.0, -- As a percentage
-    avg_resolution_hours FLOAT,
-    period DATE NOT NULL -- To track performance over time (e.g., monthly)
-);
+COMMENT ON TABLE complaints IS 'Stores user-submitted power complaints.';
