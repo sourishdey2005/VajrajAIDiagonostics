@@ -69,7 +69,7 @@ export default function DashboardLayout({
     {
       href: '/dashboard/manager-complaints',
       icon: Megaphone,
-      label: 'Complaints',
+      label: 'User Complaints',
     },
     {
       href: '/dashboard/comparison',

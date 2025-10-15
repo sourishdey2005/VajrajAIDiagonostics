@@ -44,9 +44,9 @@ const issueTypes = [
 ]
 
 const statusColors: Record<Complaint['status'], string> = {
-    Open: "text-red-600 bg-red-100",
-    'In Progress': "text-yellow-600 bg-yellow-100",
-    Resolved: "text-green-600 bg-green-100"
+    Open: "text-red-600 bg-red-100 border-red-200",
+    'In Progress': "text-yellow-600 bg-yellow-100 border-yellow-200",
+    Resolved: "text-green-600 bg-green-100 border-green-200"
 }
 
 export default function ComplaintsPage() {
@@ -57,7 +57,6 @@ export default function ComplaintsPage() {
   const { complaints, addComplaint, userName } = useUserRole();
   const [isFetching, setIsFetching] = useState(true);
 
-  // For this prototype, we'll simulate the user owning the complaints they create
   const myComplaints = complaints.filter(c => c.submittedBy === userName);
 
   useEffect(() => {
@@ -78,7 +77,6 @@ export default function ComplaintsPage() {
     setAnalysisResult(null)
     setIsSubmitted(false)
     
-    // Simulate submitting to a backend
     startAnalyzing(() => {
       setTimeout(() => {
         if (data.issueType === 'power_outage' || data.issueType === 'sparking') {
@@ -91,6 +89,7 @@ export default function ComplaintsPage() {
             const newComplaint: Complaint = {
                 id: `COM-${String(complaints.length + 5).padStart(3, '0')}`,
                 ...data,
+                issueType: data.issueType as 'power_outage' | 'voltage_drop' | 'sparking',
                 zone: 'West',
                 timestamp: new Date().toISOString(),
                 status: 'Open',

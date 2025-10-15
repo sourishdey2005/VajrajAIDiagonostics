@@ -60,32 +60,24 @@ export default function AssignedComplaintsPage() {
     setIsClient(true)
     if (role !== "field_engineer") {
       router.replace("/dashboard")
+    } else {
+        setIsLoading(false);
     }
   }, [role, router])
 
   useEffect(() => {
     if (role === "field_engineer") {
-        setIsLoading(true);
         const openComplaints = complaints.filter(c => c.status === 'Open' || c.status === 'In Progress');
         setAssignedComplaints(openComplaints);
-        setIsLoading(false);
     }
   }, [role, complaints]);
 
   const handleStatusChange = (complaintId: string, newStatus: Complaint['status']) => {
       updateComplaintStatus(complaintId, newStatus);
-
       toast({
           title: "Status Updated",
           description: `Complaint #${complaintId.slice(-6)} has been updated to "${newStatus}".`
       });
-
-      // If resolved, remove from the list after a delay for a smoother UI transition
-      if (newStatus === 'Resolved') {
-          setTimeout(() => {
-              setAssignedComplaints(prev => prev.filter(c => c.id !== complaintId));
-          }, 500);
-      }
   }
 
   if (!isClient || role !== "field_engineer") {
@@ -135,9 +127,10 @@ export default function AssignedComplaintsPage() {
               <TableRow>
                 <TableHead>Issue</TableHead>
                 <TableHead>Location</TableHead>
-                <TableHead>Reported</TableHead>
+                <TableHead>Reported By</TableHead>
+                <TableHead>Reported Time</TableHead>
                 <TableHead>Description</TableHead>
-                <TableHead className="w-[150px]">Status</TableHead>
+                <TableHead className="w-[180px]">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -161,13 +154,16 @@ export default function AssignedComplaintsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
+                      {complaint.submittedBy || 'N/A'}
+                    </TableCell>
+                    <TableCell>
                       <span className="text-sm text-muted-foreground">
                         {formatDistanceToNow(parseISO(complaint.timestamp), {
                           addSuffix: true,
                         })}
                       </span>
                     </TableCell>
-                    <TableCell className="max-w-xs truncate">
+                    <TableCell className="max-w-[250px] truncate">
                       {complaint.description}
                     </TableCell>
                     <TableCell>
@@ -195,7 +191,7 @@ export default function AssignedComplaintsPage() {
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     className="h-24 text-center text-muted-foreground"
                   >
                     No open complaints at the moment.

@@ -60,7 +60,7 @@ export default function ManagerComplaintsPage() {
     if (role !== "manager") {
       router.replace("/dashboard")
     } else {
-        setTimeout(() => setIsLoading(false), 1000);
+        setTimeout(() => setIsLoading(false), 500);
     }
   }, [role, router])
 
@@ -104,13 +104,18 @@ export default function ManagerComplaintsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline flex items-center gap-3">
-          <Megaphone /> User Complaints
-        </h1>
-        <p className="text-muted-foreground">
-          Review and manage all user-reported issues across all operational areas.
-        </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+            <Megaphone className="w-10 h-10 text-primary" />
+            <div>
+                <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">
+                User Complaints
+                </h1>
+                <p className="text-muted-foreground">
+                Review and manage all user-reported issues across all operational areas.
+                </p>
+            </div>
+        </div>
       </div>
 
       <Card>
@@ -120,9 +125,10 @@ export default function ManagerComplaintsPage() {
               <TableRow>
                 <TableHead>Issue</TableHead>
                 <TableHead>Location</TableHead>
+                <TableHead>Submitted By</TableHead>
                 <TableHead>Reported</TableHead>
                 <TableHead>Description</TableHead>
-                <TableHead className="w-[150px]">Status</TableHead>
+                <TableHead className="w-[180px]">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -145,6 +151,9 @@ export default function ManagerComplaintsPage() {
                         </span>
                       </div>
                     </TableCell>
+                     <TableCell>
+                      {complaint.submittedBy || 'N/A'}
+                    </TableCell>
                     <TableCell>
                       <span className="text-sm text-muted-foreground">
                         {formatDistanceToNow(parseISO(complaint.timestamp), {
@@ -152,7 +161,7 @@ export default function ManagerComplaintsPage() {
                         })}
                       </span>
                     </TableCell>
-                    <TableCell className="max-w-xs truncate">
+                    <TableCell className="max-w-[250px] truncate">
                       {complaint.description}
                     </TableCell>
                     <TableCell>
@@ -180,7 +189,7 @@ export default function ManagerComplaintsPage() {
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     className="h-24 text-center text-muted-foreground"
                   >
                     No complaints have been reported yet.
