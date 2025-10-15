@@ -66,12 +66,9 @@ export default function AssignedComplaintsPage() {
   useEffect(() => {
     if (role === "field_engineer") {
         setIsLoading(true);
-        // Simulate fetching complaints
-        setTimeout(() => {
-            const openComplaints = complaints.filter(c => c.status === 'Open' || c.status === 'In Progress');
-            setAssignedComplaints(openComplaints);
-            setIsLoading(false);
-        }, 1000);
+        const openComplaints = complaints.filter(c => c.status === 'Open' || c.status === 'In Progress');
+        setAssignedComplaints(openComplaints);
+        setIsLoading(false);
     }
   }, [role, complaints]);
 
@@ -83,7 +80,7 @@ export default function AssignedComplaintsPage() {
           description: `Complaint #${complaintId.slice(-6)} has been updated to "${newStatus}".`
       });
 
-      // If resolved, remove from the list after a delay
+      // If resolved, remove from the list after a delay for a smoother UI transition
       if (newStatus === 'Resolved') {
           setTimeout(() => {
               setAssignedComplaints(prev => prev.filter(c => c.id !== complaintId));
