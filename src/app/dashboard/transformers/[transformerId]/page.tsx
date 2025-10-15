@@ -5,8 +5,10 @@
 import { useParams, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { format, parseISO } from 'date-fns'
-import { ArrowLeft, Zap, MapPin, Shield, Gauge, Calendar, User, Factory, Hash } from 'lucide-react'
-import { transformers } from "@/lib/data"
+import { ArrowLeft, Zap, MapPin, Shield, Gauge, Calendar, User, Factory, Hash, Loader2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabaseClient'
+import type { Transformer } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -21,14 +23,66 @@ import { cn } from '@/lib/utils'
 import { FaultProgressionChart } from './components/fault-progression-chart'
 import { LiveAnalysisChart } from './components/live-analysis-chart'
 import { CommunicationLog } from './components/communication-log'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function TransformerDetailPage() {
   const params = useParams()
   const transformerId = params.transformerId as string;
-  const transformer = transformers.find((t) => t.id === transformerId)
+  const [transformer, setTransformer] = useState<Transformer | null>(null)
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTransformer = async () => {
+        if (!transformerId) return;
+        setIsLoading(true);
+        const { data, error } = await supabase
+            .from('transformers')
+            .select('*')
+            .eq('id', transformerId)
+            .single();
+
+        if (error || !data) {
+            console.error("Error fetching transformer:", error);
+            setTransformer(null);
+        } else {
+            setTransformer(data as Transformer);
+        }
+        setIsLoading(false);
+    };
+
+    fetchTransformer();
+  }, [transformerId]);
+
+  if (isLoading) {
+      return (
+        <div className="flex flex-col gap-8">
+             <div className="flex items-center gap-4">
+                <Skeleton className="h-10 w-10" />
+                <div>
+                    <Skeleton className="h-10 w-64" />
+                    <Skeleton className="h-4 w-80 mt-2" />
+                </div>
+             </div>
+             <Skeleton className="h-64 w-full" />
+             <Skeleton className="h-96 w-full" />
+             <div className="grid md:grid-cols-5 gap-8">
+                <Skeleton className="h-96 md:col-span-3" />
+                <Skeleton className="h-96 md:col-span-2" />
+             </div>
+        </div>
+      )
+  }
 
   if (!transformer) {
-    notFound()
+    return (
+        <div className="flex flex-col items-center justify-center text-center py-20">
+            <h2 className="text-2xl font-bold">Transformer Not Found</h2>
+            <p className="text-muted-foreground">The transformer with ID <span className="font-mono">{transformerId}</span> could not be found.</p>
+            <Button asChild className="mt-4">
+                <Link href="/dashboard/transformers">Return to Fleet</Link>
+            </Button>
+        </div>
+    )
   }
 
   const detailItems = [
