@@ -5,7 +5,6 @@ import { useState, useEffect } from "react"
 import { useUserRole } from "@/contexts/user-role-context"
 import { useRouter } from "next/navigation"
 import {
-  complaintsData,
   Complaint,
 } from "@/lib/data"
 import {
@@ -50,11 +49,11 @@ const statusColors: Record<Complaint['status'], string> = {
 }
 
 export default function AssignedComplaintsPage() {
-  const { role } = useUserRole()
+  const { role, complaints, updateComplaintStatus } = useUserRole()
   const router = useRouter()
   const { toast } = useToast()
   const [isClient, setIsClient] = useState(false)
-  const [complaints, setComplaints] = useState<Complaint[]>([])
+  const [assignedComplaints, setAssignedComplaints] = useState<Complaint[]>([])
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -69,16 +68,15 @@ export default function AssignedComplaintsPage() {
         setIsLoading(true);
         // Simulate fetching complaints
         setTimeout(() => {
-            const openComplaints = complaintsData.filter(c => c.status === 'Open' || c.status === 'In Progress');
-            setComplaints(openComplaints);
+            const openComplaints = complaints.filter(c => c.status === 'Open' || c.status === 'In Progress');
+            setAssignedComplaints(openComplaints);
             setIsLoading(false);
         }, 1000);
     }
-  }, [role]);
+  }, [role, complaints]);
 
   const handleStatusChange = (complaintId: string, newStatus: Complaint['status']) => {
-      // Simulate API call
-      setComplaints(prev => prev.map(c => c.id === complaintId ? {...c, status: newStatus} : c));
+      updateComplaintStatus(complaintId, newStatus);
 
       toast({
           title: "Status Updated",
@@ -88,7 +86,7 @@ export default function AssignedComplaintsPage() {
       // If resolved, remove from the list after a delay
       if (newStatus === 'Resolved') {
           setTimeout(() => {
-              setComplaints(prev => prev.filter(c => c.id !== complaintId));
+              setAssignedComplaints(prev => prev.filter(c => c.id !== complaintId));
           }, 500);
       }
   }
@@ -146,8 +144,8 @@ export default function AssignedComplaintsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {complaints.length > 0 ? (
-                complaints.map((complaint) => (
+              {assignedComplaints.length > 0 ? (
+                assignedComplaints.map((complaint) => (
                   <TableRow key={complaint.id}>
                     <TableCell>
                       <div className="flex items-center gap-2">

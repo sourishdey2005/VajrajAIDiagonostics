@@ -21,7 +21,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Loader2, Send, PowerOff, SignalLow, Sparkles, BrainCircuit, CheckCircle, History } from "lucide-react"
-import { Complaint, complaintsData } from "@/lib/data"
+import { Complaint } from "@/lib/data"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { format, parseISO } from "date-fns"
@@ -54,18 +54,14 @@ export default function ComplaintsPage() {
   const [isAnalyzing, startAnalyzing] = useTransition()
   const [analysisResult, setAnalysisResult] = useState<string | null>(null)
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const [myComplaints, setMyComplaints] = useState<Complaint[]>([]);
-  const { userName } = useUserRole();
+  const { complaints, addComplaint } = useUserRole();
   const [isFetching, setIsFetching] = useState(true);
 
+  // For this prototype, we'll just show the first 2 complaints as "My Complaints"
+  const myComplaints = complaints.slice(0, 2);
+
   useEffect(() => {
-    setIsFetching(true);
-    // This is a simulation of fetching complaints for a logged-in user.
-    setTimeout(() => {
-      // Mocking which user is logged in by taking a slice
-      setMyComplaints(complaintsData.slice(0, 2));
-      setIsFetching(false);
-    }, 500);
+    setIsFetching(false);
   }, []);
 
   const form = useForm<ComplaintFormValues>({
@@ -93,13 +89,13 @@ export default function ComplaintsPage() {
         
         setTimeout(() => {
             const newComplaint: Complaint = {
-                id: `COM-${String(myComplaints.length + 5).padStart(3, '0')}`,
+                id: `COM-${String(complaints.length + 5).padStart(3, '0')}`,
                 ...data,
                 zone: 'West',
                 timestamp: new Date().toISOString(),
                 status: 'Open'
             }
-            setMyComplaints(prev => [newComplaint, ...prev]);
+            addComplaint(newComplaint);
             setIsSubmitted(true);
             toast({
               title: "Complaint Submitted Successfully",
