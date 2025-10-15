@@ -21,6 +21,7 @@ import {
   ClipboardList,
   BookOpen,
   Binary,
+  Megaphone,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -65,6 +66,11 @@ export default function DashboardLayout({
   ];
 
   const managerMenuItems = [
+    {
+      href: '/dashboard/manager-complaints',
+      icon: Megaphone,
+      label: 'Complaints',
+    },
     {
       href: '/dashboard/comparison',
       icon: GitCompareArrows,
