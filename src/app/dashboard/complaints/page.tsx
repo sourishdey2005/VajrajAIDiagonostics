@@ -26,6 +26,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { format, parseISO } from "date-fns"
 import { cn } from "@/lib/utils"
+import { supabase } from "@/lib/supabaseClient"
+import { useUserRole } from "@/contexts/user-role-context"
 
 const complaintSchema = z.object({
   issueType: z.string().min(1, "Please select an issue type."),
@@ -54,11 +56,29 @@ export default function ComplaintsPage() {
   const [analysisResult, setAnalysisResult] = useState<string | null>(null)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [myComplaints, setMyComplaints] = useState<Complaint[]>([]);
+  const { userName } = useUserRole();
+  const [isFetching, setIsFetching] = useState(true);
 
   useEffect(() => {
-    // Simulate fetching user's complaints. In a real app, this would be an API call.
-    setMyComplaints(complaintsData.slice(0, 2).map(c => ({...c, status: 'Open'}))); // Initialize with some open complaints for demo
-  }, []);
+    async function fetchComplaints() {
+        setIsFetching(true);
+        // This is a simulation of fetching complaints for a logged-in user.
+        // In a real app, you'd use the authenticated user's ID.
+        const { data, error } = await supabase
+            .from('complaints')
+            .select('*')
+            .order('timestamp', { ascending: false });
+
+        if (error) {
+            toast({ title: "Error", description: "Could not fetch your complaints.", variant: "destructive" });
+        } else {
+            // Mocking which user is logged in
+            setMyComplaints(data.slice(0, 2).map((c: any) => ({...c, status: 'Open'})) as Complaint[]);
+        }
+        setIsFetching(false);
+    }
+    fetchComplaints();
+  }, [toast]);
 
   const form = useForm<ComplaintFormValues>({
     resolver: zodResolver(complaintSchema),
@@ -70,9 +90,32 @@ export default function ComplaintsPage() {
     },
   })
 
-  function onSubmit(data: ComplaintFormValues) {
+  async function onSubmit(data: ComplaintFormValues) {
     setAnalysisResult(null)
     setIsSubmitted(false)
+    
+    // This is a new complaint object to be inserted
+    const newComplaint = {
+        issue_type: data.issueType,
+        description: data.description,
+        address: data.address,
+        pincode: data.pincode,
+        zone: 'West', // Mock zone
+        status: 'Open',
+        // In a real app, you'd associate this with the logged-in user's ID
+    };
+
+    const { data: insertedData, error } = await supabase
+        .from('complaints')
+        .insert(newComplaint)
+        .select()
+        .single();
+    
+    if (error) {
+        toast({ title: "Submission Failed", description: "Could not file your complaint.", variant: "destructive" });
+        return;
+    }
+
     startAnalyzing(() => {
       setTimeout(() => {
         if (data.issueType === 'power_outage' || data.issueType === 'sparking') {
@@ -82,21 +125,11 @@ export default function ComplaintsPage() {
         }
         
         setTimeout(() => {
-            const newComplaint: Complaint = {
-                id: `COMP-${Date.now().toString().slice(-6)}`,
-                issueType: data.issueType as Complaint['issueType'],
-                description: data.description,
-                address: data.address,
-                pincode: data.pincode,
-                zone: 'West', // Mock zone
-                timestamp: new Date().toISOString(),
-                status: 'Open'
-            };
-            setMyComplaints(prev => [newComplaint, ...prev]);
+            setMyComplaints(prev => [insertedData as unknown as Complaint, ...prev]);
             setIsSubmitted(true);
             toast({
               title: "Complaint Submitted Successfully",
-              description: `Your complaint #${newComplaint.id} has been filed.`,
+              description: `Your complaint #${(insertedData.id as string).slice(-6)} has been filed.`,
               className: "bg-green-100 border-green-200 text-green-800"
             });
             form.reset({
@@ -225,7 +258,11 @@ export default function ComplaintsPage() {
                 <CardDescription>Track the status of your submitted complaints.</CardDescription>
             </CardHeader>
             <CardContent>
-                {myComplaints.length > 0 ? (
+                {isFetching ? (
+                    <div className="flex justify-center items-center h-24">
+                        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                    </div>
+                ) : myComplaints.length > 0 ? (
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -259,3 +296,5 @@ export default function ComplaintsPage() {
     </div>
   )
 }
+
+    

@@ -5,8 +5,6 @@ import { useState, useEffect } from "react"
 import { useUserRole } from "@/contexts/user-role-context"
 import { useRouter } from "next/navigation"
 import {
-  complaintsData as initialComplaints,
-  engineerZones,
   Complaint,
 } from "@/lib/data"
 import {
@@ -33,9 +31,11 @@ import {
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { PowerOff, SignalLow, Sparkles } from "lucide-react"
+import { PowerOff, SignalLow, Sparkles, Loader2 } from "lucide-react"
 import { formatDistanceToNow, parseISO } from "date-fns"
 import { useToast } from "@/hooks/use-toast"
+import { supabase } from "@/lib/supabaseClient"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const issueIcons = {
   power_outage: <PowerOff className="w-4 h-4" />,
@@ -43,18 +43,19 @@ const issueIcons = {
   sparking: <Sparkles className="w-4 h-4" />,
 }
 
-const statusColors = {
+const statusColors: Record<Complaint['status'], string> = {
     Open: "bg-red-100 text-red-800 border-red-200",
     'In Progress': "bg-yellow-100 text-yellow-800 border-yellow-200",
     Resolved: "bg-green-100 text-green-800 border-green-200"
 }
 
 export default function AssignedComplaintsPage() {
-  const { role, userName } = useUserRole()
+  const { role } = useUserRole()
   const router = useRouter()
   const { toast } = useToast()
   const [isClient, setIsClient] = useState(false)
-  const [complaints, setComplaints] = useState<Complaint[]>(initialComplaints)
+  const [complaints, setComplaints] = useState<Complaint[]>([])
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsClient(true)
@@ -63,20 +64,80 @@ export default function AssignedComplaintsPage() {
     }
   }, [role, router])
 
-  const assignedComplaints = complaints.filter(
-    (c) => c.status !== "Resolved"
-  ).sort((a,b) => parseISO(b.timestamp).getTime() - parseISO(a.timestamp).getTime())
+  useEffect(() => {
+    if (role === "field_engineer") {
+        const fetchComplaints = async () => {
+            setIsLoading(true);
+            const { data, error } = await supabase
+                .from('complaints')
+                .select('*')
+                .in('status', ['Open', 'In Progress'])
+                .order('timestamp', { ascending: false });
 
-  const handleStatusChange = (complaintId: string, newStatus: Complaint['status']) => {
-      setComplaints(prev => prev.map(c => c.id === complaintId ? { ...c, status: newStatus } : c));
-      toast({
-          title: "Status Updated",
-          description: `Complaint #${complaintId.slice(-6)} has been updated to "${newStatus}".`
-      })
+            if (error) {
+                toast({ title: "Error", description: "Could not fetch complaints.", variant: "destructive" });
+            } else {
+                setComplaints(data as unknown as Complaint[]);
+            }
+            setIsLoading(false);
+        };
+        fetchComplaints();
+    }
+  }, [role, toast]);
+
+  const handleStatusChange = async (complaintId: string, newStatus: Complaint['status']) => {
+      const originalComplaints = [...complaints];
+      
+      const updatedComplaints = complaints.map(c => c.id === complaintId ? { ...c, status: newStatus } : c);
+      setComplaints(updatedComplaints);
+
+      const { error } = await supabase
+        .from('complaints')
+        .update({ status: newStatus })
+        .eq('id', complaintId);
+
+      if (error) {
+          setComplaints(originalComplaints);
+          toast({ title: "Update Failed", description: "Could not update the complaint status.", variant: "destructive" });
+      } else {
+          toast({
+              title: "Status Updated",
+              description: `Complaint #${complaintId.slice(-6)} has been updated to "${newStatus}".`
+          });
+          // If resolved, remove from the list
+          if (newStatus === 'Resolved') {
+              setComplaints(prev => prev.filter(c => c.id !== complaintId));
+          }
+      }
   }
 
   if (!isClient || role !== "field_engineer") {
-    return null // or a loading skeleton
+    return null
+  }
+  
+  if (isLoading) {
+    return (
+       <div className="flex flex-col gap-8">
+            <div>
+                <h1 className="text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl font-headline">
+                    Open Complaints
+                </h1>
+                <p className="text-muted-foreground">
+                    All active user-reported issues across all operational areas.
+                </p>
+            </div>
+            <Card>
+                <CardContent className="p-6 space-y-2">
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <div className="flex items-center justify-center pt-8">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      <p className="ml-4 text-muted-foreground">Fetching assigned complaints...</p>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    )
   }
 
   return (
@@ -103,8 +164,8 @@ export default function AssignedComplaintsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {assignedComplaints.length > 0 ? (
-                assignedComplaints.map((complaint) => (
+              {complaints.length > 0 ? (
+                complaints.map((complaint) => (
                   <TableRow key={complaint.id}>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -171,3 +232,5 @@ export default function AssignedComplaintsPage() {
     </div>
   )
 }
+
+    
