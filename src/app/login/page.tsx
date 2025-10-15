@@ -19,7 +19,7 @@ import { recognizeRoleCommand } from '@/ai/flows/recognize-role-command';
 
 const rolePasswords: Record<Role, string> = {
     manager: 'vajra-manager',
-    field_engineer: 'vajra-engineer', // Default password for pre-defined engineer
+    field_engineer: 'vajra-engineer',
     user: 'vajra-user'
 }
 
@@ -30,7 +30,7 @@ export default function LoginPage() {
   const [selectedRole, setSelectedRole] = useState<Role>('manager');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [email, setEmail] = useState('manager@vajra.ai');
+  const [email, setEmail] = useState('engineer@vajra.ai');
   const [name, setName] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, startTransition] = useTransition();
@@ -46,7 +46,7 @@ export default function LoginPage() {
     let isAuthenticated = false;
 
     if (selectedRole === 'manager') {
-        if (email === 'manager@vajra.ai' && password === rolePasswords.manager) {
+        if (email === 'engineer@vajra.ai' && password === rolePasswords.manager) {
             defaultName = 'Rohan Sharma';
             isAuthenticated = true;
         }
@@ -382,7 +382,7 @@ export default function LoginPage() {
             alt={loginHeroImage.description}
             fill
             className="object-cover"
-            data-ai-hint={loginHeroImage.imageHint}
+            data-ai-hint={loginHeroeImage.imageHint}
             />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -394,3 +394,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    
