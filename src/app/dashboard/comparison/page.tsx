@@ -12,7 +12,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { X, Calendar, Zap, Gauge, AlertTriangle, Shield, TrendingUp, History, ChevronDown, Loader2 } from "lucide-react"
-import { Transformer, HealthHistory, FaultHistory, transformers, healthHistory, faultHistory } from "@/lib/data"
+import { Transformer, HealthHistory, FaultHistory as FaultHistoryType, transformers, healthHistory, faultHistory } from "@/lib/data"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
