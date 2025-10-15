@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useUserRole, type Role } from '@/contexts/user-role-context';
 import { VajraIcon, GoogleIcon, AppleIcon } from '@/components/icons';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Mic, MicOff, Loader2 } from 'lucide-react';
+import { Mic, MicOff, Loader2, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { recognizeRoleCommand } from '@/ai/flows/recognize-role-command';
 
@@ -55,13 +55,11 @@ export default function LoginPage() {
             isAuthenticated = true;
         }
     } else if (selectedRole === 'field_engineer') {
-        // Check against dynamically created engineers first
         const dynamicEngineer = fieldEngineers.find(eng => eng.email === email && eng.password === password);
         if (dynamicEngineer) {
             defaultName = dynamicEngineer.name;
             isAuthenticated = true;
         } 
-        // Fallback to the default hardcoded engineer
         else if (email === 'engineer@vajra.ai' && password === rolePasswords.field_engineer) {
             defaultName = 'Priya Sharma';
             isAuthenticated = true;
@@ -165,7 +163,6 @@ export default function LoginPage() {
         description: "Speak your role (e.g., 'Log in as a manager').",
       });
 
-      // Stop recording after 4 seconds
       setTimeout(() => {
         stopRecording();
       }, 4000);
@@ -390,7 +387,30 @@ export default function LoginPage() {
             <h2 className="text-4xl font-bold font-headline">Intelligent Diagnostics. Actionable Insights.</h2>
             <p className="text-lg mt-2 max-w-2xl">VajraAI leverages state-of-the-art AI to predict and diagnose transformer faults before they become critical.</p>
         </div>
+        <Card className="absolute bottom-10 left-10 text-sm text-card-foreground bg-card/80 backdrop-blur-sm w-[360px]">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <Info className="w-5 h-5 text-primary" />
+                    Demo Credentials
+                </CardTitle>
+                <CardDescription>Use these credentials to explore different roles.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div>
+                    <h3 className="font-semibold">Manager Role</h3>
+                    <p className="font-mono text-xs">Email: <span className="text-primary">engineer@vajra.ai</span></p>
+                    <p className="font-mono text-xs">Password: <span className="text-primary">vajra-manager</span></p>
+                </div>
+                 <div>
+                    <h3 className="font-semibold">Field Engineer Role</h3>
+                    <p className="font-mono text-xs">Email: <span className="text-primary">engineer@vajra.ai</span></p>
+                    <p className="font-mono text-xs">Password: <span className="text-primary">vajra-engineer</span></p>
+                </div>
+            </CardContent>
+        </Card>
       </div>
     </div>
   );
 }
+
+    
