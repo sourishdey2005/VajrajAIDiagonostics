@@ -120,6 +120,8 @@ export default function DigitalTwinPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedTransformerId, setSelectedTransformerId] = useState<string>('TR-001');
     const [transformers, setTransformers] = useState<Transformer[]>([]);
+    
+    const [liveData, setLiveData] = useState({ temp: 78, voltage: 229, load: 85 });
 
     useEffect(() => {
         setIsClient(true);
@@ -141,6 +143,25 @@ export default function DigitalTwinPage() {
     const selectedTransformer = useMemo(() => {
         return transformers.find(t => t.id === selectedTransformerId);
     }, [selectedTransformerId, transformers]);
+
+    useEffect(() => {
+        if (!selectedTransformer) return;
+
+        const baseTemp = selectedTransformer.status === 'Needs Attention' ? 88 : 78;
+        const baseVoltage = selectedTransformer.status === 'Needs Attention' ? 225 : 229;
+
+        const interval = setInterval(() => {
+            setLiveData({
+                temp: baseTemp + (Math.random() - 0.5) * 4,
+                voltage: baseVoltage + (Math.random() - 0.5) * 3,
+                load: selectedTransformer.load + (Math.random() - 0.5) * 2,
+            });
+        }, 2000);
+
+        return () => clearInterval(interval);
+
+    }, [selectedTransformer]);
+
 
     if (!isClient || role !== 'manager') {
         return null;
@@ -197,15 +218,15 @@ export default function DigitalTwinPage() {
                                 </div>
                                 <div className="flex justify-between items-center border-b pb-2">
                                     <span className="flex items-center gap-2 text-muted-foreground"><Thermometer /> Temperature</span>
-                                    <span className="font-bold">78°C</span>
+                                    <span className="font-bold">{liveData.temp.toFixed(1)}°C</span>
                                 </div>
                                 <div className="flex justify-between items-center border-b pb-2">
                                     <span className="flex items-center gap-2 text-muted-foreground"><Zap /> Voltage</span>
-                                    <span className="font-bold">229V</span>
+                                    <span className="font-bold">{liveData.voltage.toFixed(1)}V</span>
                                 </div>
                                  <div className="flex justify-between items-center">
                                     <span className="flex items-center gap-2 text-muted-foreground"><Gauge /> Load</span>
-                                    <span className="font-bold">{selectedTransformer.load}%</span>
+                                    <span className="font-bold">{liveData.load.toFixed(1)}%</span>
                                 </div>
                             </div>
                         </CardContent>
