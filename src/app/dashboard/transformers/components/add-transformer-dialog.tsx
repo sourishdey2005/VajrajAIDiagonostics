@@ -45,6 +45,7 @@ const transformerSchema = z.object({
   location: z.string().min(2, "Location is required."),
   latitude: z.coerce.number().min(0).max(100),
   longitude: z.coerce.number().min(0).max(100),
+  zone: z.enum(["North", "South", "East", "West"]),
   criticality: z.enum(["High", "Medium", "Low"]),
   load: z.coerce.number().min(0, "Load cannot be negative.").max(100, "Load must be 100% or less."),
   manufacturer: z.string().min(2, "Manufacturer is required."),
@@ -58,7 +59,7 @@ type TransformerFormValues = z.infer<typeof transformerSchema>
 interface AddTransformerDialogProps {
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
-  onAddTransformer: (data: TransformerFormValues) => void
+  onAddTransformer: (data: Omit<TransformerFormValues, 'last_inspection' | 'nextServiceDate'> & { last_inspection: string, nextServiceDate: string }) => void
 }
 
 export function AddTransformerDialog({ isOpen, onOpenChange, onAddTransformer }: AddTransformerDialogProps) {
@@ -69,6 +70,7 @@ export function AddTransformerDialog({ isOpen, onOpenChange, onAddTransformer }:
       location: "",
       latitude: 50,
       longitude: 50,
+      zone: "West",
       criticality: "Medium",
       load: 75,
       manufacturer: "",
@@ -77,9 +79,14 @@ export function AddTransformerDialog({ isOpen, onOpenChange, onAddTransformer }:
   })
 
   function onSubmit(data: TransformerFormValues) {
-    onAddTransformer(data)
-    form.reset()
-    onOpenChange(false)
+    const formattedData = {
+        ...data,
+        last_inspection: format(data.last_inspection, 'yyyy-MM-dd'),
+        nextServiceDate: format(data.nextServiceDate, 'yyyy-MM-dd')
+    };
+    onAddTransformer(formattedData);
+    form.reset();
+    onOpenChange(false);
   }
 
   return (
@@ -143,6 +150,29 @@ export function AddTransformerDialog({ isOpen, onOpenChange, onAddTransformer }:
                     <Input type="number" placeholder="e.g., 20" {...field} />
                   </FormControl>
                    <FormDescription>Horizontal position on map (0-100).</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="zone"
+              render={({ field }) => (
+                 <FormItem>
+                  <FormLabel>Zone</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select grid zone" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="North">North</SelectItem>
+                      <SelectItem value="South">South</SelectItem>
+                      <SelectItem value="East">East</SelectItem>
+                      <SelectItem value="West">West</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

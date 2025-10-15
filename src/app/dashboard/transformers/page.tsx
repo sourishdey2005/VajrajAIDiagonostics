@@ -19,56 +19,87 @@ import {
 import { transformers as initialTransformers } from "@/lib/data"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { PlusCircle, MoreHorizontal, Eye } from "lucide-react"
+import { PlusCircle, MoreHorizontal, Eye, Loader2 } from "lucide-react"
 import { AddTransformerDialog } from "./components/add-transformer-dialog"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { supabase } from "@/lib/supabaseClient"
+import { useToast } from "@/hooks/use-toast"
+import { Skeleton } from "@/components/ui/skeleton"
 
 type Transformer = typeof initialTransformers[0];
 
 export default function TransformersPage() {
   const [transformers, setTransformers] = useState<Transformer[]>([]);
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
-  const [isClient, setIsClient] = useState(false)
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
-    setIsClient(true)
-    try {
-      const storedTransformers = localStorage.getItem("transformers");
-      if (storedTransformers) {
-        setTransformers(JSON.parse(storedTransformers));
+    const fetchTransformers = async () => {
+      setIsLoading(true);
+      const { data, error } = await supabase.from('transformers').select('*').order('id', { ascending: true });
+      if (error) {
+        console.error("Error fetching transformers:", error);
+        toast({
+          title: "Error fetching data",
+          description: "Could not load transformer data from the database.",
+          variant: "destructive"
+        });
+        setTransformers([]);
       } else {
-        setTransformers(initialTransformers);
+        setTransformers(data as Transformer[]);
       }
-    } catch (error) {
-        // If we are on the server or localStorage is disabled, fall back to initial data
-        setTransformers(initialTransformers);
-    }
-  }, []);
+      setIsLoading(false);
+    };
 
-  useEffect(() => {
-    if (isClient) {
-        try {
-            localStorage.setItem("transformers", JSON.stringify(transformers));
-        } catch (error) {
-            console.error("Could not save transformers to localStorage", error);
-        }
-    }
-  }, [transformers, isClient]);
+    fetchTransformers();
+  }, [toast]);
 
-  const handleAddTransformer = (data: Omit<Transformer, 'id' | 'status'> & { last_inspection: Date, nextServiceDate: Date }) => {
-    const newId = `TR-${String(transformers.length + 1).padStart(3, '0')}`;
-    const newTransformer: Transformer = {
+
+  const handleAddTransformer = async (data: Omit<Transformer, 'id' | 'status'> & { last_inspection: string, nextServiceDate: string }) => {
+    const { data: maxIdData, error: maxIdError } = await supabase
+      .from('transformers')
+      .select('id')
+      .order('id', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (maxIdError && maxIdError.code !== 'PGRST116') { // Ignore 'range not found' error for empty table
+      console.error('Error fetching max ID:', maxIdError);
+      return;
+    }
+    
+    const nextIdNumber = maxIdData ? parseInt(maxIdData.id.split('-')[1]) + 1 : 1;
+    const newId = `TR-${String(nextIdNumber).padStart(3, '0')}`;
+    
+    const newTransformer = {
       ...data,
       id: newId,
-      status: 'Operational',
-      last_inspection: format(data.last_inspection, 'yyyy-MM-dd'),
-      nextServiceDate: format(data.nextServiceDate, 'yyyy-MM-dd'),
+      status: 'Operational'
+    };
+
+    const { data: insertedData, error } = await supabase
+      .from('transformers')
+      .insert([newTransformer])
+      .select();
+
+    if (error) {
+        console.error("Error adding transformer:", error);
+         toast({
+          title: "Database Error",
+          description: "Could not save the new transformer.",
+          variant: "destructive"
+        });
+    } else if (insertedData) {
+        setTransformers(prev => [insertedData[0] as Transformer, ...prev]);
+        toast({
+          title: "Transformer Added",
+          description: `${insertedData[0].name} has been successfully added to the fleet.`,
+        });
     }
-    setTransformers(prev => [newTransformer, ...prev]);
   }
 
-  if (!isClient) {
-      // Render a skeleton or loading state on the server to avoid hydration mismatch
+  if (isLoading) {
       return (
         <div className="flex flex-col gap-8">
             <div className="flex items-center justify-between">
@@ -81,8 +112,15 @@ export default function TransformersPage() {
                 <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Transformer</Button>
             </div>
             <Card>
-                <CardContent className="p-6">
-                    <div className="h-96 w-full animate-pulse rounded-md bg-muted"></div>
+                <CardContent className="p-6 space-y-2">
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <div className="flex items-center justify-center pt-8">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      <p className="ml-4 text-muted-foreground">Connecting to the database...</p>
+                    </div>
                 </CardContent>
             </Card>
         </div>
@@ -189,6 +227,13 @@ export default function TransformersPage() {
                   </TableCell>
                 </TableRow>
               ))}
+               {transformers.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={11} className="h-24 text-center">
+                    No transformers found in the database.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
