@@ -1,5 +1,4 @@
 
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -295,10 +294,15 @@ function EmergencyContactsCard() {
 
 export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
-  const { role, userName } = useUserRole();
+  const { role, userName, setUserName } = useUserRole();
   const { toast } = useToast()
 
   const [transformers, setTransformers] = useState<Transformer[]>([]);
+  const [profileName, setProfileName] = useState(userName);
+
+  useEffect(() => {
+    setProfileName(userName);
+  }, [userName]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -472,6 +476,9 @@ export default function DashboardPage() {
   
   const handleProfileSubmit = (e: React.FormEvent) => {
       e.preventDefault()
+      if (profileName) {
+        setUserName(profileName);
+      }
       toast({
           title: "Details Saved",
           description: "Your information has been updated successfully.",
@@ -547,7 +554,7 @@ export default function DashboardPage() {
                         <Label htmlFor="pincode">Pincode</Label>
                         <Input id="pincode" placeholder="e.g., 400050" required />
                         </div>
-                        <div className="grid gap-2 md:col-span-2">
+                         <div className="grid gap-2 md:col-span-2">
                         <Label htmlFor="district">District</Label>
                         <Input id="district" placeholder="e.g., Mumbai" required />
                         </div>
