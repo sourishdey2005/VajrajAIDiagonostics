@@ -1,13 +1,16 @@
 
+
 "use client"
 
 import { useState, useEffect } from "react"
 import { MapView } from "./components/map-view"
-import { transformers as initialTransformers, Transformer } from "@/lib/data"
+import { type Transformer } from "@/lib/data"
+import { supabase } from "@/lib/supabaseClient"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { MapControls } from "./components/map-controls"
 import { addMonths, isBefore, isAfter } from "date-fns"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useToast } from "@/hooks/use-toast"
 
 export type HealthStatus = 'All' | 'Healthy' | 'Warning' | 'Critical';
 export type Zone = 'All' | 'North' | 'South' | 'East' | 'West';
@@ -30,31 +33,33 @@ export const getMaintenanceStatus = (nextServiceDate: string): Exclude<Maintenan
 };
 
 export default function MapViewPage() {
-  const [allTransformers, setAllTransformers] = useState<Transformer[]>(initialTransformers);
-  const [filteredTransformers, setFilteredTransformers] = useState<Transformer[]>(initialTransformers);
-  const [isClient, setIsClient] = useState(false)
+  const [allTransformers, setAllTransformers] = useState<Transformer[]>([]);
+  const [filteredTransformers, setFilteredTransformers] = useState<Transformer[]>([]);
+  const [isLoading, setIsLoading] = useState(true)
   const [filters, setFilters] = useState({
     health: 'All' as HealthStatus,
     zone: 'All' as Zone,
     maintenance: 'All' as MaintenanceStatus,
   });
+  const { toast } = useToast();
 
   useEffect(() => {
-    setIsClient(true)
-    try {
-      const storedTransformers = localStorage.getItem("transformers");
-      if (storedTransformers) {
-        const parsed = JSON.parse(storedTransformers);
-        setAllTransformers(parsed);
+    const fetchTransformers = async () => {
+      setIsLoading(true);
+      const { data, error } = await supabase.from('transformers').select('*');
+      if (error) {
+        console.error("Error fetching transformers:", error);
+        toast({ title: "Error", description: "Could not fetch transformer data.", variant: "destructive" });
+      } else {
+        setAllTransformers(data as Transformer[]);
+        setFilteredTransformers(data as Transformer[]);
       }
-    } catch (error) {
-      console.error("Could not load transformers from localStorage", error);
-    }
-  }, []);
+      setIsLoading(false);
+    };
+    fetchTransformers();
+  }, [toast]);
 
   useEffect(() => {
-    if (!isClient) return;
-
     let transformersToFilter = allTransformers;
 
     if (filters.health !== 'All') {
@@ -71,9 +76,9 @@ export default function MapViewPage() {
 
     setFilteredTransformers(transformersToFilter);
 
-  }, [filters, allTransformers, isClient]);
+  }, [filters, allTransformers]);
 
-  if (!isClient) {
+  if (isLoading) {
     return (
       <div className="flex flex-col gap-8">
         <div>
